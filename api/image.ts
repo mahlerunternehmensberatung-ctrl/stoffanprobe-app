@@ -34,26 +34,16 @@ const getCategoryName = (preset: string | undefined): string => {
 };
 
 /**
- * Builds a photorealistic prompt for texture transfer
- * Format: "A photorealistic photo of the provided room. The [category] has been replaced..."
+ * Builds a prompt for Nano Banana Pro Edit when pattern image is available
+ * Format: "Apply the pattern from the second image onto the [category] in the first image..."
  */
-const buildPhotorealisticPrompt = (
+const buildPromptWithPattern = (
   preset: string | undefined,
-  textHint: string | undefined,
-  hasPatternImage: boolean
+  textHint: string | undefined
 ): string => {
   const category = getCategoryName(preset);
   
-  // Describe the pattern
-  let patternDescription = '';
-  if (hasPatternImage) {
-    patternDescription = 'the pattern texture from the provided sample image';
-  } else {
-    patternDescription = 'the specified pattern texture';
-  }
-  
-  // Business-logic prompt format
-  let prompt = `A photorealistic photo of the provided room. The ${category} has been replaced with ${patternDescription}. The rest of the room (furniture, walls, lighting) remains UNCHANGED.`;
+  let prompt = `Apply the pattern from the second image onto the ${category} in the first image. Keep the rest of the first image exactly as it is. Photorealistic, high quality.`;
   
   // Add user hint if provided
   if (textHint && textHint.trim()) {
@@ -64,19 +54,18 @@ const buildPhotorealisticPrompt = (
 };
 
 /**
- * Builds a photorealistic wall color prompt
+ * Builds a prompt for Nano Banana Pro Edit when NO pattern image is available
+ * Format: "Change the [category] in the image to be [description]..."
  */
-const buildPhotorealisticWallColorPrompt = (
-  wallColor: { name: string; code: string } | undefined,
+const buildPromptWithoutPattern = (
+  preset: string | undefined,
   textHint: string | undefined
 ): string => {
-  let colorDescription = 'the specified color';
-  if (wallColor) {
-    colorDescription = `${wallColor.name} (RAL ${wallColor.code})`;
-  }
+  const category = getCategoryName(preset);
   
-  let prompt = `A photorealistic photo of the provided room. The walls have been painted ${colorDescription}. The rest of the room (furniture, lighting) remains UNCHANGED.`;
+  let prompt = `Change the ${category} in the image to be the specified pattern texture. Keep the rest of the room unchanged.`;
   
+  // Add user hint if provided
   if (textHint && textHint.trim()) {
     prompt += ` Additional instruction: "${textHint.trim()}"`;
   }
@@ -85,107 +74,24 @@ const buildPhotorealisticWallColorPrompt = (
 };
 
 /**
- * Attempts to use Google Imagen 3 (Nano Banana equivalent) via Fal.ai
- * Returns null if model is not available or fails
+ * Builds a prompt for wall color changes
  */
-const tryImagen3 = async (
-  prompt: string,
-  roomImage: string,
-  patternImage: string | undefined
-): Promise<string | null> => {
-  try {
-    // Try Google Imagen 3 models on Fal.ai
-    // Common model IDs: 'fal-ai/imagen3', 'google/imagen-3', etc.
-    const imagenModels = [
-      'fal-ai/imagen3',
-      'google/imagen-3',
-      'fal-ai/google-imagen3',
-    ];
-
-    for (const modelId of imagenModels) {
-      try {
-        const input: any = {
-          prompt: prompt,
-          image_url: roomImage, // Source image (room)
-        };
-
-        // Add pattern image if available
-        if (patternImage) {
-          // Try different parameter names for reference images
-          input.reference_image_url = patternImage;
-          input.control_image_url = patternImage;
-          input.source_image = patternImage;
-        }
-
-        const result = await fal.subscribe(modelId, {
-          input: input,
-        });
-
-        const apiResult = result as FalApiResponse;
-        const imageUrl = apiResult.images?.[0]?.url || apiResult.image?.url || '';
-
-        if (imageUrl) {
-          console.log(`Successfully used ${modelId}`);
-          return imageUrl;
-        }
-      } catch (error: any) {
-        // Model not available or failed, try next one
-        console.log(`Model ${modelId} not available or failed:`, error.message);
-        continue;
-      }
-    }
-
-    return null;
-  } catch (error) {
-    console.warn('Imagen 3 attempt failed:', error);
-    return null;
+const buildWallColorPrompt = (
+  wallColor: { name: string; code: string } | undefined,
+  textHint: string | undefined
+): string => {
+  let colorDescription = 'the specified color';
+  if (wallColor) {
+    colorDescription = `${wallColor.name} (RAL ${wallColor.code})`;
   }
-};
-
-/**
- * Uses Flux Image-to-Image with STRICT parameters to prevent hallucination
- */
-const useFluxImageToImage = async (
-  prompt: string,
-  roomImage: string,
-  patternImage: string | undefined
-): Promise<string> => {
-  // Build input with STRICT parameters against hallucination
-  const input: any = {
-    prompt: prompt,
-    image_url: roomImage, // MANDATORY: Original room photo (HEILIG)
-    strength: 0.7, // CRITICAL: 0.65-0.75 range to prevent hallucination
-                  // Higher values (>0.75) cause the AI to paint a new room
-                  // Lower values (<0.65) may not apply texture changes
-    num_inference_steps: 30,
-    guidance_scale: 7.5,
-    seed: null,
-  };
-
-  // Add pattern image as reference (KEY - must not be ignored!)
-  if (patternImage) {
-    // Try multiple parameter names to ensure pattern is used
-    input.control_image_url = patternImage;
-    input.reference_image_url = patternImage;
-    input.image_to_image_url = patternImage;
-    input.mask_image_url = patternImage;
-  }
-
-  // Use flux/dev/image-to-image (NOT text-to-image!)
-  const modelId = 'fal-ai/flux/dev/image-to-image';
   
-  const result = await fal.subscribe(modelId, {
-    input: input,
-  });
-
-  const apiResult = result as FalApiResponse;
-  const imageUrl = apiResult.images?.[0]?.url || apiResult.image?.url || '';
-
-  if (!imageUrl) {
-    throw new Error('No image URL returned from Flux API');
+  let prompt = `Change the walls in the image to be painted ${colorDescription}. Keep the rest of the room unchanged.`;
+  
+  if (textHint && textHint.trim()) {
+    prompt += ` Additional instruction: "${textHint.trim()}"`;
   }
-
-  return imageUrl;
+  
+  return prompt;
 };
 
 export async function POST(request: Request) {
@@ -207,42 +113,50 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build the photorealistic prompt based on mode
+    // Build image_urls array: roomImage first, patternImage second (if available)
+    // CRITICAL: This model expects image_urls (plural!) as an array
+    const imageUrls: string[] = [roomImage];
+    if (patternImage) {
+      imageUrls.push(patternImage);
+    }
+
+    // Build the appropriate prompt based on mode and available images
     let finalPrompt = prompt;
     
     if (!finalPrompt) {
-      // Generate photorealistic prompt if not provided
       if (mode === 'pattern') {
-        finalPrompt = buildPhotorealisticPrompt(preset, textHint, !!patternImage);
+        if (patternImage) {
+          // Pattern image available: Use "Apply pattern from second image" format
+          finalPrompt = buildPromptWithPattern(preset, textHint);
+        } else {
+          // No pattern image: Use generic description
+          finalPrompt = buildPromptWithoutPattern(preset, textHint);
+        }
       } else if (mode === 'creativeWallColor') {
-        finalPrompt = buildPhotorealisticWallColorPrompt(wallColor, textHint);
+        finalPrompt = buildWallColorPrompt(wallColor, textHint);
       } else {
         // Fallback
-        finalPrompt = buildPhotorealisticPrompt(preset, textHint, !!patternImage);
+        finalPrompt = buildPromptWithoutPattern(preset, textHint);
       }
     }
 
-    let imageUrl: string;
+    // Use Nano Banana Pro Edit model
+    // This model understands multiple input images and complex edit instructions
+    const result = await fal.subscribe('fal-ai/nano-banana-pro/edit', {
+      input: {
+        prompt: finalPrompt,
+        image_urls: imageUrls.filter(Boolean), // Send both images! Filter removes any undefined/null values
+        sync_mode: true,
+      },
+      logs: true,
+    });
 
-    // PRIORITY 1: Try Google Imagen 3 (Nano Banana equivalent) first
-    // This is the customer-confirmed best quality model
-    if (mode === 'pattern' && patternImage) {
-      const imagenResult = await tryImagen3(finalPrompt, roomImage, patternImage);
-      if (imagenResult) {
-        imageUrl = imagenResult;
-      } else {
-        // FALLBACK: Use Flux with STRICT parameters
-        console.log('Imagen 3 not available, falling back to Flux with strict parameters');
-        imageUrl = await useFluxImageToImage(finalPrompt, roomImage, patternImage);
-      }
-    } else {
-      // For wall color or other modes, use Flux directly
-      // (Imagen 3 may not support all modes)
-      imageUrl = await useFluxImageToImage(finalPrompt, roomImage, patternImage);
-    }
+    // Extract image URL from result
+    const apiResult = result as FalApiResponse;
+    const imageUrl = apiResult.images?.[0]?.url || apiResult.image?.url || '';
 
     if (!imageUrl) {
-      throw new Error('No image URL returned from API');
+      throw new Error('No image URL returned from Nano Banana Pro API');
     }
 
     return new Response(
