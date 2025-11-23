@@ -50,7 +50,13 @@ const Workspace: React.FC<WorkspaceProps> = ({
   const [visualizationMode, setVisualizationMode] = useState<VisualizationMode | null>(null);
 
   const handleTranscript = useCallback((text: string) => {
-      setTextHint(prev => prev + text);
+      // Append text with space if there's existing text
+      setTextHint(prev => {
+        if (prev.trim() && text.trim()) {
+          return prev + text;
+        }
+        return prev + text;
+      });
   }, []);
 
   const handleSpeechError = useCallback((err: string) => {
@@ -357,7 +363,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                       </p>
 
                       <form onSubmit={handleFormSubmit} className="relative">
-                          <div className="flex items-start gap-3">
+                          <div className="relative flex items-start">
                               <textarea
                                   id="hint-textarea"
                                   placeholder={isListening ? "🎙️ Aufnahme läuft..." : "Hinweis tippen oder sprechen..."}
@@ -371,14 +377,16 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                           }
                                       }
                                   }}
-                                  className="w-full h-24 rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none flex-grow"
+                                  className="w-full h-24 rounded-xl border border-gray-300 p-3 pr-12 sm:pr-14 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none"
                               />
                               {isSpeechRecognitionSupported && (
-                                <SpeechButton 
-                                    onStart={startSpeechToText}
-                                    onStop={stopSpeechToText}
-                                    isListening={isListening}
-                                />
+                                <div className="absolute right-2 top-2 sm:right-3 sm:top-3">
+                                  <SpeechButton 
+                                      onStart={startSpeechToText}
+                                      onStop={stopSpeechToText}
+                                      isListening={isListening}
+                                  />
+                                </div>
                               )}
                           </div>
                           {isListening && (
@@ -426,7 +434,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                     <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
                         <div className="w-full">
                             <form onSubmit={handleFormSubmit} className="relative">
-                               <div className="flex items-start gap-2 sm:gap-3">
+                               <div className="relative flex items-start">
                                     <textarea
                                         id="hint-textarea"
                                         placeholder={isListening ? "🎙️ Aufnahme läuft..." : "Optional: Hinweis tippen oder sprechen..."}
@@ -440,14 +448,16 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                                 }
                                             }
                                         }}
-                                        className="w-full h-20 sm:h-24 rounded-xl border border-gray-300 p-2 sm:p-3 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none flex-grow"
+                                        className="w-full h-20 sm:h-24 rounded-xl border border-gray-300 p-2 sm:p-3 pr-12 sm:pr-14 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none"
                                     />
                                     {isSpeechRecognitionSupported && (
-                                        <SpeechButton 
-                                            onStart={startSpeechToText}
-                                            onStop={stopSpeechToText}
-                                            isListening={isListening}
-                                        />
+                                        <div className="absolute right-2 top-2 sm:right-3 sm:top-3">
+                                            <SpeechButton 
+                                                onStart={startSpeechToText}
+                                                onStop={stopSpeechToText}
+                                                isListening={isListening}
+                                            />
+                                        </div>
                                     )}
                                </div>
                                {isListening && (

@@ -41,21 +41,24 @@ const SpeechButton: React.FC<SpeechButtonProps> = ({ onStart, onStop, isListenin
 
 
   return (
-    <div className="flex flex-col items-center">
+    <>
         <button
             type="button"
             onClick={handleClick}
-            className={`p-2 rounded-full transition-all duration-300 ${isListening ? listeningClasses : idleClasses}`}
+            className={`p-1.5 sm:p-2 rounded-full transition-all duration-300 ${isListening ? listeningClasses : idleClasses}`}
             aria-label={isListening ? 'Aufnahme stoppen' : 'Spracheingabe starten'}
+            title={isListening ? 'Aufnahme stoppen' : 'Click to speak'}
         >
-            <MicIcon />
+            <MicIcon className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
         {error && (
-            <p className="text-xs text-red-600 mt-2 whitespace-pre-line text-center">
-              {error}
-            </p>
+            <div className="absolute top-full right-0 mt-1 p-2 bg-red-50 border border-red-200 rounded shadow-lg z-50 max-w-xs">
+                <p className="text-xs text-red-600 whitespace-pre-line">
+                  {error}
+                </p>
+            </div>
         )}
-    </div>
+    </>
   );
 };
 

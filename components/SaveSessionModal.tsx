@@ -36,7 +36,13 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
   const [showSignature, setShowSignature] = useState(false);
 
   const handleTranscript = useCallback((text: string) => {
-      setNotes(prev => prev + text);
+      // Append text with space if there's existing text
+      setNotes(prev => {
+        if (prev.trim() && text.trim()) {
+          return prev + text;
+        }
+        return prev + text;
+      });
   }, []);
 
   const handleSpeechError = useCallback((err: string) => {
@@ -146,16 +152,22 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
             <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Notizen & Gesprächsprotokoll</label>
                 <div className="relative">
-                    <div className="flex items-start gap-3">
-                        <textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClasses} resize-vertical min-h-[150px] flex-grow`} placeholder="Maße, Stoffnummern, Preisinfos, Gesprächsverlauf..."/>
-                         {isSpeechRecognitionSupported && (
-                          <SpeechButton
-                            onStart={startSpeechToText}
-                            onStop={stopSpeechToText}
-                            isListening={isListening}
-                          />
-                        )}
-                    </div>
+                    <textarea 
+                        id="notes" 
+                        value={notes} 
+                        onChange={(e) => setNotes(e.target.value)} 
+                        className={`${inputClasses} resize-vertical min-h-[150px] pr-12 sm:pr-14`} 
+                        placeholder="Maße, Stoffnummern, Preisinfos, Gesprächsverlauf..."
+                    />
+                    {isSpeechRecognitionSupported && (
+                        <div className="absolute right-2 top-2 sm:right-3 sm:top-3">
+                            <SpeechButton
+                                onStart={startSpeechToText}
+                                onStop={stopSpeechToText}
+                                isListening={isListening}
+                            />
+                        </div>
+                    )}
                 </div>
                  {isListening && (
                     <p className="text-sm text-gray-600 italic mt-2 h-5">

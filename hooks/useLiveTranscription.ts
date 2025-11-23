@@ -70,9 +70,10 @@ export const useLiveTranscription = ({ onTranscript, onError }: { onTranscript: 
     if (isListening) return;
     
     // Check if browser supports Speech Recognition
-    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
+      alert("Spracheingabe in diesem Browser nicht verfügbar. Bitte verwenden Sie Chrome, Edge oder Safari.");
       onError("Spracherkennung wird von Ihrem Browser nicht unterstützt.");
       return;
     }
@@ -88,12 +89,21 @@ export const useLiveTranscription = ({ onTranscript, onError }: { onTranscript: 
       };
 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let transcript = '';
+        // Process only final results to avoid duplicate text
+        // Interim results are handled by the browser's native UI
+        let finalTranscript = '';
+        
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+          const result = event.results[i];
+          if (result.isFinal) {
+            const alternative = result[0];
+            finalTranscript += alternative.transcript;
+          }
         }
-        if (transcript.trim()) {
-          onTranscript(transcript);
+        
+        // Only append final results with a space prefix
+        if (finalTranscript.trim()) {
+          onTranscript(' ' + finalTranscript.trim());
         }
       };
 
