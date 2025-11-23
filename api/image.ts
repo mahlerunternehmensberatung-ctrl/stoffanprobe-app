@@ -14,60 +14,46 @@ interface FalApiResponse {
 }
 
 /**
- * Generates a professional prompt for texture transfer
- * Ensures the original room structure is preserved
+ * Maps preset to category name in English
  */
-const buildTextureTransferPrompt = (
+const getCategoryName = (preset: string | undefined): string => {
+  switch (preset) {
+    case 'Tapete':
+      return 'walls';
+    case 'Gardine':
+      return 'curtains';
+    case 'Teppich':
+      return 'floor carpet';
+    case 'Möbel':
+      return 'furniture upholstery';
+    case 'Accessoire':
+      return 'decorative accessories';
+    default:
+      return 'walls';
+  }
+};
+
+/**
+ * Builds a STRICT texture transfer prompt
+ * Format: "Based on the original image, change ONLY the texture of [category]..."
+ */
+const buildStrictTextureTransferPrompt = (
   preset: string | undefined,
   textHint: string | undefined,
   hasPatternImage: boolean
 ): string => {
-  // Base instruction to preserve the original room
-  const preservationInstruction = "Keep the original room photo structure EXACTLY. Preserve all furniture, lighting, perspective, camera angle, and room layout. Only modify the texture/pattern on the specified area.";
+  const category = getCategoryName(preset);
   
-  let categoryDescription = '';
-  let textureDescription = '';
-  
-  switch (preset) {
-    case 'Tapete':
-      categoryDescription = 'walls';
-      textureDescription = hasPatternImage 
-        ? 'wallpaper pattern from the provided sample' 
-        : 'the specified wallpaper pattern';
-      break;
-    case 'Gardine':
-      categoryDescription = 'curtains and window treatments';
-      textureDescription = hasPatternImage 
-        ? 'fabric pattern from the provided sample' 
-        : 'the specified fabric pattern';
-      break;
-    case 'Teppich':
-      categoryDescription = 'floor carpet or rug area';
-      textureDescription = hasPatternImage 
-        ? 'carpet pattern from the provided sample' 
-        : 'the specified carpet pattern';
-      break;
-    case 'Möbel':
-      categoryDescription = 'furniture upholstery';
-      textureDescription = hasPatternImage 
-        ? 'fabric pattern from the provided sample' 
-        : 'the specified fabric pattern';
-      break;
-    case 'Accessoire':
-      categoryDescription = 'decorative accessories';
-      textureDescription = hasPatternImage 
-        ? 'pattern from the provided sample' 
-        : 'the specified pattern';
-      break;
-    default:
-      categoryDescription = 'walls';
-      textureDescription = hasPatternImage 
-        ? 'pattern from the provided sample' 
-        : 'the specified pattern';
+  // Describe the pattern - if we have an image, mention it; otherwise use generic description
+  let patternDescription = '';
+  if (hasPatternImage) {
+    patternDescription = 'the pattern from the provided sample image';
+  } else {
+    patternDescription = 'the specified pattern';
   }
   
-  // Build the main prompt
-  let prompt = `A professional interior design photo. The ${categoryDescription} feature ${textureDescription}. ${preservationInstruction} High quality, photorealistic, maintain original furniture positions, lighting conditions, and room perspective.`;
+  // STRICT prompt format as required
+  let prompt = `Based on the original image, change ONLY the texture of the ${category} to be ${patternDescription}. Keep all furniture, lighting, perspective, and details of the original image exactly the same. High fidelity texture transfer.`;
   
   // Add user hint if provided
   if (textHint && textHint.trim()) {
@@ -78,20 +64,19 @@ const buildTextureTransferPrompt = (
 };
 
 /**
- * Builds a prompt for wall color changes
+ * Builds a STRICT wall color prompt
  */
-const buildWallColorPrompt = (
+const buildStrictWallColorPrompt = (
   wallColor: { name: string; code: string } | undefined,
   textHint: string | undefined
 ): string => {
-  const preservationInstruction = "Keep the original room photo structure EXACTLY. Preserve all furniture, lighting, perspective, camera angle, and room layout. Only change the wall color.";
-  
-  let colorDescription = 'a harmonious color';
+  let colorDescription = 'the specified color';
   if (wallColor) {
     colorDescription = `${wallColor.name} (RAL ${wallColor.code})`;
   }
   
-  let prompt = `A professional interior design photo. The walls are painted in ${colorDescription}. ${preservationInstruction} High quality, photorealistic, maintain original furniture positions, lighting conditions, and room perspective.`;
+  // STRICT prompt format
+  let prompt = `Based on the original image, change ONLY the wall color to ${colorDescription}. Keep all furniture, lighting, perspective, and details of the original image exactly the same. High fidelity color transfer.`;
   
   if (textHint && textHint.trim()) {
     prompt += ` Additional instruction: "${textHint.trim()}"`;
@@ -119,52 +104,51 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build the appropriate prompt based on mode
+    // Build the STRICT prompt based on mode
     let finalPrompt = prompt;
     
     if (!finalPrompt) {
-      // Generate prompt if not provided
-      if (mode === 'pattern' || mode === 'creativeWallColor') {
-        if (mode === 'pattern') {
-          finalPrompt = buildTextureTransferPrompt(preset, textHint, !!patternImage);
-        } else {
-          finalPrompt = buildWallColorPrompt(wallColor, textHint);
-        }
+      // Generate STRICT prompt if not provided
+      if (mode === 'pattern') {
+        finalPrompt = buildStrictTextureTransferPrompt(preset, textHint, !!patternImage);
+      } else if (mode === 'creativeWallColor') {
+        finalPrompt = buildStrictWallColorPrompt(wallColor, textHint);
       } else {
-        // Fallback for other modes
-        finalPrompt = buildTextureTransferPrompt(preset, textHint, !!patternImage);
+        // Fallback
+        finalPrompt = buildStrictTextureTransferPrompt(preset, textHint, !!patternImage);
       }
     }
 
     // Build input for Fal.ai Image-to-Image model
-    // Using flux/dev/image-to-image for high-quality texture transfer
-    // This model preserves the original image structure better than text-to-image
+    // CRITICAL: Use LOW strength (0.65-0.7) to force model to stay close to original
+    // Higher values (>0.8) lead to fantasy images that ignore the original
     const input: any = {
       prompt: finalPrompt,
-      image_url: roomImage, // Original room photo - MUST be provided
-      strength: 0.8, // Critical: Controls how much the original is preserved
-                     // 0.8 = strong preservation of original structure
-                     // Range: 0.0 (no change) to 1.0 (complete regeneration)
+      image_url: roomImage, // MANDATORY: Original room photo
+      strength: 0.65, // CRITICAL: Low strength = high fidelity to original
+                      // Range: 0.0 (no change) to 1.0 (complete regeneration)
+                      // 0.65 = tight control, minimal changes
       num_inference_steps: 30,
       guidance_scale: 7.5,
-      seed: null, // Random seed for variety
+      seed: null,
     };
 
-    // Add pattern image as reference if provided
-    // Some models support control_image_url or image_to_image_url for reference images
+    // Try to pass pattern image as reference
+    // Different models may support different parameter names
     if (patternImage) {
-      // Try multiple parameter names depending on model support
+      // Try common parameter names for reference images
       input.control_image_url = patternImage;
-      input.image_to_image_url = patternImage;
-      // Some models might use reference_image_url
       input.reference_image_url = patternImage;
+      input.image_to_image_url = patternImage;
+      
+      // Some models support mask_image for texture reference
+      // Note: This might not work for all models, but we try it
+      input.mask_image_url = patternImage;
     }
 
     // Use flux/dev/image-to-image for texture transfer
-    // This model is specifically designed to preserve the original image structure
-    // Alternative models to try if this doesn't work:
-    // - 'fal-ai/flux-pro/v1.1/image-to-image' (if available)
-    // - 'fal-ai/fast-sdxl/image-to-image' (faster, lower quality)
+    // This model is designed for image-to-image transformations
+    // Alternative: 'fal-ai/flux-pro/v1.1/image-to-image' if available
     const modelId = 'fal-ai/flux/dev/image-to-image';
     
     const result = await fal.subscribe(modelId, {
