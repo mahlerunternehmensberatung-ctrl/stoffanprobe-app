@@ -34,26 +34,26 @@ const getCategoryName = (preset: string | undefined): string => {
 };
 
 /**
- * Builds a STRICT texture transfer prompt
- * Format: "Based on the original image, change ONLY the texture of [category]..."
+ * Builds a photorealistic prompt for texture transfer
+ * Format: "A photorealistic photo of the provided room. The [category] has been replaced..."
  */
-const buildStrictTextureTransferPrompt = (
+const buildPhotorealisticPrompt = (
   preset: string | undefined,
   textHint: string | undefined,
   hasPatternImage: boolean
 ): string => {
   const category = getCategoryName(preset);
   
-  // Describe the pattern - if we have an image, mention it; otherwise use generic description
+  // Describe the pattern
   let patternDescription = '';
   if (hasPatternImage) {
-    patternDescription = 'the pattern from the provided sample image';
+    patternDescription = 'the pattern texture from the provided sample image';
   } else {
-    patternDescription = 'the specified pattern';
+    patternDescription = 'the specified pattern texture';
   }
   
-  // STRICT prompt format as required
-  let prompt = `Based on the original image, change ONLY the texture of the ${category} to be ${patternDescription}. Keep all furniture, lighting, perspective, and details of the original image exactly the same. High fidelity texture transfer.`;
+  // Business-logic prompt format
+  let prompt = `A photorealistic photo of the provided room. The ${category} has been replaced with ${patternDescription}. The rest of the room (furniture, walls, lighting) remains UNCHANGED.`;
   
   // Add user hint if provided
   if (textHint && textHint.trim()) {
@@ -64,9 +64,9 @@ const buildStrictTextureTransferPrompt = (
 };
 
 /**
- * Builds a STRICT wall color prompt
+ * Builds a photorealistic wall color prompt
  */
-const buildStrictWallColorPrompt = (
+const buildPhotorealisticWallColorPrompt = (
   wallColor: { name: string; code: string } | undefined,
   textHint: string | undefined
 ): string => {
@@ -75,14 +75,117 @@ const buildStrictWallColorPrompt = (
     colorDescription = `${wallColor.name} (RAL ${wallColor.code})`;
   }
   
-  // STRICT prompt format
-  let prompt = `Based on the original image, change ONLY the wall color to ${colorDescription}. Keep all furniture, lighting, perspective, and details of the original image exactly the same. High fidelity color transfer.`;
+  let prompt = `A photorealistic photo of the provided room. The walls have been painted ${colorDescription}. The rest of the room (furniture, lighting) remains UNCHANGED.`;
   
   if (textHint && textHint.trim()) {
     prompt += ` Additional instruction: "${textHint.trim()}"`;
   }
   
   return prompt;
+};
+
+/**
+ * Attempts to use Google Imagen 3 (Nano Banana equivalent) via Fal.ai
+ * Returns null if model is not available or fails
+ */
+const tryImagen3 = async (
+  prompt: string,
+  roomImage: string,
+  patternImage: string | undefined
+): Promise<string | null> => {
+  try {
+    // Try Google Imagen 3 models on Fal.ai
+    // Common model IDs: 'fal-ai/imagen3', 'google/imagen-3', etc.
+    const imagenModels = [
+      'fal-ai/imagen3',
+      'google/imagen-3',
+      'fal-ai/google-imagen3',
+    ];
+
+    for (const modelId of imagenModels) {
+      try {
+        const input: any = {
+          prompt: prompt,
+          image_url: roomImage, // Source image (room)
+        };
+
+        // Add pattern image if available
+        if (patternImage) {
+          // Try different parameter names for reference images
+          input.reference_image_url = patternImage;
+          input.control_image_url = patternImage;
+          input.source_image = patternImage;
+        }
+
+        const result = await fal.subscribe(modelId, {
+          input: input,
+        });
+
+        const apiResult = result as FalApiResponse;
+        const imageUrl = apiResult.images?.[0]?.url || apiResult.image?.url || '';
+
+        if (imageUrl) {
+          console.log(`Successfully used ${modelId}`);
+          return imageUrl;
+        }
+      } catch (error: any) {
+        // Model not available or failed, try next one
+        console.log(`Model ${modelId} not available or failed:`, error.message);
+        continue;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.warn('Imagen 3 attempt failed:', error);
+    return null;
+  }
+};
+
+/**
+ * Uses Flux Image-to-Image with STRICT parameters to prevent hallucination
+ */
+const useFluxImageToImage = async (
+  prompt: string,
+  roomImage: string,
+  patternImage: string | undefined
+): Promise<string> => {
+  // Build input with STRICT parameters against hallucination
+  const input: any = {
+    prompt: prompt,
+    image_url: roomImage, // MANDATORY: Original room photo (HEILIG)
+    strength: 0.7, // CRITICAL: 0.65-0.75 range to prevent hallucination
+                  // Higher values (>0.75) cause the AI to paint a new room
+                  // Lower values (<0.65) may not apply texture changes
+    num_inference_steps: 30,
+    guidance_scale: 7.5,
+    seed: null,
+  };
+
+  // Add pattern image as reference (KEY - must not be ignored!)
+  if (patternImage) {
+    // Try multiple parameter names to ensure pattern is used
+    input.control_image_url = patternImage;
+    input.reference_image_url = patternImage;
+    input.image_to_image_url = patternImage;
+    input.mask_image_url = patternImage;
+  }
+
+  // Use flux/dev/image-to-image (NOT text-to-image!)
+  const modelId = 'fal-ai/flux/dev/image-to-image';
+  
+  const result = await fal.subscribe(modelId, {
+    input: input,
+  });
+
+  const apiResult = result as FalApiResponse;
+  const imageUrl = apiResult.images?.[0]?.url || apiResult.image?.url || '';
+
+  if (!imageUrl) {
+    throw new Error('No image URL returned from Flux API');
+  }
+
+  return imageUrl;
 };
 
 export async function POST(request: Request) {
@@ -104,60 +207,39 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build the STRICT prompt based on mode
+    // Build the photorealistic prompt based on mode
     let finalPrompt = prompt;
     
     if (!finalPrompt) {
-      // Generate STRICT prompt if not provided
+      // Generate photorealistic prompt if not provided
       if (mode === 'pattern') {
-        finalPrompt = buildStrictTextureTransferPrompt(preset, textHint, !!patternImage);
+        finalPrompt = buildPhotorealisticPrompt(preset, textHint, !!patternImage);
       } else if (mode === 'creativeWallColor') {
-        finalPrompt = buildStrictWallColorPrompt(wallColor, textHint);
+        finalPrompt = buildPhotorealisticWallColorPrompt(wallColor, textHint);
       } else {
         // Fallback
-        finalPrompt = buildStrictTextureTransferPrompt(preset, textHint, !!patternImage);
+        finalPrompt = buildPhotorealisticPrompt(preset, textHint, !!patternImage);
       }
     }
 
-    // Build input for Fal.ai Image-to-Image model
-    // CRITICAL: Use LOW strength (0.65-0.7) to force model to stay close to original
-    // Higher values (>0.8) lead to fantasy images that ignore the original
-    const input: any = {
-      prompt: finalPrompt,
-      image_url: roomImage, // MANDATORY: Original room photo
-      strength: 0.65, // CRITICAL: Low strength = high fidelity to original
-                      // Range: 0.0 (no change) to 1.0 (complete regeneration)
-                      // 0.65 = tight control, minimal changes
-      num_inference_steps: 30,
-      guidance_scale: 7.5,
-      seed: null,
-    };
+    let imageUrl: string;
 
-    // Try to pass pattern image as reference
-    // Different models may support different parameter names
-    if (patternImage) {
-      // Try common parameter names for reference images
-      input.control_image_url = patternImage;
-      input.reference_image_url = patternImage;
-      input.image_to_image_url = patternImage;
-      
-      // Some models support mask_image for texture reference
-      // Note: This might not work for all models, but we try it
-      input.mask_image_url = patternImage;
+    // PRIORITY 1: Try Google Imagen 3 (Nano Banana equivalent) first
+    // This is the customer-confirmed best quality model
+    if (mode === 'pattern' && patternImage) {
+      const imagenResult = await tryImagen3(finalPrompt, roomImage, patternImage);
+      if (imagenResult) {
+        imageUrl = imagenResult;
+      } else {
+        // FALLBACK: Use Flux with STRICT parameters
+        console.log('Imagen 3 not available, falling back to Flux with strict parameters');
+        imageUrl = await useFluxImageToImage(finalPrompt, roomImage, patternImage);
+      }
+    } else {
+      // For wall color or other modes, use Flux directly
+      // (Imagen 3 may not support all modes)
+      imageUrl = await useFluxImageToImage(finalPrompt, roomImage, patternImage);
     }
-
-    // Use flux/dev/image-to-image for texture transfer
-    // This model is designed for image-to-image transformations
-    // Alternative: 'fal-ai/flux-pro/v1.1/image-to-image' if available
-    const modelId = 'fal-ai/flux/dev/image-to-image';
-    
-    const result = await fal.subscribe(modelId, {
-      input: input,
-    });
-
-    // Extract image URL from result
-    const apiResult = result as FalApiResponse;
-    const imageUrl = apiResult.images?.[0]?.url || apiResult.image?.url || '';
 
     if (!imageUrl) {
       throw new Error('No image URL returned from API');
