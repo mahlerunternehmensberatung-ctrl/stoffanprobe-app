@@ -27,19 +27,19 @@ const exampleCategories = [
 
 const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor }) => {
   return (
-    <div className={`${glassBase} p-6 mb-10`}>
+    <div className={`${glassBase} p-4 sm:p-6 mb-6 sm:mb-10`}>
       <h3 className="text-lg font-semibold text-center text-[#532418] mb-6">
         Oder mit einem Beispiel starten:
       </h3>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {exampleCategories.map((cat) => (
           <button
             key={cat.key}
             className={`overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 ${glassBase}`}
             onClick={() => onSelect(cat.previewImage)}
           >
-            <div className="w-full h-48 rounded-t-3xl overflow-hidden">
+            <div className="w-full aspect-video rounded-t-3xl overflow-hidden">
               <img src={cat.previewImage} alt={cat.name} className="w-full h-full object-cover"/>
             </div>
             <div className="p-4 text-center">
@@ -53,7 +53,7 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
           onClick={onSelectWallColor}
           className={`overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 ${glassBase}`}
         >
-          <div className="w-full h-48 flex flex-col items-center justify-center gap-3 p-6">
+          <div className="w-full aspect-video flex flex-col items-center justify-center gap-3 p-4 sm:p-6">
             <div className="w-20 h-20 grid grid-cols-2 rounded-lg overflow-hidden shadow-md">
               <div style={{ background: "#FFFFFF" }}></div>
               <div style={{ background: "#F6B600" }}></div>

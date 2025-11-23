@@ -288,10 +288,10 @@ const Workspace: React.FC<WorkspaceProps> = ({
         onConfirm={handleConsentConfirm}
       />
       
-      <main className={`flex-grow container mx-auto p-4 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-        <div className="text-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-2">KI Visualisierung</h1>
-            <p className="text-lg text-[#67534F]">Beginnen Sie mit einem Beispielraum oder laden Sie Ihr eigenes Foto hoch.</p>
+      <main className={`flex-grow container mx-auto p-4 sm:p-6 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+        <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-2">KI Visualisierung</h1>
+            <p className="text-base sm:text-lg text-[#67534F] px-2">Beginnen Sie mit einem Beispielraum oder laden Sie Ihr eigenes Foto hoch.</p>
         </div>
 
         {!session && (
@@ -307,9 +307,9 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
         {!session?.originalImage && <ExampleRooms onSelect={handleExampleRoomSelect} onSelectWallColor={handleSelectWallColor} />}
 
-        <div className={`mb-8 p-6 ${glassBase}`}>
-            <h3 className="text-lg font-semibold text-center text-[#532418] mb-4">Oder laden Sie Ihre eigenen Fotos hoch:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`mb-6 sm:mb-8 p-4 sm:p-6 ${glassBase}`}>
+            <h3 className="text-base sm:text-lg font-semibold text-center text-[#532418] mb-4">Oder laden Sie Ihre eigenen Fotos hoch:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <ImageUploader 
                   onImageSelect={handleRoomImageSelect} 
                   imageDataUrl={session?.originalImage}
@@ -409,9 +409,9 @@ const Workspace: React.FC<WorkspaceProps> = ({
         </div>
 
         {showPatternControls && (
-            <section className="mt-12 animate-fade-in">
-                <div className="text-center mb-6">
-                    <h2 className="text-2xl font-semibold text-[#532418]">3. Wähle, was du gestalten möchtest</h2>
+            <section className="mt-8 sm:mt-12 animate-fade-in">
+                <div className="text-center mb-4 sm:mb-6">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-[#532418] px-2">3. Wähle, was du gestalten möchtest</h2>
                 </div>
                 
                 <div className="flex flex-col items-center gap-6 w-full max-w-4xl mx-auto">
@@ -426,10 +426,10 @@ const Workspace: React.FC<WorkspaceProps> = ({
                     <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
                         <div className="w-full">
                             <form onSubmit={handleFormSubmit} className="relative">
-                               <div className="flex items-start gap-3">
+                               <div className="flex items-start gap-2 sm:gap-3">
                                     <textarea
                                         id="hint-textarea"
-                                        placeholder={isListening ? "🎙️ Aufnahme läuft..." : "Optional: Hinweis tippen oder sprechen... (z.B. 'Gardine nur halb hoch', 'Teppich rund')"}
+                                        placeholder={isListening ? "🎙️ Aufnahme läuft..." : "Optional: Hinweis tippen oder sprechen..."}
                                         value={textHint}
                                         onChange={(e) => setTextHint(e.target.value)}
                                         onKeyDown={(e) => {
@@ -440,7 +440,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                                 }
                                             }
                                         }}
-                                        className="w-full h-24 rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none flex-grow"
+                                        className="w-full h-20 sm:h-24 rounded-xl border border-gray-300 p-2 sm:p-3 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none flex-grow"
                                     />
                                     {isSpeechRecognitionSupported && (
                                         <SpeechButton 

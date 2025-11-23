@@ -29,7 +29,7 @@ const Gallery: React.FC<GalleryProps> = ({
   );
 
   const buttonClasses =
-    "px-4 py-2 text-sm font-semibold text-[#532418] bg-white rounded-lg shadow-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-all flex items-center justify-center gap-2";
+    "px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-[#532418] bg-white rounded-lg shadow-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-all flex items-center justify-center gap-1 sm:gap-2";
 
   return (
     <div className="mt-12 w-full">
@@ -37,7 +37,7 @@ const Gallery: React.FC<GalleryProps> = ({
         Gespeicherte Varianten
       </h3>
 
-      <div className="flex flex-wrap justify-center items-center gap-3 mb-8">
+      <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
         <button onClick={onEmailAll} className={buttonClasses}>
           <EmailIcon /> Galerie senden
         </button>
@@ -54,7 +54,7 @@ const Gallery: React.FC<GalleryProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {sortedVariants.map((variant) => (
           <VariantCard
             key={variant.id}

@@ -21,7 +21,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
 
   const imageClasses = isLarge
     ? "w-full h-auto object-contain"
-    : "w-full h-48 object-cover";
+    : "w-full aspect-square sm:h-48 object-cover";
 
   const safeImageUrl = imageUrl || "";
 
