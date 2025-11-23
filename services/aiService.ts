@@ -170,7 +170,9 @@ const urlToDataUrl = async (url: string): Promise<string> => {
 const generateImageFromApi = async (
   prompt: string,
   roomImage?: string,
-  patternImage?: string
+  patternImage?: string,
+  preset?: PresetType,
+  mode?: VisualizationMode | null
 ): Promise<string> => {
   try {
     const response = await fetch('/api/image', {
@@ -182,6 +184,8 @@ const generateImageFromApi = async (
         prompt,
         roomImage,
         patternImage,
+        preset,
+        mode,
       }),
     });
 
@@ -234,14 +238,14 @@ export const generateVisualization = async (options: GenerateOptions): Promise<s
                     ? patternImage
                     : await urlToDataUrl(patternImage);
                 const patternPrompt = getPromptForPreset(preset, textHint);
-                generatedImage = await generateImageFromApi(patternPrompt, finalRoomDataUrl, finalPatternDataUrl);
+                generatedImage = await generateImageFromApi(patternPrompt, finalRoomDataUrl, finalPatternDataUrl, preset, mode);
                 break;
 
             case 'creativeWallColor':
                 if (!wallColor) throw new Error('Wall color is required for creative color mode.');
                 let creativePrompt = `Streiche die Wände in einem harmonischen ${wallColor.name} (RAL ${wallColor.code}). Passe Licht, Schatten und Atmosphäre natürlich an.`;
                 if (textHint) creativePrompt += ` Zusätzlicher Hinweis: "${textHint}"`;
-                generatedImage = await generateImageFromApi(creativePrompt, finalRoomDataUrl);
+                generatedImage = await generateImageFromApi(creativePrompt, finalRoomDataUrl, undefined, undefined, mode);
                 break;
             
             case 'exactRAL':
