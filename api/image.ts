@@ -11,73 +11,100 @@ if (process.env.FAL_KEY) {
 interface FalApiResponse {
   images?: Array<{ url: string }>;
   image?: { url: string };
-  mask?: { url: string };
 }
 
 /**
- * Generates a mask prompt based on the preset type
+ * Generates a professional prompt for texture transfer
+ * Ensures the original room structure is preserved
  */
-const getMaskPrompt = (preset?: string): string => {
+const buildTextureTransferPrompt = (
+  preset: string | undefined,
+  textHint: string | undefined,
+  hasPatternImage: boolean
+): string => {
+  // Base instruction to preserve the original room
+  const preservationInstruction = "Keep the original room photo structure EXACTLY. Preserve all furniture, lighting, perspective, camera angle, and room layout. Only modify the texture/pattern on the specified area.";
+  
+  let categoryDescription = '';
+  let textureDescription = '';
+  
   switch (preset) {
     case 'Tapete':
-      return 'walls, vertical wall surfaces, wall areas';
+      categoryDescription = 'walls';
+      textureDescription = hasPatternImage 
+        ? 'wallpaper pattern from the provided sample' 
+        : 'the specified wallpaper pattern';
+      break;
     case 'Gardine':
-      return 'curtains, window areas, drapery, window treatments';
+      categoryDescription = 'curtains and window treatments';
+      textureDescription = hasPatternImage 
+        ? 'fabric pattern from the provided sample' 
+        : 'the specified fabric pattern';
+      break;
     case 'Teppich':
-      return 'floor, carpet area, rug area, ground surface';
+      categoryDescription = 'floor carpet or rug area';
+      textureDescription = hasPatternImage 
+        ? 'carpet pattern from the provided sample' 
+        : 'the specified carpet pattern';
+      break;
     case 'Möbel':
-      return 'furniture, chairs, sofas, tables, furniture pieces';
+      categoryDescription = 'furniture upholstery';
+      textureDescription = hasPatternImage 
+        ? 'fabric pattern from the provided sample' 
+        : 'the specified fabric pattern';
+      break;
     case 'Accessoire':
-      return 'decorative objects, accessories, small items on surfaces';
+      categoryDescription = 'decorative accessories';
+      textureDescription = hasPatternImage 
+        ? 'pattern from the provided sample' 
+        : 'the specified pattern';
+      break;
     default:
-      return 'walls, vertical surfaces';
+      categoryDescription = 'walls';
+      textureDescription = hasPatternImage 
+        ? 'pattern from the provided sample' 
+        : 'the specified pattern';
   }
+  
+  // Build the main prompt
+  let prompt = `A professional interior design photo. The ${categoryDescription} feature ${textureDescription}. ${preservationInstruction} High quality, photorealistic, maintain original furniture positions, lighting conditions, and room perspective.`;
+  
+  // Add user hint if provided
+  if (textHint && textHint.trim()) {
+    prompt += ` Additional instruction: "${textHint.trim()}"`;
+  }
+  
+  return prompt;
 };
 
 /**
- * Generates an inpainting mask using a segmentation model
- * Falls back to a simple prompt-based approach if segmentation fails
+ * Builds a prompt for wall color changes
  */
-const generateMask = async (
-  roomImage: string,
-  maskPrompt: string
-): Promise<string> => {
-  try {
-    // Try using a segmentation model to generate the mask
-    // fal-ai/metaseg can be used for automatic masking
-    const result = await fal.subscribe('fal-ai/metaseg', {
-      input: {
-        image_url: roomImage,
-        prompt: maskPrompt,
-      },
-    });
-
-    // Extract mask from result
-    const apiResult = result as FalApiResponse;
-    const maskUrl = apiResult.mask?.url || apiResult.image?.url || '';
-    
-    if (maskUrl) {
-      return maskUrl;
-    }
-  } catch (error) {
-    console.warn('Mask generation failed, will use automatic masking:', error);
+const buildWallColorPrompt = (
+  wallColor: { name: string; code: string } | undefined,
+  textHint: string | undefined
+): string => {
+  const preservationInstruction = "Keep the original room photo structure EXACTLY. Preserve all furniture, lighting, perspective, camera angle, and room layout. Only change the wall color.";
+  
+  let colorDescription = 'a harmonious color';
+  if (wallColor) {
+    colorDescription = `${wallColor.name} (RAL ${wallColor.code})`;
   }
-
-  // Fallback: Return empty string to use automatic masking in inpainting model
-  return '';
+  
+  let prompt = `A professional interior design photo. The walls are painted in ${colorDescription}. ${preservationInstruction} High quality, photorealistic, maintain original furniture positions, lighting conditions, and room perspective.`;
+  
+  if (textHint && textHint.trim()) {
+    prompt += ` Additional instruction: "${textHint.trim()}"`;
+  }
+  
+  return prompt;
 };
 
 export async function POST(request: Request) {
   try {
-    const { prompt, roomImage, patternImage, preset, mode } = await request.json();
+    const { prompt, roomImage, patternImage, preset, mode, wallColor, textHint } = await request.json();
 
-    if (!prompt) {
-      return new Response(
-        JSON.stringify({ error: 'Prompt is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
+    // Validate required inputs
     if (!roomImage) {
       return new Response(
         JSON.stringify({ error: 'Room image is required' }),
@@ -92,52 +119,53 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build input for Fal.ai Inpainting model
-    // Using flux/dev/inpainting for high-quality inpainting
+    // Build the appropriate prompt based on mode
+    let finalPrompt = prompt;
+    
+    if (!finalPrompt) {
+      // Generate prompt if not provided
+      if (mode === 'pattern' || mode === 'creativeWallColor') {
+        if (mode === 'pattern') {
+          finalPrompt = buildTextureTransferPrompt(preset, textHint, !!patternImage);
+        } else {
+          finalPrompt = buildWallColorPrompt(wallColor, textHint);
+        }
+      } else {
+        // Fallback for other modes
+        finalPrompt = buildTextureTransferPrompt(preset, textHint, !!patternImage);
+      }
+    }
+
+    // Build input for Fal.ai Image-to-Image model
+    // Using flux/dev/image-to-image for high-quality texture transfer
+    // This model preserves the original image structure better than text-to-image
     const input: any = {
-      prompt: prompt,
-      image_url: roomImage,
+      prompt: finalPrompt,
+      image_url: roomImage, // Original room photo - MUST be provided
+      strength: 0.8, // Critical: Controls how much the original is preserved
+                     // 0.8 = strong preservation of original structure
+                     // Range: 0.0 (no change) to 1.0 (complete regeneration)
       num_inference_steps: 30,
       guidance_scale: 7.5,
       seed: null, // Random seed for variety
     };
 
-    // Generate mask based on preset if pattern mode
-    if (mode === 'pattern' && preset) {
-      const maskPrompt = getMaskPrompt(preset);
-      
-      try {
-        const maskUrl = await generateMask(roomImage, maskPrompt);
-        if (maskUrl) {
-          input.mask_image_url = maskUrl;
-        } else {
-          // Use automatic masking with prompt-based description
-          input.mask_prompt = maskPrompt;
-        }
-      } catch (error) {
-        console.warn('Mask generation failed, using prompt-based masking:', error);
-        input.mask_prompt = maskPrompt;
-      }
-    } else if (mode === 'creativeWallColor' || mode === 'exactRAL') {
-      // For wall color modes, mask the walls
-      input.mask_prompt = 'walls, vertical wall surfaces';
-    }
-
     // Add pattern image as reference if provided
+    // Some models support control_image_url or image_to_image_url for reference images
     if (patternImage) {
-      // Some models support image_to_image_url for reference
-      input.image_to_image_url = patternImage;
-      // Or use control_image_url depending on the model
+      // Try multiple parameter names depending on model support
       input.control_image_url = patternImage;
+      input.image_to_image_url = patternImage;
+      // Some models might use reference_image_url
+      input.reference_image_url = patternImage;
     }
 
-    // Use flux/dev/inpainting for high-quality texture replacement
+    // Use flux/dev/image-to-image for texture transfer
+    // This model is specifically designed to preserve the original image structure
     // Alternative models to try if this doesn't work:
-    // - 'fal-ai/fast-sdxl/inpainting' (faster, lower quality)
-    // - 'fal-ai/flux-pro/v1.1/inpainting' (if available)
-    // - 'fal-ai/stable-diffusion-inpainting' (alternative)
-    // Note: Model parameters may vary - check Fal.ai documentation for exact parameter names
-    const modelId = 'fal-ai/flux/dev/inpainting';
+    // - 'fal-ai/flux-pro/v1.1/image-to-image' (if available)
+    // - 'fal-ai/fast-sdxl/image-to-image' (faster, lower quality)
+    const modelId = 'fal-ai/flux/dev/image-to-image';
     
     const result = await fal.subscribe(modelId, {
       input: input,
@@ -164,6 +192,8 @@ export async function POST(request: Request) {
       errorMessage = error.message;
     } else if (error.response?.data?.detail) {
       errorMessage = error.response.data.detail;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
     }
 
     return new Response(

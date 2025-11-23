@@ -166,13 +166,16 @@ const urlToDataUrl = async (url: string): Promise<string> => {
 
 /**
  * Generates an image using the /api/image endpoint
+ * If prompt is not provided, the API will generate it automatically with proper preservation instructions
  */
 const generateImageFromApi = async (
-  prompt: string,
+  prompt: string | undefined,
   roomImage?: string,
   patternImage?: string,
   preset?: PresetType,
-  mode?: VisualizationMode | null
+  mode?: VisualizationMode | null,
+  wallColor?: RALColor,
+  textHint?: string
 ): Promise<string> => {
   try {
     const response = await fetch('/api/image', {
@@ -186,6 +189,8 @@ const generateImageFromApi = async (
         patternImage,
         preset,
         mode,
+        wallColor,
+        textHint,
       }),
     });
 
@@ -237,15 +242,14 @@ export const generateVisualization = async (options: GenerateOptions): Promise<s
                 const finalPatternDataUrl = patternImage.startsWith('data:')
                     ? patternImage
                     : await urlToDataUrl(patternImage);
-                const patternPrompt = getPromptForPreset(preset, textHint);
-                generatedImage = await generateImageFromApi(patternPrompt, finalRoomDataUrl, finalPatternDataUrl, preset, mode);
+                // Pass undefined for prompt to let API generate it with proper preservation instructions
+                generatedImage = await generateImageFromApi(undefined, finalRoomDataUrl, finalPatternDataUrl, preset, mode, undefined, textHint);
                 break;
 
             case 'creativeWallColor':
                 if (!wallColor) throw new Error('Wall color is required for creative color mode.');
-                let creativePrompt = `Streiche die Wände in einem harmonischen ${wallColor.name} (RAL ${wallColor.code}). Passe Licht, Schatten und Atmosphäre natürlich an.`;
-                if (textHint) creativePrompt += ` Zusätzlicher Hinweis: "${textHint}"`;
-                generatedImage = await generateImageFromApi(creativePrompt, finalRoomDataUrl, undefined, undefined, mode);
+                // Pass undefined for prompt to let API generate it with proper preservation instructions
+                generatedImage = await generateImageFromApi(undefined, finalRoomDataUrl, undefined, undefined, mode, wallColor, textHint);
                 break;
             
             case 'exactRAL':
