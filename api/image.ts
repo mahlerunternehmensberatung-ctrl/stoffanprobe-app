@@ -140,9 +140,9 @@ export async function POST(request: Request) {
       }
     }
 
-    // Use Nano Banana Pro Edit model
+    // Use Nano Banana Edit model (faster and cheaper than Pro version)
     // This model understands multiple input images and complex edit instructions
-    const result = await fal.subscribe('fal-ai/nano-banana-pro/edit', {
+    const result = await fal.subscribe('fal-ai/nano-banana/edit', {
       input: {
         prompt: finalPrompt,
         image_urls: imageUrls.filter(Boolean), // Send both images! Filter removes any undefined/null values
@@ -156,7 +156,7 @@ export async function POST(request: Request) {
     const imageUrl = apiResult.images?.[0]?.url || apiResult.image?.url || '';
 
     if (!imageUrl) {
-      throw new Error('No image URL returned from Nano Banana Pro API');
+      throw new Error('No image URL returned from Nano Banana API');
     }
 
     return new Response(
