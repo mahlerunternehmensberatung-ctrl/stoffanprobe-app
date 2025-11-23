@@ -1,4 +1,4 @@
-import { fal } from '@fal-ai/serverless-client';
+import * as fal from '@fal-ai/serverless-client';
 
 // Configure fal client with API key (if available)
 if (process.env.FAL_KEY) {
