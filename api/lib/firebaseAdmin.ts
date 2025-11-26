@@ -6,13 +6,12 @@ let db: Firestore;
 
 function initializeFirebaseAdmin() {
   if (getApps().length === 0) {
-    // Service Account aus Environment Variable
     const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
     
     if (!serviceAccount) {
       throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not set');
     }
-    
+
     try {
       const parsedServiceAccount = JSON.parse(serviceAccount);
       
@@ -27,14 +26,11 @@ function initializeFirebaseAdmin() {
   } else {
     app = getApps()[0];
   }
-  
+
   db = getFirestore(app);
   return { app, db };
 }
 
-// Initialisiere beim Import
 const firebase = initializeFirebaseAdmin();
-
 export const adminDb = firebase.db;
 export default firebase;
-
