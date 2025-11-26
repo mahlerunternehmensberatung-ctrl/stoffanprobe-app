@@ -125,10 +125,7 @@ const Header: React.FC<HeaderProps> = ({
                   {showAccountDropdown && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                       <button
-                        onClick={() => handleMenuItemClick(() => {
-                          // "Mein Konto" - könnte später zu Account-Seite führen
-                          console.log('Mein Konto');
-                        })}
+                        onClick={() => handleMenuItemClick(() => navigate('/account'))}
                         className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors"
                       >
                         Mein Konto

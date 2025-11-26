@@ -19,6 +19,7 @@ import PaywallModal from './components/PaywallModal';
 import CookieConsentModal from './components/CookieConsentModal';
 import PricingPage from './components/PricingPage';
 import SuccessPage from './components/SuccessPage';
+import AccountPage from './components/AccountPage';
 import { useAuth } from './context/AuthContext';
 import { logoutUser } from './services/authService';
 import { decrementCredits } from './services/userService';
@@ -295,13 +296,17 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Routing für Pricing und Success Pages - VOR Auth-Loading-Check, damit diese Seiten auch ohne Login erreichbar sind
+  // Routing für Pricing, Success und Account Pages
   if (location.pathname === '/pricing') {
     return <PricingPage />;
   }
 
   if (location.pathname === '/success') {
     return <SuccessPage />;
+  }
+
+  if (location.pathname === '/account') {
+    return <AccountPage />;
   }
 
   // Zeige Loading, während Auth-Status oder First-Visit geprüft wird
