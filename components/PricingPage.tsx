@@ -28,9 +28,18 @@ const PricingPage: React.FC = () => {
     { credits: 500, priceId: PRICE_500, price: '250,00' },
   ];
 
+  // Prüfe ob User ein aktives Abo hat
+  const hasActiveSubscription = user?.plan === 'pro';
+
   const handleCheckout = async (priceId: string, mode: 'subscription' | 'payment') => {
     if (!user) {
       navigate('/');
+      return;
+    }
+
+    // Credits nur mit Abo erlauben
+    if (mode === 'payment' && !hasActiveSubscription) {
+      alert('Bitte schließen Sie zuerst ein Abo ab, um Credits kaufen zu können.');
       return;
     }
 
@@ -107,7 +116,7 @@ const PricingPage: React.FC = () => {
                 <div>
                   <p className="text-sm text-gray-600">Plan</p>
                   <p className="text-lg font-bold text-[#532418]">
-                    {user.plan === 'pro' ? 'Pro-Abo' : 'Kostenlos'}
+                    {hasActiveSubscription ? 'Pro-Abo' : 'Kostenlos'}
                   </p>
                 </div>
                 <div>
@@ -130,10 +139,10 @@ const PricingPage: React.FC = () => {
               <p className="text-lg mb-6">40 Bilder pro Monat</p>
               <button
                 onClick={() => handleCheckout(PRICE_ABO, 'subscription')}
-                disabled={isLoading !== null || !user || user.plan === 'pro'}
+                disabled={isLoading !== null || !user || hasActiveSubscription}
                 className="px-8 py-3 bg-white text-[#FF954F] rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
-                {isLoading === PRICE_ABO ? 'Wird geladen...' : user?.plan === 'pro' ? 'Bereits aktiv' : 'Jetzt abonnieren'}
+                {isLoading === PRICE_ABO ? 'Wird geladen...' : hasActiveSubscription ? 'Bereits aktiv' : 'Jetzt abonnieren'}
               </button>
             </div>
           </div>
@@ -143,14 +152,35 @@ const PricingPage: React.FC = () => {
             <h2 className="text-2xl font-bold text-[#532418] text-center mb-6">
               Credit-Pakete kaufen
             </h2>
-            <p className="text-center text-gray-600 mb-8">
-              Credits sind 12 Monate gültig
-            </p>
+            
+            {/* Hinweis für User ohne Abo */}
+            {user && !hasActiveSubscription && (
+              <div className="bg-amber-50 border border-amber-300 text-amber-800 px-6 py-4 rounded-lg mb-6 text-center">
+                <p className="font-medium">
+                  💡 Credit-Pakete sind nur für Abo-Kunden verfügbar.
+                </p>
+                <p className="text-sm mt-1">
+                  Schließen Sie zuerst ein Abo ab, um zusätzliche Credits kaufen zu können.
+                </p>
+              </div>
+            )}
+
+            {/* Hinweis für Abo-Kunden */}
+            {user && hasActiveSubscription && (
+              <p className="text-center text-gray-600 mb-8">
+                Credits sind 12 Monate gültig und ergänzen Ihr monatliches Kontingent.
+              </p>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {creditPackages.map((pkg) => (
                 <div
                   key={pkg.credits}
-                  className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
+                  className={`bg-white rounded-lg shadow-lg p-6 transition-all ${
+                    hasActiveSubscription 
+                      ? 'hover:shadow-xl' 
+                      : 'opacity-60 cursor-not-allowed'
+                  }`}
                 >
                   <div className="text-center">
                     <h3 className="text-2xl font-bold text-[#532418] mb-2">
@@ -161,10 +191,10 @@ const PricingPage: React.FC = () => {
                     </p>
                     <button
                       onClick={() => handleCheckout(pkg.priceId, 'payment')}
-                      disabled={isLoading !== null || !user || !pkg.priceId}
+                      disabled={isLoading !== null || !user || !pkg.priceId || !hasActiveSubscription}
                       className={`${glassButton} w-full py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      {isLoading === pkg.priceId ? 'Wird geladen...' : 'Kaufen'}
+                      {isLoading === pkg.priceId ? 'Wird geladen...' : hasActiveSubscription ? 'Kaufen' : '🔒 Nur mit Abo'}
                     </button>
                   </div>
                 </div>
@@ -174,7 +204,7 @@ const PricingPage: React.FC = () => {
 
           {!user && (
             <div className="text-center mt-8">
-              <p className="text-gray-600 mb-4">Bitte melden Sie sich an, um Credits zu kaufen.</p>
+              <p className="text-gray-600 mb-4">Bitte melden Sie sich an, um ein Abo abzuschließen.</p>
               <button
                 onClick={() => navigate('/')}
                 className="px-6 py-2 bg-[#FF954F] text-white rounded-lg font-semibold hover:bg-[#CC5200] transition-colors"
@@ -197,4 +227,3 @@ const PricingPage: React.FC = () => {
 };
 
 export default PricingPage;
-
