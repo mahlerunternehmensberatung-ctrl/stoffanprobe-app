@@ -31,8 +31,6 @@ const Header: React.FC<HeaderProps> = ({
   
   // Berechne verfügbare Credits
   const getTotalCredits = () => {
-    if (user?.plan === 'pro') return '∞';
-    
     const now = new Date();
     let purchasedCredits = user?.purchasedCredits ?? 0;
     if (user?.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {
@@ -95,16 +93,10 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center gap-2">
                   <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm">
                     <span className="text-xs sm:text-sm text-[#67534F]">
-                      {user.plan === 'pro' ? (
-                        <span className="font-bold text-[#532418]">Unbegrenzt</span>
-                      ) : (
-                        <>
-                          <span className="hidden sm:inline">Noch </span>
-                          <span className="font-bold text-[#532418]">{displayCredits}</span>
-                          <span className="hidden sm:inline"> Bilder (Gratis)</span>
-                          <span className="sm:hidden"> Gratis</span>
-                        </>
-                      )}
+                      <span className="hidden sm:inline">Noch </span>
+                      <span className="font-bold text-[#532418]">{displayCredits}</span>
+                      <span className="hidden sm:inline"> Bilder</span>
+                      <span className="sm:hidden"> Gratis</span>
                     </span>
                   </div>
                   {user.plan === 'pro' && (

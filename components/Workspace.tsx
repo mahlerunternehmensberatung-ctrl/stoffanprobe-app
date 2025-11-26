@@ -210,10 +210,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
     // Credit-Check: Prüfe ob User Credits hat (gleiche Berechnung wie im Header)
     if (user) {
-      if (user.plan === 'pro') {
-        // Pro-Plan hat unlimitiert Credits
-      } else {
-        // Berechne verfügbare Credits (monthlyCredits + purchasedCredits, abgelaufene berücksichtigen)
+      // Berechne verfügbare Credits (monthlyCredits + purchasedCredits, abgelaufene berücksichtigen)
         const now = new Date();
         let purchasedCredits = user.purchasedCredits ?? 0;
         if (user.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {

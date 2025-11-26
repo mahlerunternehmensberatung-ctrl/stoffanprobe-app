@@ -42,7 +42,6 @@ async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<voi
   const updateData: Record<string, any> = {
     plan: 'pro',
     monthlyCredits: MONTHLY_PRO_CREDITS,
-    credits: 9999,
     updatedAt: FieldValue.serverTimestamp(),
   };
 

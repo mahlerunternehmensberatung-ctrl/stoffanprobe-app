@@ -78,7 +78,6 @@ const PricingPage: React.FC = () => {
   // Berechne verfügbare Credits
   const getTotalCredits = () => {
     if (!user) return 0;
-    if (user.plan === 'pro') return '∞';
     
     const now = new Date();
     let purchasedCredits = user.purchasedCredits ?? 0;

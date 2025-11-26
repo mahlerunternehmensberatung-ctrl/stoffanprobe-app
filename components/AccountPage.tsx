@@ -44,8 +44,6 @@ const AccountPage: React.FC = () => {
   };
 
   const getTotalCredits = () => {
-    if (user.plan === 'pro') return '∞';
-    
     const now = new Date();
     let purchasedCredits = user.purchasedCredits ?? 0;
     if (user.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {

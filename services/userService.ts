@@ -11,7 +11,6 @@ import { User } from '../types';
 
 const COLLECTION_NAME = 'users';
 const INITIAL_FREE_CREDITS = 10;
-const PRO_PLAN_CREDITS = 9999; // Unlimitiert
 const MONTHLY_PRO_CREDITS = 40; // Credits pro Monat für Pro-Abo
 
 /**
@@ -99,11 +98,6 @@ export const decrementCredits = async (uid: string): Promise<number> => {
 
     const userData = userSnap.data();
     const plan = userData.plan || 'free';
-    
-    // Pro-Plan hat unlimitiert Credits
-    if (plan === 'pro') {
-      return PRO_PLAN_CREDITS;
-    }
 
     // Prüfe abgelaufene purchasedCredits
     const now = new Date();
@@ -161,7 +155,6 @@ export const upgradeToPro = async (
     const updateData: any = {
       plan: 'pro',
       monthlyCredits: MONTHLY_PRO_CREDITS,
-      credits: PRO_PLAN_CREDITS, // Legacy
       updatedAt: serverTimestamp(),
     };
 
@@ -231,9 +224,6 @@ export const hasCredits = async (uid: string): Promise<boolean> => {
   try {
     const user = await getUserData(uid);
     if (!user) return false;
-    
-    // Pro-Plan hat unlimitiert Credits
-    if (user.plan === 'pro') return true;
     
     // Prüfe abgelaufene purchasedCredits
     const now = new Date();
