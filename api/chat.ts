@@ -1,3 +1,4 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -5,22 +6,20 @@ const openai = new OpenAI({
   apiKey: process.env.GROK_API_KEY,
 });
 
-export async function POST(request: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const { prompt } = await request.json();
+    const { prompt } = req.body;
 
     if (!prompt) {
-      return new Response(
-        JSON.stringify({ error: 'Prompt is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(400).json({ error: 'Prompt is required' });
     }
 
     if (!process.env.GROK_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: 'GROK_API_KEY is not configured' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(500).json({ error: 'GROK_API_KEY is not configured' });
     }
 
     const completion = await openai.chat.completions.create({
@@ -35,16 +34,9 @@ export async function POST(request: Request) {
 
     const response = completion.choices[0]?.message?.content || '';
 
-    return new Response(
-      JSON.stringify({ response }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(200).json({ response });
   } catch (error: any) {
     console.error('Error in chat API:', error);
-    return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }
-
