@@ -42,14 +42,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const data = userSnap.data();
+      // Für neue free-User: 10 Gratis-Credits in monthlyCredits
+      const plan = data.plan || 'free';
+      const monthlyCredits = data.monthlyCredits !== undefined 
+        ? data.monthlyCredits 
+        : (plan === 'free' ? 10 : 0);
+      
       return {
         uid,
         email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
-        plan: data.plan || 'free',
+        plan,
         credits: data.credits ?? 10, // Legacy
-        monthlyCredits: data.monthlyCredits ?? 0,
+        monthlyCredits,
         purchasedCredits: data.purchasedCredits ?? 0,
         purchasedCreditsExpiry: data.purchasedCreditsExpiry?.toDate(),
         stripeCustomerId: data.stripeCustomerId,
@@ -82,14 +88,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           (snapshot) => {
             if (snapshot.exists()) {
               const data = snapshot.data();
+              // Für neue free-User: 10 Gratis-Credits in monthlyCredits
+              const plan = data.plan || 'free';
+              const monthlyCredits = data.monthlyCredits !== undefined 
+                ? data.monthlyCredits 
+                : (plan === 'free' ? 10 : 0);
+              
               setUser({
                 uid: firebaseUser.uid,
                 email: data.email || firebaseUser.email || '',
                 firstName: data.firstName || '',
                 lastName: data.lastName || '',
-                plan: data.plan || 'free',
+                plan,
                 credits: data.credits ?? 10, // Legacy
-                monthlyCredits: data.monthlyCredits ?? 0,
+                monthlyCredits,
                 purchasedCredits: data.purchasedCredits ?? 0,
                 purchasedCreditsExpiry: data.purchasedCreditsExpiry?.toDate(),
                 stripeCustomerId: data.stripeCustomerId,

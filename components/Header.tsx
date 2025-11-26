@@ -142,7 +142,7 @@ const Header: React.FC<HeaderProps> = ({
                       {onLogout && (
                         <button
                           onClick={() => handleMenuItemClick(onLogout)}
-                          className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1"
+                          className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1 whitespace-nowrap"
                         >
                           Abmelden
                         </button>
