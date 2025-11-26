@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import { adminDb } from '../../lib/firebaseAdmin';
+import { adminDb } from '../lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 // Stripe initialisieren
