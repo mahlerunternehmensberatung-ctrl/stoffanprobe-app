@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import { upgradeToPro, addPurchasedCredits, resetMonthlyCredits } from '../../services/userService';
+import { adminDb } from '../../lib/firebaseAdmin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 // Stripe initialisieren
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -8,6 +9,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+
+// Konstanten
+const MONTHLY_PRO_CREDITS = 40;
 
 // Mapping von Price IDs zu Credit-Anzahl
 // WICHTIG: Diese Environment Variables müssen in Vercel gesetzt sein:
@@ -32,40 +36,104 @@ if (Object.keys(CREDIT_PACKAGES).every(key => key === '')) {
   console.warn('⚠️ WARNUNG: CREDIT_PACKAGES ist leer! Environment Variables STRIPE_PRICE_*_CREDITS fehlen in Vercel!');
 }
 
+/**
+ * Upgrade User zu Pro-Plan
+ */
+async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<void> {
+  const userRef = adminDb.collection('users').doc(uid);
+  
+  const updateData: Record<string, any> = {
+    plan: 'pro',
+    monthlyCredits: MONTHLY_PRO_CREDITS,
+    credits: 9999, // Legacy
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  if (stripeCustomerId) {
+    updateData.stripeCustomerId = stripeCustomerId;
+  }
+
+  await userRef.update(updateData);
+  console.log(`User ${uid} upgraded to Pro`);
+}
+
+/**
+ * Füge gekaufte Credits hinzu
+ */
+async function addPurchasedCredits(uid: string, credits: number): Promise<void> {
+  const userRef = adminDb.collection('users').doc(uid);
+  const userSnap = await userRef.get();
+
+  if (!userSnap.exists) {
+    throw new Error(`User ${uid} not found`);
+  }
+
+  const userData = userSnap.data()!;
+  const currentPurchasedCredits = userData.purchasedCredits ?? 0;
+  
+  // Ablaufdatum: 12 Monate
+  const expiryDate = new Date();
+  expiryDate.setMonth(expiryDate.getMonth() + 12);
+
+  await userRef.update({
+    purchasedCredits: currentPurchasedCredits + credits,
+    purchasedCreditsExpiry: expiryDate,
+    credits: (userData.monthlyCredits ?? 0) + currentPurchasedCredits + credits, // Legacy
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  console.log(`Added ${credits} credits to user ${uid}`);
+}
+
+/**
+ * Setze monatliche Credits zurück (bei Abo-Verlängerung)
+ */
+async function resetMonthlyCredits(uid: string): Promise<void> {
+  const userRef = adminDb.collection('users').doc(uid);
+  
+  await userRef.update({
+    monthlyCredits: MONTHLY_PRO_CREDITS,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  console.log(`Reset monthly credits for user ${uid}`);
+}
+
+// Helper: Raw body lesen
+async function getRawBody(req: VercelRequest): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk: Buffer) => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Für Stripe Webhooks brauchen wir den raw body als String
-    // Vercel stellt den raw body als String bereit, wenn Content-Type application/json ist
-    // Falls req.body bereits ein Objekt ist, müssen wir es zurück zu String konvertieren
-    let body: string;
-    if (typeof req.body === 'string') {
-      body = req.body;
-    } else if (Buffer.isBuffer(req.body)) {
-      body = req.body.toString('utf8');
-    } else {
-      // Fallback: Wenn body bereits geparst wurde, müssen wir es zurück zu String konvertieren
-      // Das sollte bei Stripe Webhooks nicht passieren, da Stripe den raw body sendet
-      body = JSON.stringify(req.body);
-    }
-    
+    // Raw body für Signaturprüfung
+    const rawBody = await getRawBody(req);
     const signature = req.headers['stripe-signature'] as string;
 
     if (!signature) {
+      console.error('Missing stripe-signature header');
       return res.status(400).json({ error: 'Stripe-Signatur fehlt' });
     }
 
     // Event verifizieren
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (err: any) {
       console.error('Webhook signature verification failed:', err.message);
       return res.status(400).json({ error: `Webhook Error: ${err.message}` });
     }
+
+    console.log(`Received event: ${event.type}`);
 
     // checkout.session.completed Event behandeln
     if (event.type === 'checkout.session.completed') {
@@ -75,6 +143,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const mode = session.metadata?.mode || session.mode;
       const priceId = session.metadata?.priceId;
       
+      console.log(`Checkout completed - userId: ${userId}, mode: ${mode}, priceId: ${priceId}`);
+
       if (!userId) {
         console.error('User-ID nicht in Session gefunden');
         return res.status(400).json({ error: 'User-ID nicht gefunden' });
@@ -111,35 +181,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (event.type === 'invoice.paid') {
       const invoice = event.data.object as Stripe.Invoice;
       
-      // Prüfe ob es eine Subscription-Rechnung ist
-      if (invoice.subscription) {
+      // Prüfe ob es eine Subscription-Rechnung ist (nicht die erste)
+      if (invoice.subscription && invoice.billing_reason === 'subscription_cycle') {
         const subscriptionId = typeof invoice.subscription === 'string' 
           ? invoice.subscription 
           : invoice.subscription.id;
         
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        
-        // Hole customer und dann user data
-        const customerId = typeof subscription.customer === 'string' 
-          ? subscription.customer 
-          : subscription.customer?.id;
-        
-        if (customerId) {
-          // Versuche userId aus subscription metadata oder customer metadata zu holen
-          const userId = subscription.metadata?.userId || 
-                        subscription.metadata?.client_reference_id ||
-                        invoice.metadata?.userId;
+        try {
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const userId = subscription.metadata?.userId;
           
           if (userId) {
-            try {
-              await resetMonthlyCredits(userId);
-              console.log(`Monatliche Credits für User ${userId} zurückgesetzt`);
-            } catch (error: any) {
-              console.error('Error resetting monthly credits:', error);
-            }
+            await resetMonthlyCredits(userId);
+            console.log(`Monatliche Credits für User ${userId} zurückgesetzt`);
           } else {
             console.warn(`Keine User-ID für Subscription ${subscriptionId} gefunden`);
           }
+        } catch (error: any) {
+          console.error('Error processing invoice.paid:', error);
         }
       }
     }
