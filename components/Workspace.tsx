@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Session, Variant, PresetType, CustomerData, ConsentData, RALColor, VisualizationMode, ImageType } from '../types';
 import { saveSession } from '../services/dbService';
 import { generateVisualization } from '../services/aiService';
-import { uploadTempImage, deleteTempImage } from '../services/storageService';
 import { getCurrentUser } from '../services/authService';
 import ImageUploader from './ImageUploader';
 import Gallery from './Gallery';
@@ -240,50 +239,27 @@ const Workspace: React.FC<WorkspaceProps> = ({
     setPendingVariant(null);
     setShowNextStep(false);
 
-    let uploadedRoomPath: string | undefined;
-    let uploadedPatternPath: string | undefined;
-
     try {
-        // Credit-Abzug VOR Generierung (außer Pro-Plan)
-        if (user && user.plan !== 'pro' && onDecrementCredits) {
-          await onDecrementCredits();
-        }
-
-        // Privacy Mode: Upload Bilder temporär in Firebase Storage
+        // Prüfe ob User angemeldet ist
         const firebaseUser = getCurrentUser();
         if (!firebaseUser) {
           throw new Error('Nicht angemeldet');
         }
 
-        // Upload Room Image
-        const roomUploadResult = await uploadTempImage(
-          session.originalImage,
-          firebaseUser.uid,
-          'room'
-        );
-        uploadedRoomPath = roomUploadResult.storagePath;
-
-        // Upload Pattern Image (falls vorhanden)
-        let patternUrl: string | undefined;
-        if (session.patternImage) {
-          const patternUploadResult = await uploadTempImage(
-            session.patternImage,
-            firebaseUser.uid,
-            'pattern'
-          );
-          uploadedPatternPath = patternUploadResult.storagePath;
-          patternUrl = patternUploadResult.url;
-        }
-
-        // Generiere Bild mit Storage-URLs
+        // Generiere Bild direkt mit Base64 Data URLs (KEIN Firebase Storage)
         const newVariantImage = await generateVisualization({
-            roomImage: roomUploadResult.url, // Verwende Storage-URL statt Data URL
+            roomImage: session.originalImage, // Base64 Data URL direkt verwenden
             mode: visualizationMode,
-            patternImage: patternUrl,
+            patternImage: session.patternImage, // Base64 Data URL direkt verwenden
             preset: selectedPreset,
             wallColor: session.wallColor,
             textHint: textHint
         });
+        
+        // Credit-Abzug NACH erfolgreicher Generierung (außer Pro-Plan)
+        if (user && user.plan !== 'pro' && onDecrementCredits) {
+          await onDecrementCredits();
+        }
         
         const presetForVariant: Variant['preset'] = visualizationMode === 'pattern' && selectedPreset ? selectedPreset : 'Wandfarbe';
 
@@ -295,14 +271,6 @@ const Workspace: React.FC<WorkspaceProps> = ({
         };
         setPendingVariant(newVariant);
         
-        // Privacy Mode: Lösche temporäre Bilder nach erfolgreicher Generierung
-        if (uploadedRoomPath) {
-          await deleteTempImage(uploadedRoomPath);
-        }
-        if (uploadedPatternPath) {
-          await deleteTempImage(uploadedPatternPath);
-        }
-        
         // Track erfolgreiche Bildgenerierung
         if (onImageGenerated) {
           onImageGenerated();
@@ -312,14 +280,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
       console.error('Error generating variant:', err);
       const errorMessage = (err instanceof Error) ? err.message : 'Ein unbekannter Fehler ist aufgetreten.';
       setError(`Fehler bei der Visualisierung: ${errorMessage}`);
-      
-      // Privacy Mode: Lösche temporäre Bilder auch bei Fehler
-      if (uploadedRoomPath) {
-        await deleteTempImage(uploadedRoomPath).catch(console.error);
-      }
-      if (uploadedPatternPath) {
-        await deleteTempImage(uploadedPatternPath).catch(console.error);
-      }
+      // KEIN Credit-Abzug bei Fehler - Credits bleiben erhalten
     } finally {
       setIsLoading(false);
     }
