@@ -228,7 +228,6 @@ const Workspace: React.FC<WorkspaceProps> = ({
           }
           return;
         }
-      }
     }
     
     setIsLoading(true);
