@@ -4,12 +4,14 @@ interface FooterProps {
   onOpenImpressum: () => void;
   onOpenDatenschutz: () => void;
   onOpenAgb: () => void;
+  onOpenCookieSettings?: () => void;
 }
 
 const Footer: React.FC<FooterProps> = ({
   onOpenImpressum,
   onOpenDatenschutz,
   onOpenAgb,
+  onOpenCookieSettings,
 }) => {
   return (
     <footer className="text-center text-sm text-gray-600 py-6 mt-10">
@@ -24,6 +26,14 @@ const Footer: React.FC<FooterProps> = ({
       <button onClick={onOpenAgb} className="mx-2 underline hover:text-[#FF954F]">
         AGB
       </button>
+      {onOpenCookieSettings && (
+        <>
+          ·
+          <button onClick={onOpenCookieSettings} className="mx-2 underline hover:text-[#FF954F]">
+            Cookie-Einstellungen
+          </button>
+        </>
+      )}
     </footer>
   );
 };

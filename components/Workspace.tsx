@@ -1,13 +1,17 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Session, Variant, PresetType, CustomerData, ConsentData, RALColor, VisualizationMode } from '../types';
+import { Session, Variant, PresetType, CustomerData, ConsentData, RALColor, VisualizationMode, ImageType } from '../types';
 import { saveSession } from '../services/dbService';
 import { generateVisualization } from '../services/aiService';
+import { uploadTempImage, deleteTempImage } from '../services/storageService';
+import { getCurrentUser } from '../services/authService';
 import ImageUploader from './ImageUploader';
 import Gallery from './Gallery';
 import PresetButtons from './PresetButtons';
 import LoadingOverlay from './LoadingOverlay';
 import { SaveIcon, DiscardIcon, NextIcon, PencilIcon } from './Icon';
 import ConsentModal from './ConsentModal';
+import ImageTypeSelectionModal from './ImageTypeSelectionModal';
+import PrivateConsentModal from './PrivateConsentModal';
 import ExampleRooms from './ExampleRooms';
 import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
@@ -15,6 +19,7 @@ import VariantCard from './VariantCard';
 import { glassBase, glassButton } from '../glass';
 import SpeechButton from './SpeechButton';
 import { useLiveTranscription } from '../hooks/useLiveTranscription';
+import PrivacyNotice from './PrivacyNotice';
 
 interface WorkspaceProps {
   session: Session | null;
@@ -25,8 +30,12 @@ interface WorkspaceProps {
   isSpeechRecognitionSupported: boolean;
   fetchSessions: (query?: string) => void;
   onShowSessions: () => void;
-  onCreateSession: (params?: { wallColor?: RALColor; originalImage?: string; patternImage?: string; consentData?: any; customerData?: any }) => Session;
+  onCreateSession: (params?: { wallColor?: RALColor; originalImage?: string; patternImage?: string; consentData?: any; customerData?: any; imageType?: ImageType }) => Session;
   onSelectWallColor: () => void;
+  user?: import('../types').User | null;
+  onShowPaywall?: () => void;
+  onDecrementCredits?: () => Promise<void>;
+  onImageGenerated?: () => void;
 }
 
 const Workspace: React.FC<WorkspaceProps> = ({
@@ -39,7 +48,11 @@ const Workspace: React.FC<WorkspaceProps> = ({
   fetchSessions,
   onShowSessions,
   onCreateSession,
-  onSelectWallColor
+  onSelectWallColor,
+  user,
+  onShowPaywall,
+  onDecrementCredits,
+  onImageGenerated
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<PresetType | null>(null);
@@ -47,7 +60,12 @@ const Workspace: React.FC<WorkspaceProps> = ({
   const [pendingVariant, setPendingVariant] = useState<Variant | null>(null);
   const [showNextStep, setShowNextStep] = useState<boolean>(false);
   const [consentState, setConsentState] = useState<{ isOpen: boolean; tempImageDataUrl: string | null }>({ isOpen: false, tempImageDataUrl: null });
+  const [showImageTypeSelection, setShowImageTypeSelection] = useState<boolean>(false);
+  const [showPrivateConsent, setShowPrivateConsent] = useState<boolean>(false);
+  const [tempImageDataUrl, setTempImageDataUrl] = useState<string | null>(null);
   const [visualizationMode, setVisualizationMode] = useState<VisualizationMode | null>(null);
+  // Privacy Mode: Speichere Storage-Pfade für temporäre Bilder
+  const [tempImagePaths, setTempImagePaths] = useState<{ room?: string; pattern?: string }>({});
 
   const handleTranscript = useCallback((text: string) => {
       // Append text with space if there's existing text
@@ -74,37 +92,77 @@ const Workspace: React.FC<WorkspaceProps> = ({
     }
   }, [session?.wallColor]);
 
-  const handleRoomImageUpload = (imageDataUrl: string, consentData?: ConsentData, customerData?: CustomerData) => {
+  const handleRoomImageUpload = (imageDataUrl: string, consentData?: ConsentData, customerData?: CustomerData, imageType?: ImageType) => {
     setShowNextStep(false);
     setTextHint(''); // Hinweisfeld zurücksetzen
+    // Privacy Mode: Session nur im State, NICHT automatisch speichern
     setSession(prev => {
       if (prev) {
-        const updatedSession = { 
+        return { 
             ...prev, 
             originalImage: imageDataUrl, 
             consentData: consentData || prev.consentData,
             customerData: customerData || prev.customerData,
+            imageType: imageType || prev.imageType,
          };
-        saveSession(updatedSession);
-        return updatedSession;
       }
-      return onCreateSession({ originalImage: imageDataUrl, consentData, customerData });
+      return onCreateSession({ originalImage: imageDataUrl, consentData, customerData, imageType });
     });
   };
 
   const handleRoomImageSelect = (imageDataUrl: string) => {
     if (!imageDataUrl) {
-      if(session) updateSession(s => ({...s, originalImage: ''}));
+      if(session) setSession(prev => prev ? {...prev, originalImage: ''} : null);
       setTextHint(""); // Reset
       return;
     }
-    setConsentState({ isOpen: true, tempImageDataUrl: imageDataUrl });
+    
+    // Wenn imageType bereits in der Session gesetzt ist, verwende es direkt
+    if (session?.imageType) {
+      if (session.imageType === 'private') {
+        setTempImageDataUrl(imageDataUrl);
+        setShowPrivateConsent(true);
+      } else {
+        setConsentState({ isOpen: true, tempImageDataUrl: imageDataUrl });
+      }
+    } else {
+      // Zeige Auswahl-Modal
+      setTempImageDataUrl(imageDataUrl);
+      setShowImageTypeSelection(true);
+    }
+  };
+
+  const handleImageTypeSelect = (imageType: ImageType) => {
+    setShowImageTypeSelection(false);
+    // Speichere imageType in der Session
+    if (session) {
+      updateSession(prev => ({ ...prev, imageType }));
+    } else {
+      // Wenn keine Session existiert, erstelle eine mit imageType
+      const newSession = onCreateSession({ imageType });
+      setSession(newSession);
+    }
+    
+    // Zeige entsprechendes Consent-Modal
+    if (imageType === 'private') {
+      setShowPrivateConsent(true);
+    } else {
+      setConsentState({ isOpen: true, tempImageDataUrl: tempImageDataUrl });
+    }
+  };
+
+  const handlePrivateConsentConfirm = (consentData: ConsentData) => {
+    setShowPrivateConsent(false);
+    if (tempImageDataUrl) {
+      handleRoomImageUpload(tempImageDataUrl, consentData, undefined, 'private');
+      setTempImageDataUrl(null);
+    }
   };
   
   const handleConsentConfirm = (consentData: ConsentData, customerData: CustomerData) => {
     setConsentState({ isOpen: false, tempImageDataUrl: null });
     if (consentState.tempImageDataUrl) {
-        handleRoomImageUpload(consentState.tempImageDataUrl, consentData, customerData);
+        handleRoomImageUpload(consentState.tempImageDataUrl, consentData, customerData, 'commercial');
     }
   };
   
@@ -117,16 +175,19 @@ const Workspace: React.FC<WorkspaceProps> = ({
     setVisualizationMode('pattern');
     setSelectedPreset(null);
     setTextHint(""); // Auch hier löschen
-    if(session) updateSession(s => ({...s, wallColor: undefined}));
+    // Privacy Mode: Session nur im State, NICHT automatisch speichern
+    if(session) {
+      setSession(prev => prev ? {...prev, wallColor: undefined} : null);
+    }
     
     if (!imageDataUrl && session) {
-      updateSession(s => ({...s, patternImage: ''}));
+      setSession(prev => prev ? {...prev, patternImage: ''} : null);
       return;
     }
     if (session) {
-      updateSession(s => ({...s, patternImage: imageDataUrl}));
+      setSession(prev => prev ? {...prev, patternImage: imageDataUrl} : null);
     } else {
-      onCreateSession({ patternImage: imageDataUrl });
+      setSession(onCreateSession({ patternImage: imageDataUrl }));
     }
   };
 
@@ -147,17 +208,66 @@ const Workspace: React.FC<WorkspaceProps> = ({
       setError("Bitte Musterfoto UND gewünschten Bereich auswählen.");
       return;
     }
+
+    // Credit-Check: Prüfe ob User Credits hat
+    if (user) {
+      const hasCredits = user.plan === 'pro' || (user.credits > 0);
+      if (!hasCredits) {
+        // Zeige Paywall-Modal
+        if (onShowPaywall) {
+          onShowPaywall();
+        } else {
+          setError("Sie haben keine Credits mehr. Bitte upgraden Sie auf Pro.");
+        }
+        return;
+      }
+    }
     
     setIsLoading(true);
     setError(null);
     setPendingVariant(null);
     setShowNextStep(false);
 
+    let uploadedRoomPath: string | undefined;
+    let uploadedPatternPath: string | undefined;
+
     try {
+        // Credit-Abzug VOR Generierung (außer Pro-Plan)
+        if (user && user.plan !== 'pro' && onDecrementCredits) {
+          await onDecrementCredits();
+        }
+
+        // Privacy Mode: Upload Bilder temporär in Firebase Storage
+        const firebaseUser = getCurrentUser();
+        if (!firebaseUser) {
+          throw new Error('Nicht angemeldet');
+        }
+
+        // Upload Room Image
+        const roomUploadResult = await uploadTempImage(
+          session.originalImage,
+          firebaseUser.uid,
+          'room'
+        );
+        uploadedRoomPath = roomUploadResult.storagePath;
+
+        // Upload Pattern Image (falls vorhanden)
+        let patternUrl: string | undefined;
+        if (session.patternImage) {
+          const patternUploadResult = await uploadTempImage(
+            session.patternImage,
+            firebaseUser.uid,
+            'pattern'
+          );
+          uploadedPatternPath = patternUploadResult.storagePath;
+          patternUrl = patternUploadResult.url;
+        }
+
+        // Generiere Bild mit Storage-URLs
         const newVariantImage = await generateVisualization({
-            roomImage: session.originalImage,
+            roomImage: roomUploadResult.url, // Verwende Storage-URL statt Data URL
             mode: visualizationMode,
-            patternImage: session.patternImage,
+            patternImage: patternUrl,
             preset: selectedPreset,
             wallColor: session.wallColor,
             textHint: textHint
@@ -172,15 +282,36 @@ const Workspace: React.FC<WorkspaceProps> = ({
             createdAt: new Date(),
         };
         setPendingVariant(newVariant);
+        
+        // Privacy Mode: Lösche temporäre Bilder nach erfolgreicher Generierung
+        if (uploadedRoomPath) {
+          await deleteTempImage(uploadedRoomPath);
+        }
+        if (uploadedPatternPath) {
+          await deleteTempImage(uploadedPatternPath);
+        }
+        
+        // Track erfolgreiche Bildgenerierung
+        if (onImageGenerated) {
+          onImageGenerated();
+        }
       
     } catch (err) {
       console.error('Error generating variant:', err);
       const errorMessage = (err instanceof Error) ? err.message : 'Ein unbekannter Fehler ist aufgetreten.';
       setError(`Fehler bei der Visualisierung: ${errorMessage}`);
+      
+      // Privacy Mode: Lösche temporäre Bilder auch bei Fehler
+      if (uploadedRoomPath) {
+        await deleteTempImage(uploadedRoomPath).catch(console.error);
+      }
+      if (uploadedPatternPath) {
+        await deleteTempImage(uploadedPatternPath).catch(console.error);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [session, selectedPreset, textHint, setError, visualizationMode]);
+  }, [session, selectedPreset, textHint, setError, visualizationMode, user, onShowPaywall, onDecrementCredits, onImageGenerated]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,7 +408,10 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
   const showPatternControls = session?.originalImage && session.patternImage;
 
-  const isGenerationEnabled = !!(session?.originalImage && (
+  // Prüfe ob User Credits hat
+  const hasCredits = user ? (user.plan === 'pro' || user.credits > 0) : true;
+  
+  const isGenerationEnabled = !!(session?.originalImage && hasCredits && (
     (visualizationMode === 'pattern' && session.patternImage && selectedPreset) ||
     (visualizationMode === 'creativeWallColor' && session.wallColor) ||
     (visualizationMode === 'exactRAL' && session.wallColor)
@@ -287,6 +421,29 @@ const Workspace: React.FC<WorkspaceProps> = ({
   return (
     <>
       {isLoading && <LoadingOverlay />}
+      {session?.originalImage && (
+        <div className="container mx-auto px-4 mb-4">
+          <PrivacyNotice />
+        </div>
+      )}
+      
+      <ImageTypeSelectionModal
+        isOpen={showImageTypeSelection}
+        onSelect={handleImageTypeSelect}
+        onClose={() => {
+          setShowImageTypeSelection(false);
+          setTempImageDataUrl(null);
+        }}
+      />
+      
+      <PrivateConsentModal
+        isOpen={showPrivateConsent}
+        onClose={() => {
+          setShowPrivateConsent(false);
+          setTempImageDataUrl(null);
+        }}
+        onConfirm={handlePrivateConsentConfirm}
+      />
       
       <ConsentModal 
         isOpen={consentState.isOpen}

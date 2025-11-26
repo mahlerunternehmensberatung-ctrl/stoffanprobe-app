@@ -165,7 +165,12 @@ const urlToDataUrl = async (url: string): Promise<string> => {
 };
 
 /**
- * Generates an image using the /api/image endpoint
+ * Generates an image using Firebase Cloud Function or Vercel API endpoint
+ * 
+ * Priority:
+ * 1. Firebase Cloud Function (wenn verfügbar und User angemeldet)
+ * 2. Vercel API Route (/api/image) als Fallback
+ * 
  * If prompt is not provided, the API will generate it automatically with proper preservation instructions
  */
 const generateImageFromApi = async (
@@ -175,9 +180,50 @@ const generateImageFromApi = async (
   preset?: PresetType,
   mode?: VisualizationMode | null,
   wallColor?: RALColor,
-  textHint?: string
+  textHint?: string,
+  useCloudFunction: boolean = false
 ): Promise<string> => {
   try {
+    // Option 1: Firebase Cloud Function (wenn User angemeldet und useCloudFunction = true)
+    if (useCloudFunction) {
+      const { getFunctions, httpsCallable } = await import('firebase/functions');
+      const { getAuth } = await import('firebase/auth');
+      const { auth } = await import('./firebase');
+      
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('Benutzer muss angemeldet sein, um Cloud Function zu verwenden.');
+      }
+
+      // Firebase Functions initialisieren
+      const functions = getFunctions();
+      const generateImageFunction = httpsCallable(functions, 'generateImage');
+
+      const result = await generateImageFunction({
+        roomImage,
+        patternImage,
+        preset,
+        mode,
+        wallColor,
+        textHint,
+        prompt,
+      });
+
+      const data = result.data as { success: boolean; imageUrl: string };
+      
+      if (!data.success || !data.imageUrl) {
+        throw new Error("Die KI hat kein Bild zurückgegeben.");
+      }
+
+      // Convert image URL to data URL if needed
+      if (data.imageUrl.startsWith('http')) {
+        return await urlToDataUrl(data.imageUrl);
+      }
+
+      return data.imageUrl;
+    }
+
+    // Option 2: Vercel API Route (Fallback)
     const response = await fetch('/api/image', {
       method: 'POST',
       headers: {
@@ -229,6 +275,12 @@ interface GenerateOptions {
 export const generateVisualization = async (options: GenerateOptions): Promise<string> => {
     const { roomImage, mode, patternImage, preset, wallColor, textHint } = options;
 
+    // Prüfe ob User angemeldet ist (für Cloud Function)
+    const { getAuth } = await import('firebase/auth');
+    const { auth } = await import('./firebase');
+    const currentUser = auth.currentUser;
+    const useCloudFunction = !!currentUser; // Nutze Cloud Function wenn User angemeldet ist
+
     const finalRoomDataUrl = roomImage.startsWith('data:') 
         ? roomImage 
         : await urlToDataUrl(roomImage);
@@ -243,19 +295,19 @@ export const generateVisualization = async (options: GenerateOptions): Promise<s
                     ? patternImage
                     : await urlToDataUrl(patternImage);
                 // Pass undefined for prompt to let API generate it with proper preservation instructions
-                generatedImage = await generateImageFromApi(undefined, finalRoomDataUrl, finalPatternDataUrl, preset, mode, undefined, textHint);
+                generatedImage = await generateImageFromApi(undefined, finalRoomDataUrl, finalPatternDataUrl, preset, mode, undefined, textHint, useCloudFunction);
                 break;
 
             case 'creativeWallColor':
                 if (!wallColor) throw new Error('Wall color is required for creative color mode.');
                 // Pass undefined for prompt to let API generate it with proper preservation instructions
-                generatedImage = await generateImageFromApi(undefined, finalRoomDataUrl, undefined, undefined, mode, wallColor, textHint);
+                generatedImage = await generateImageFromApi(undefined, finalRoomDataUrl, undefined, undefined, mode, wallColor, textHint, useCloudFunction);
                 break;
             
             case 'exactRAL':
                  if (!wallColor) throw new Error('Wall color is required for exact RAL mode.');
                  const maskPrompt = `Erstelle ausschließlich eine BINÄRE Wand-Maske (schwarz/weiß). Keine Farben generieren. Keine Beleuchtung. Keine Texturen. Keine Schatten. Nur eine Maske der Wandflächen im Bild. Die Wandflächen sollen weiß sein, alles andere schwarz.`;
-                 const maskImageUrl = await generateImageFromApi(maskPrompt, finalRoomDataUrl);
+                 const maskImageUrl = await generateImageFromApi(maskPrompt, finalRoomDataUrl, undefined, undefined, undefined, undefined, undefined, useCloudFunction);
                  generatedImage = await applyRALColor(finalRoomDataUrl, maskImageUrl, wallColor.hex);
                  break;
 

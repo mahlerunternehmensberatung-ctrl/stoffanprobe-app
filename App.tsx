@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Session, Variant, CustomerData, RALColor } from './types';
 import { saveSession, getSession, getAllSessions, searchSessions } from './services/dbService';
 import Header from './components/Header';
@@ -11,10 +12,31 @@ import LegalModal from './components/LegalModal';
 import { impressumText, datenschutzText, agbText } from './legalTexts';
 import Workspace from './components/Workspace';
 import ColorPickerModal from './components/ColorPickerModal';
+import LandingPage from './components/LandingPage';
+import RegisterModal from './components/RegisterModal';
+import LoginModal from './components/LoginModal';
+import PaywallModal from './components/PaywallModal';
+import CookieConsentModal from './components/CookieConsentModal';
+import PricingPage from './components/PricingPage';
+import SuccessPage from './components/SuccessPage';
+import { useAuth } from './context/AuthContext';
+import { logoutUser } from './services/authService';
+import { decrementCredits } from './services/userService';
+import { trackPageView, trackEvent } from './services/analytics';
 import { v4 as uuidv4 } from 'uuid';
 
 
 const App: React.FC = () => {
+  // Auth Context - User und Credits werden live abonniert
+  const { user, loading: isAuthLoading, refreshUser } = useAuth();
+  
+  // UI State
+  const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showPaywallModal, setShowPaywallModal] = useState<boolean>(false);
+  const [showCookieSettings, setShowCookieSettings] = useState<boolean>(false);
+
+  // App State
   const [session, setSession] = useState<Session | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sessionsList, setSessionsList] = useState<SessionSummary[]>([]);
@@ -35,6 +57,84 @@ const App: React.FC = () => {
   , []);
 
   type SessionSummary = Omit<Session, 'originalImage' | 'patternImage' | 'variants' | 'brandingLogo' | 'consentData'> & { consentData?: Session['consentData'] }
+
+  // Prüfe ob es der erste Besuch ist
+  const [isFirstVisit, setIsFirstVisit] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const hasVisitedBefore = localStorage.getItem('stoffanprobe_has_visited');
+    setIsFirstVisit(!hasVisitedBefore);
+    if (!hasVisitedBefore) {
+      localStorage.setItem('stoffanprobe_has_visited', 'true');
+    }
+  }, []);
+
+  // Prüfe auf erfolgreiche Stripe-Zahlung (URL-Parameter)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const sessionId = urlParams.get('session_id');
+
+    if (success === 'true' && sessionId && user) {
+      // User-Daten werden automatisch über AuthContext aktualisiert (Realtime)
+      // URL-Parameter entfernen
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Track erfolgreiche Zahlung
+      trackEvent('purchase', {
+        transaction_id: sessionId,
+        value: 29.00,
+        currency: 'EUR',
+      });
+      // Optional: Manuell refreshen (normalerweise nicht nötig, da Realtime)
+      refreshUser();
+    }
+  }, [user]);
+
+  // Pageview-Tracking
+  useEffect(() => {
+    trackPageView(window.location.pathname);
+  }, []);
+
+  // Track wichtige Events
+  const handleUserRegistration = useCallback(() => {
+    trackEvent('sign_up', {
+      method: 'email',
+    });
+  }, []);
+
+  const handleUserLogin = useCallback(() => {
+    trackEvent('login', {
+      method: 'email',
+    });
+  }, []);
+
+  const handleImageGeneration = useCallback(() => {
+    trackEvent('generate_image', {
+      user_plan: user?.plan || 'free',
+    });
+  }, [user]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      setSession(null);
+      // User wird automatisch über AuthContext auf null gesetzt
+    } catch (err: any) {
+      setError(err.message || 'Fehler beim Abmelden');
+    }
+  };
+
+  const handleDecrementCredits = useCallback(async () => {
+    if (!user) return;
+    try {
+      await decrementCredits(user.uid);
+      // Credits werden automatisch über AuthContext Realtime-Subscription aktualisiert
+      // Optional: Manuell refreshen (normalerweise nicht nötig)
+      refreshUser();
+    } catch (err: any) {
+      throw err; // Weiterwerfen, damit Workspace den Fehler behandeln kann
+    }
+  }, [user, refreshUser]);
 
   const fetchSessions = useCallback(async (query: string = '') => {
     const sessions = query ? await searchSessions(query) : await getAllSessions();
@@ -82,7 +182,7 @@ const App: React.FC = () => {
     });
   };
 
-  const createNewSession = (params?: { wallColor?: RALColor; originalImage?: string; patternImage?: string; consentData?: any; customerData?: CustomerData }): Session => {
+  const createNewSession = (params?: { wallColor?: RALColor; originalImage?: string; patternImage?: string; consentData?: any; customerData?: CustomerData; imageType?: import('./types').ImageType }): Session => {
     const now = new Date();
     
     // Ensure that if customerData exists, it has the required salesCategories array
@@ -101,6 +201,7 @@ const App: React.FC = () => {
         wallColor: params?.wallColor,
         consentData: params?.consentData,
         customerData: finalCustomerData,
+        imageType: params?.imageType,
     };
     saveSession(newSession);
     fetchSessions();
@@ -176,10 +277,106 @@ const App: React.FC = () => {
     fetchSessions(); // Refresh list to show updated data
     setIsSaveModalOpen(false);
   };
+
+  // React Hooks müssen IMMER vor allen bedingten Returns stehen
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Routing für Pricing und Success Pages - VOR Auth-Loading-Check, damit diese Seiten auch ohne Login erreichbar sind
+  if (location.pathname === '/pricing') {
+    return <PricingPage />;
+  }
+
+  if (location.pathname === '/success') {
+    return <SuccessPage />;
+  }
+
+  // Zeige Loading, während Auth-Status oder First-Visit geprüft wird
+  if (isAuthLoading || isFirstVisit === null) {
+    return (
+      <div className="min-h-screen bg-[#FAF1DC] flex items-center justify-center">
+        <Spinner message="Wird geladen..." />
+      </div>
+    );
+  }
+
+  // Zeige Landing Page nur beim ersten Besuch, wenn nicht eingeloggt und auf Home
+  if (!user && isFirstVisit && location.pathname === '/') {
+    return (
+      <div className="min-h-screen bg-[#FAF1DC]">
+        <LandingPage 
+          onGetStarted={() => setShowRegisterModal(true)} 
+          onLogin={() => setShowLoginModal(true)}
+        />
+        {showRegisterModal && (
+          <RegisterModal
+            onClose={() => setShowRegisterModal(false)}
+            onSuccess={() => {
+              setShowRegisterModal(false);
+              handleUserRegistration();
+              // User wird durch Auth-State-Change automatisch geladen
+            }}
+          />
+        )}
+        {showLoginModal && (
+          <LoginModal
+            onClose={() => setShowLoginModal(false)}
+            onSuccess={() => {
+              setShowLoginModal(false);
+              handleUserLogin();
+              // User wird durch Auth-State-Change automatisch geladen
+            }}
+            onShowRegister={() => {
+              setShowLoginModal(false);
+              setShowRegisterModal(true);
+            }}
+          />
+        )}
+        <CookieConsentModal onOpenPrivacyPolicy={() => setShowDatenschutz(true)} />
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-[#FAF1DC] text-[#67534F] flex flex-col">
-      <Header onNewSession={handleNewSession} onShowSessions={() => setShowSessionList(true)} onSaveSession={() => setIsSaveModalOpen(true)} hasSession={!!session} />
+      <Header 
+        onNewSession={handleNewSession} 
+        onShowSessions={() => setShowSessionList(true)} 
+        onSaveSession={() => setIsSaveModalOpen(true)} 
+        hasSession={!!session}
+        user={user}
+        onLogout={handleLogout}
+        onLogin={() => setShowLoginModal(true)}
+        onShowPaywall={() => setShowPaywallModal(true)}
+      />
+      
+      {/* Login Modal für ausgeloggte User */}
+      {!user && showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onSuccess={() => {
+            setShowLoginModal(false);
+            handleUserLogin();
+            // User wird durch Auth-State-Change automatisch geladen
+          }}
+          onShowRegister={() => {
+            setShowLoginModal(false);
+            setShowRegisterModal(true);
+          }}
+        />
+      )}
+      
+      {/* Register Modal für ausgeloggte User */}
+      {!user && showRegisterModal && (
+        <RegisterModal
+          onClose={() => setShowRegisterModal(false)}
+          onSuccess={() => {
+            setShowRegisterModal(false);
+            handleUserRegistration();
+            // User wird durch Auth-State-Change automatisch geladen
+          }}
+        />
+      )}
       
       {isAppLoading && <Spinner message="Sitzung wird geladen..." />}
       
@@ -194,12 +391,17 @@ const App: React.FC = () => {
         onShowSessions={() => setShowSessionList(true)}
         onCreateSession={createNewSession}
         onSelectWallColor={() => setShowColorPicker(true)}
+        user={user}
+        onShowPaywall={() => setShowPaywallModal(true)}
+        onDecrementCredits={handleDecrementCredits}
+        onImageGenerated={handleImageGeneration}
       />
 
       <Footer
         onOpenImpressum={() => setShowImpressum(true)}
         onOpenDatenschutz={() => setShowDatenschutz(true)}
         onOpenAgb={() => setShowAgb(true)}
+        onOpenCookieSettings={() => setShowCookieSettings(true)}
       />
 
       {showImpressum && (
@@ -304,6 +506,32 @@ const App: React.FC = () => {
               </div>
           </div>
       )}
+
+      {showPaywallModal && (
+        <PaywallModal
+          onClose={() => setShowPaywallModal(false)}
+          onUpgradeSuccess={() => {
+            setShowPaywallModal(false);
+            // User-Daten neu laden nach Upgrade
+            refreshUser();
+            // Track Paywall-Interaktion
+            trackEvent('view_paywall', {
+              user_plan: 'free',
+            });
+          }}
+          user={user}
+        />
+      )}
+
+      <CookieConsentModal 
+        onClose={showCookieSettings ? () => setShowCookieSettings(false) : undefined}
+        onOpenPrivacyPolicy={() => {
+          if (showCookieSettings) {
+            setShowCookieSettings(false);
+          }
+          setShowDatenschutz(true);
+        }}
+      />
 
       {error && (
         <div className="fixed bottom-5 right-5 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50 animate-fade-in" role="alert">

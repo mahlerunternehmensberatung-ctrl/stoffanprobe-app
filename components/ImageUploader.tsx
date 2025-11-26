@@ -146,6 +146,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       <div className="p-4 text-center">
         <h4 className="text-[#532418] font-semibold">{title}</h4>
         <p className="text-[#67534F] text-xs">{description}</p>
+        {imageDataUrl && (
+          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-xs text-green-800">
+              <strong>🔒 Datenschutz:</strong> Ihr Bild wird sicher verarbeitet und nach der Generierung automatisch gelöscht.
+            </p>
+          </div>
+        )}
       </div>
 
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />

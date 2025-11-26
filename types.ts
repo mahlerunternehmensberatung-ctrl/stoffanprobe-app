@@ -51,6 +51,8 @@ export interface ConsentData {
   timestamp?: Date;
 }
 
+export type ImageType = 'private' | 'commercial';
+
 export interface Session {
   id: string;
   name: string;
@@ -59,6 +61,7 @@ export interface Session {
 
   customerData?: CustomerData;
   consentData?: ConsentData;
+  imageType?: ImageType; // Speichert die Auswahl für die gesamte Session
 
   originalImage: string;
   patternImage: string;
@@ -68,4 +71,19 @@ export interface Session {
   wallColor?: RALColor;
   brandingLogo?: string;
   notes?: string;
+}
+
+export interface User {
+  uid: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  plan: 'free' | 'pro';
+  credits: number; // Deprecated - wird durch monthlyCredits + purchasedCredits ersetzt
+  monthlyCredits: number; // Vom Abo, monatlich reset
+  purchasedCredits: number; // Gekauft, 12 Monate gültig
+  purchasedCreditsExpiry?: Date; // Ablaufdatum für purchasedCredits
+  stripeCustomerId?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

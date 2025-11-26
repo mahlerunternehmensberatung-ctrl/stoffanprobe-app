@@ -140,13 +140,16 @@ export async function POST(request: Request) {
       }
     }
 
-    // Use Nano Banana Edit model (faster and cheaper than Pro version)
-    // This model understands multiple input images and complex edit instructions
-    const result = await fal.subscribe('fal-ai/nano-banana/edit', {
+    // WICHTIG: Wir nutzen das "Nano Banana" Modell (Standard, nicht Pro!), 
+    // da dies für Inpainting/Editing optimiert ist.
+    const modelId = 'fal-ai/nano-banana/edit';
+    
+    // Nano Banana erwartet image_urls als Array für mehrere Bilder
+    const result = await fal.subscribe(modelId, {
       input: {
         prompt: finalPrompt,
-        image_urls: imageUrls.filter(Boolean), // Send both images! Filter removes any undefined/null values
-        sync_mode: true,
+        image_urls: imageUrls.filter(Boolean), // Array mit allen Bildern
+        sync_mode: true, // Synchroner Modus für bessere Kontrolle
       },
       logs: true,
     });
