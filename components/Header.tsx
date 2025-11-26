@@ -91,12 +91,12 @@ const Header: React.FC<HeaderProps> = ({
             {user ? (
               <>
                 <div className="flex items-center gap-2">
-                  <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm">
+                  <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#FF954F]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
                     <span className="text-xs sm:text-sm text-[#67534F]">
-                      <span className="hidden sm:inline">Noch </span>
                       <span className="font-bold text-[#532418]">{displayCredits}</span>
-                      <span className="hidden sm:inline"> Bilder</span>
-                      <span className="sm:hidden"> Gratis</span>
                     </span>
                   </div>
                   {user.plan === 'pro' && (
