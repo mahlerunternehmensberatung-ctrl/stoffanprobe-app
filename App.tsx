@@ -62,26 +62,27 @@ const App: React.FC = () => {
   // Prüfe ob es der erste Besuch ist
   const [isFirstVisit, setIsFirstVisit] = useState<boolean | null>(null);
 
+  // Prüfe sofort ob User von Stripe-Redirect kommt (VOR isFirstVisit Check)
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasSessionId = !!urlParams.get('session_id');
+  const hasSuccessParam = urlParams.get('success') === 'true';
+  const isStripeRedirect = hasSessionId || hasSuccessParam;
+
   useEffect(() => {
+    // Wenn Stripe-Redirect: Setze sofort isFirstVisit auf false
+    if (isStripeRedirect) {
+      localStorage.setItem('stoffanprobe_has_visited', 'true');
+      setIsFirstVisit(false);
+      return;
+    }
+
+    // Normale Prüfung für ersten Besuch
     const hasVisitedBefore = localStorage.getItem('stoffanprobe_has_visited');
     setIsFirstVisit(!hasVisitedBefore);
     if (!hasVisitedBefore) {
       localStorage.setItem('stoffanprobe_has_visited', 'true');
     }
-  }, []);
-
-  // Prüfe ob User von Stripe-Redirect kommt (success Parameter)
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get('success');
-    const sessionId = urlParams.get('session_id');
-    
-    // Wenn von Stripe-Redirect: Setze isFirstVisit auf false, damit keine Landing Page angezeigt wird
-    if (success === 'true' && sessionId) {
-      localStorage.setItem('stoffanprobe_has_visited', 'true');
-      setIsFirstVisit(false);
-    }
-  }, []);
+  }, [isStripeRedirect]);
 
   // Prüfe auf erfolgreiche Stripe-Zahlung (URL-Parameter)
   useEffect(() => {
@@ -310,6 +311,8 @@ const App: React.FC = () => {
   }
 
   // Zeige Loading, während Auth-Status oder First-Visit geprüft wird
+  // WICHTIG: Bei Stripe-Redirect IMMER warten bis Auth-State geladen ist
+  // Auch wenn isFirstVisit bereits gesetzt ist, müssen wir auf Auth-State warten
   if (isAuthLoading || isFirstVisit === null) {
     return (
       <div className="min-h-screen bg-[#FAF1DC] flex items-center justify-center">
@@ -319,10 +322,9 @@ const App: React.FC = () => {
   }
 
   // Zeige Landing Page nur beim ersten Besuch, wenn nicht eingeloggt und auf Home
-  // NICHT anzeigen wenn User von Stripe-Redirect kommt (session_id Parameter vorhanden)
-  const urlParams = new URLSearchParams(window.location.search);
-  const isStripeRedirect = urlParams.get('success') === 'true' || urlParams.get('session_id');
-  
+  // WICHTIG: NIEMALS Landing Page zeigen wenn:
+  // 1. Stripe-Redirect (session_id oder success Parameter vorhanden)
+  // 2. User eingeloggt ist (dann sollte App angezeigt werden)
   if (!user && isFirstVisit && location.pathname === '/' && !isStripeRedirect) {
     return (
       <div className="min-h-screen bg-[#FAF1DC]">
