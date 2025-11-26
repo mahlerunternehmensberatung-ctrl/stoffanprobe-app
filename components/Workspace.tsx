@@ -209,17 +209,29 @@ const Workspace: React.FC<WorkspaceProps> = ({
       return;
     }
 
-    // Credit-Check: Prüfe ob User Credits hat
+    // Credit-Check: Prüfe ob User Credits hat (gleiche Berechnung wie im Header)
     if (user) {
-      const hasCredits = user.plan === 'pro' || (user.credits > 0);
-      if (!hasCredits) {
-        // Zeige Paywall-Modal
-        if (onShowPaywall) {
-          onShowPaywall();
-        } else {
-          setError("Sie haben keine Credits mehr. Bitte upgraden Sie auf Pro.");
+      if (user.plan === 'pro') {
+        // Pro-Plan hat unlimitiert Credits
+      } else {
+        // Berechne verfügbare Credits (monthlyCredits + purchasedCredits, abgelaufene berücksichtigen)
+        const now = new Date();
+        let purchasedCredits = user.purchasedCredits ?? 0;
+        if (user.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {
+          purchasedCredits = 0;
         }
-        return;
+        const monthlyCredits = user.monthlyCredits ?? 0;
+        const totalCredits = monthlyCredits + purchasedCredits;
+        
+        if (totalCredits <= 0) {
+          // Zeige Paywall-Modal
+          if (onShowPaywall) {
+            onShowPaywall();
+          } else {
+            setError("Sie haben keine Credits mehr. Bitte upgraden Sie auf Pro.");
+          }
+          return;
+        }
       }
     }
     
@@ -408,8 +420,18 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
   const showPatternControls = session?.originalImage && session.patternImage;
 
-  // Prüfe ob User Credits hat
-  const hasCredits = user ? (user.plan === 'pro' || user.credits > 0) : true;
+  // Prüfe ob User Credits hat (gleiche Berechnung wie im Header)
+  const hasCredits = user ? (() => {
+    if (user.plan === 'pro') return true;
+    
+    const now = new Date();
+    let purchasedCredits = user.purchasedCredits ?? 0;
+    if (user.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {
+      purchasedCredits = 0;
+    }
+    const monthlyCredits = user.monthlyCredits ?? 0;
+    return (monthlyCredits + purchasedCredits) > 0;
+  })() : true;
   
   const isGenerationEnabled = !!(session?.originalImage && hasCredits && (
     (visualizationMode === 'pattern' && session.patternImage && selectedPreset) ||
