@@ -7,7 +7,7 @@ import Footer from './Footer';
 const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, refreshUser } = useAuth();
+  const { user, loading: isAuthLoading, refreshUser } = useAuth();
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
@@ -19,6 +19,14 @@ const SuccessPage: React.FC = () => {
       }, 2000);
     }
   }, [sessionId, user, refreshUser]);
+
+  // Wenn User eingeloggt ist, markiere isFirstVisit als false und leite zur App weiter
+  useEffect(() => {
+    if (!isAuthLoading && user) {
+      // Setze isFirstVisit auf false, damit nach Redirect zur App keine Landing Page angezeigt wird
+      localStorage.setItem('stoffanprobe_has_visited', 'true');
+    }
+  }, [user, isAuthLoading]);
 
   return (
     <div className="min-h-screen bg-[#FAF1DC] flex flex-col">

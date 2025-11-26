@@ -69,6 +69,19 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Prüfe ob User von Stripe-Redirect kommt (success Parameter)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const sessionId = urlParams.get('session_id');
+    
+    // Wenn von Stripe-Redirect: Setze isFirstVisit auf false, damit keine Landing Page angezeigt wird
+    if (success === 'true' && sessionId) {
+      localStorage.setItem('stoffanprobe_has_visited', 'true');
+      setIsFirstVisit(false);
+    }
+  }, []);
+
   // Prüfe auf erfolgreiche Stripe-Zahlung (URL-Parameter)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -301,7 +314,11 @@ const App: React.FC = () => {
   }
 
   // Zeige Landing Page nur beim ersten Besuch, wenn nicht eingeloggt und auf Home
-  if (!user && isFirstVisit && location.pathname === '/') {
+  // NICHT anzeigen wenn User von Stripe-Redirect kommt (session_id Parameter vorhanden)
+  const urlParams = new URLSearchParams(window.location.search);
+  const isStripeRedirect = urlParams.get('success') === 'true' || urlParams.get('session_id');
+  
+  if (!user && isFirstVisit && location.pathname === '/' && !isStripeRedirect) {
     return (
       <div className="min-h-screen bg-[#FAF1DC]">
         <LandingPage 
