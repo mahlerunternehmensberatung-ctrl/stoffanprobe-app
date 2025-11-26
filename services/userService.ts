@@ -31,7 +31,7 @@ export const createUserDocument = async (
       lastName,
       plan: 'free',
       credits: INITIAL_FREE_CREDITS, // Legacy
-      monthlyCredits: 0,
+      monthlyCredits: INITIAL_FREE_CREDITS, // 10 Gratis-Credits für neue User
       purchasedCredits: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
