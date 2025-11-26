@@ -139,21 +139,21 @@ const AccountPage: React.FC = () => {
                 <p className="text-sm text-gray-600">Verfügbare Credits</p>
                 <p className="text-2xl font-bold text-[#532418]">{getTotalCredits()}</p>
               </div>
-              {user.plan !== 'pro' && (
-                <>
-                  <div>
-                    <p className="text-sm text-gray-600">Monatliche Credits</p>
-                    <p className="text-lg font-semibold text-[#532418]">{user.monthlyCredits ?? 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Gekaufte Credits</p>
-                    <p className="text-lg font-semibold text-[#532418]">{user.purchasedCredits ?? 0}</p>
-                    {user.purchasedCreditsExpiry && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Gültig bis: {user.purchasedCreditsExpiry.toLocaleDateString('de-DE')}
-                      </p>
-                    )}
-                  </div>
+              <>
+                <div>
+                  <p className="text-sm text-gray-600">Monatliche Credits</p>
+                  <p className="text-lg font-semibold text-[#532418]">{user.monthlyCredits ?? 0}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Gekaufte Credits</p>
+                  <p className="text-lg font-semibold text-[#532418]">{user.purchasedCredits ?? 0}</p>
+                  {user.purchasedCreditsExpiry && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Gültig bis: {user.purchasedCreditsExpiry.toLocaleDateString('de-DE')}
+                    </p>
+                  )}
+                </div>
+                {user.plan !== 'pro' && (
                   <div className="mt-4">
                     <button
                       onClick={() => navigate('/pricing')}
@@ -162,8 +162,8 @@ const AccountPage: React.FC = () => {
                       Credits kaufen
                     </button>
                   </div>
-                </>
-              )}
+                )}
+              </>
             </div>
           </div>
         </div>
