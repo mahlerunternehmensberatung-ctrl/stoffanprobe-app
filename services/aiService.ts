@@ -275,11 +275,9 @@ interface GenerateOptions {
 export const generateVisualization = async (options: GenerateOptions): Promise<string> => {
     const { roomImage, mode, patternImage, preset, wallColor, textHint } = options;
 
-    // Prüfe ob User angemeldet ist (für Cloud Function)
-    const { getAuth } = await import('firebase/auth');
-    const { auth } = await import('./firebase');
-    const currentUser = auth.currentUser;
-    const useCloudFunction = !!currentUser; // Nutze Cloud Function wenn User angemeldet ist
+    // WICHTIG: KEINE Cloud Function verwenden, da wir Base64 direkt verwenden (KEIN Firebase Storage)
+    // Die Cloud Function erwartet URLs, aber wir senden Base64 direkt an die API
+    const useCloudFunction = false;
 
     const finalRoomDataUrl = roomImage.startsWith('data:') 
         ? roomImage 

@@ -256,9 +256,16 @@ const Workspace: React.FC<WorkspaceProps> = ({
             textHint: textHint
         });
         
-        // Credit-Abzug NACH erfolgreicher Generierung (außer Pro-Plan)
+        // Nur wenn Generierung erfolgreich war: Credit-Abzug (außer Pro-Plan)
+        // WICHTIG: Credit-Abzug NUR wenn Bild erfolgreich generiert wurde
         if (user && user.plan !== 'pro' && onDecrementCredits) {
-          await onDecrementCredits();
+          try {
+            await onDecrementCredits();
+          } catch (creditError) {
+            // Wenn Credit-Abzug fehlschlägt, werfe Fehler weiter
+            // Das generierte Bild wird nicht gespeichert
+            throw new Error('Fehler beim Abziehen der Credits. Bitte versuchen Sie es erneut.');
+          }
         }
         
         const presetForVariant: Variant['preset'] = visualizationMode === 'pattern' && selectedPreset ? selectedPreset : 'Wandfarbe';
