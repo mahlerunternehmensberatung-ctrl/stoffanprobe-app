@@ -10,6 +10,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
 // Mapping von Price IDs zu Credit-Anzahl
+// WICHTIG: Diese Environment Variables müssen in Vercel gesetzt sein:
+// - STRIPE_PRICE_10_CREDITS
+// - STRIPE_PRICE_20_CREDITS
+// - STRIPE_PRICE_50_CREDITS
+// - STRIPE_PRICE_100_CREDITS
+// - STRIPE_PRICE_200_CREDITS
+// - STRIPE_PRICE_500_CREDITS
+// Diese sind NICHT die VITE_* Variablen, sondern separate Backend-Variablen!
 const CREDIT_PACKAGES: Record<string, number> = {
   [process.env.STRIPE_PRICE_10_CREDITS || '']: 10,
   [process.env.STRIPE_PRICE_20_CREDITS || '']: 20,
@@ -18,6 +26,11 @@ const CREDIT_PACKAGES: Record<string, number> = {
   [process.env.STRIPE_PRICE_200_CREDITS || '']: 200,
   [process.env.STRIPE_PRICE_500_CREDITS || '']: 500,
 };
+
+// Warnung wenn CREDIT_PACKAGES leer ist (Environment Variables fehlen)
+if (Object.keys(CREDIT_PACKAGES).every(key => key === '')) {
+  console.warn('⚠️ WARNUNG: CREDIT_PACKAGES ist leer! Environment Variables STRIPE_PRICE_*_CREDITS fehlen in Vercel!');
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -83,7 +96,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             await addPurchasedCredits(userId, credits);
             console.log(`User ${userId} hat ${credits} Credits erhalten`);
           } else {
-            console.error(`Unbekannte Price ID: ${priceId}`);
+            console.error(`❌ Unbekannte Price ID: ${priceId}`);
+            console.error(`Verfügbare Price IDs: ${Object.keys(CREDIT_PACKAGES).filter(k => k).join(', ') || 'KEINE (Environment Variables fehlen!)'}`);
+            console.error(`⚠️ Prüfe ob STRIPE_PRICE_*_CREDITS in Vercel Environment Variables gesetzt sind!`);
           }
         }
       } catch (error: any) {
