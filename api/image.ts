@@ -1,3 +1,4 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import * as fal from '@fal-ai/serverless-client';
 
 // Configure fal client with API key (if available)
@@ -94,23 +95,21 @@ const buildWallColorPrompt = (
   return prompt;
 };
 
-export async function POST(request: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const { prompt, roomImage, patternImage, preset, mode, wallColor, textHint } = await request.json();
+    const { prompt, roomImage, patternImage, preset, mode, wallColor, textHint } = req.body;
 
     // Validate required inputs
     if (!roomImage) {
-      return new Response(
-        JSON.stringify({ error: 'Room image is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(400).json({ error: 'Room image is required' });
     }
 
     if (!process.env.FAL_KEY) {
-      return new Response(
-        JSON.stringify({ error: 'FAL_KEY is not configured' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(500).json({ error: 'FAL_KEY is not configured' });
     }
 
     // Build image_urls array: roomImage first, patternImage second (if available)
@@ -162,10 +161,7 @@ export async function POST(request: Request) {
       throw new Error('No image URL returned from Nano Banana API');
     }
 
-    return new Response(
-      JSON.stringify({ imageUrl }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(200).json({ imageUrl });
   } catch (error: any) {
     console.error('Error in image API:', error);
     
@@ -179,9 +175,6 @@ export async function POST(request: Request) {
       errorMessage = error;
     }
 
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(500).json({ error: errorMessage });
   }
 }

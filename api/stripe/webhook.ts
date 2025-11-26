@@ -1,9 +1,10 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { upgradeToPro, addPurchasedCredits, resetMonthlyCredits } from '../../services/userService';
 
 // Stripe initialisieren
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-11-17.clover',
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
@@ -18,16 +19,30 @@ const CREDIT_PACKAGES: Record<string, number> = {
   [process.env.STRIPE_PRICE_500_CREDITS || '']: 500,
 };
 
-export async function POST(request: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const body = await request.text();
-    const signature = request.headers.get('stripe-signature');
+    // Für Stripe Webhooks brauchen wir den raw body als String
+    // Vercel stellt den raw body als String bereit, wenn Content-Type application/json ist
+    // Falls req.body bereits ein Objekt ist, müssen wir es zurück zu String konvertieren
+    let body: string;
+    if (typeof req.body === 'string') {
+      body = req.body;
+    } else if (Buffer.isBuffer(req.body)) {
+      body = req.body.toString('utf8');
+    } else {
+      // Fallback: Wenn body bereits geparst wurde, müssen wir es zurück zu String konvertieren
+      // Das sollte bei Stripe Webhooks nicht passieren, da Stripe den raw body sendet
+      body = JSON.stringify(req.body);
+    }
+    
+    const signature = req.headers['stripe-signature'] as string;
 
     if (!signature) {
-      return new Response(
-        JSON.stringify({ error: 'Stripe-Signatur fehlt' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(400).json({ error: 'Stripe-Signatur fehlt' });
     }
 
     // Event verifizieren
@@ -36,10 +51,7 @@ export async function POST(request: Request) {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err: any) {
       console.error('Webhook signature verification failed:', err.message);
-      return new Response(
-        JSON.stringify({ error: `Webhook Error: ${err.message}` }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(400).json({ error: `Webhook Error: ${err.message}` });
     }
 
     // checkout.session.completed Event behandeln
@@ -52,10 +64,7 @@ export async function POST(request: Request) {
       
       if (!userId) {
         console.error('User-ID nicht in Session gefunden');
-        return new Response(
-          JSON.stringify({ error: 'User-ID nicht gefunden' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
+        return res.status(400).json({ error: 'User-ID nicht gefunden' });
       }
 
       try {
@@ -79,10 +88,7 @@ export async function POST(request: Request) {
         }
       } catch (error: any) {
         console.error('Error processing checkout:', error);
-        return new Response(
-          JSON.stringify({ error: 'Fehler beim Verarbeiten der Zahlung' }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
+        return res.status(500).json({ error: 'Fehler beim Verarbeiten der Zahlung' });
       }
     }
 
@@ -123,16 +129,9 @@ export async function POST(request: Request) {
       }
     }
 
-    return new Response(
-      JSON.stringify({ received: true }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(200).json({ received: true });
   } catch (error: any) {
     console.error('Webhook error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message || 'Webhook-Fehler' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(500).json({ error: error.message || 'Webhook-Fehler' });
   }
 }
-

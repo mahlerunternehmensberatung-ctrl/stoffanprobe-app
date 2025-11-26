@@ -1,27 +1,25 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 
 // Stripe initialisieren
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-11-17.clover',
 });
 
-export async function POST(request: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const body = await request.json().catch(() => ({}));
-    const { priceId, userId, mode } = body;
+    const { priceId, userId, mode } = req.body;
 
     if (!priceId || !userId || !mode) {
-      return new Response(
-        JSON.stringify({ error: 'priceId, userId und mode sind erforderlich.' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(400).json({ error: 'priceId, userId und mode sind erforderlich.' });
     }
 
     if (!['subscription', 'payment'].includes(mode)) {
-      return new Response(
-        JSON.stringify({ error: 'mode muss "subscription" oder "payment" sein.' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(400).json({ error: 'mode muss "subscription" oder "payment" sein.' });
     }
 
     // Base URL aus Environment Variable oder Default
@@ -49,16 +47,9 @@ export async function POST(request: Request) {
       },
     });
 
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(200).json({ url: session.url });
   } catch (error: any) {
     console.error('Error creating checkout session:', error);
-    return new Response(
-      JSON.stringify({ error: error.message || 'Fehler beim Erstellen der Checkout-Session' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(500).json({ error: error.message || 'Fehler beim Erstellen der Checkout-Session' });
   }
 }
-
