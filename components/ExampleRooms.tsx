@@ -1,68 +1,97 @@
 import React from 'react';
-import { exampleImageData } from './imageData';
-import { glassBase } from '../glass';
+import { RALColor } from '../types';
 
 interface ExampleRoomsProps {
-  onSelect: (imageDataUrl: string) => void;
-  onSelectWallColor: () => void;
+  onSelect: (imageUrl: string) => void;
+  onSelectWallColor: (color: RALColor) => void;
 }
 
-const exampleCategories = [
-  {
-    key: 'wohnzimmer',
-    name: 'Wohnzimmer',
-    previewImage: exampleImageData.wohnzimmer,
-  },
-  {
-    key: 'schlafzimmer',
-    name: 'Schlafzimmer',
-    previewImage: exampleImageData.schlafzimmer,
-  },
-  {
-    key: 'esszimmer',
-    name: 'Esszimmer',
-    previewImage: exampleImageData.esszimmer,
-  },
-];
-
 const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor }) => {
-  return (
-    <div className={`${glassBase} p-4 sm:p-6 mb-6 sm:mb-10`}>
-      <h3 className="text-lg font-semibold text-center text-[#532418] mb-6">
-        Oder mit einem Beispiel starten:
-      </h3>
+  
+  // Jetzt nutzen wir deine lokalen Bilder aus dem public/examples Ordner
+  // Das ist viel schneller und sicherer als externe Links
+  const rooms = [
+    {
+      id: 'living',
+      name: 'Wohnzimmer',
+      image: '/examples/wohnzimmer.jpg', 
+    },
+    {
+      id: 'bedroom',
+      name: 'Schlafzimmer',
+      image: '/examples/schlafzimmer.jpg',
+    },
+    {
+      id: 'dining',
+      name: 'Esszimmer',
+      image: '/examples/esszimmer.jpg',
+    },
+  ];
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {exampleCategories.map((cat) => (
+  // Gemeinsame Klassen für den goldenen Look
+  const cardBaseClasses = "group relative flex flex-col items-center text-left rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden";
+  const goldBorderClasses = "border-2 border-[#E6C785]/50 hover:border-[#CDA35E]";
+
+  return (
+    <div className="w-full max-w-6xl mx-auto mb-8 sm:mb-12 animate-fade-in">
+      <div className="text-center mb-6">
+        <h3 className="text-lg font-semibold text-[#532418]">Oder mit einem Beispiel starten:</h3>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        {/* Die 3 Fotokarten */}
+        {rooms.map((room) => (
           <button
-            key={cat.key}
-            className={`overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 ${glassBase}`}
-            onClick={() => onSelect(cat.previewImage)}
+            key={room.id}
+            onClick={() => onSelect(room.image)}
+            className={`${cardBaseClasses} ${goldBorderClasses} bg-[#FDFBF7]`}
           >
-            <div className="w-full aspect-video rounded-t-3xl overflow-hidden">
-              <img src={cat.previewImage} alt={cat.name} className="w-full h-full object-cover"/>
+            <div className="w-full h-32 sm:h-40 overflow-hidden relative">
+              <img
+                src={room.image}
+                alt={room.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                onError={(e) => {
+                    // Fallback, falls ein Bildname doch mal nicht stimmt
+                    console.error(`Bild nicht gefunden: ${room.image}`);
+                    e.currentTarget.style.opacity = '0.5';
+                }}
+              />
+              {/* Subtiler Gold-Schimmer beim Hovern */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#B08642]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
-            <div className="p-4 text-center">
-              <h4 className="text-[#532418] font-semibold">{cat.name}</h4>
+
+            <div className="p-3 sm:p-4 w-full bg-white relative z-10">
+              <span className="block text-sm sm:text-base font-semibold text-[#532418] group-hover:text-[#B08642] transition-colors text-center">
+                {room.name}
+              </span>
             </div>
           </button>
         ))}
 
-        {/* RAL-Farbe */}
+        {/* Der RAL-Farben Button - Gold Design */}
         <button
-          onClick={onSelectWallColor}
-          className={`overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 ${glassBase}`}
+          onClick={() => onSelectWallColor({ code: 'RAL 9010', name: 'Reinweiß', hex: '#FFFFFF' })}
+          className={`${cardBaseClasses} ${goldBorderClasses} bg-gradient-to-br from-[#FDFBF7] to-[#F8F4E3]`}
         >
-          <div className="w-full aspect-video flex flex-col items-center justify-center gap-3 p-4 sm:p-6">
-            <div className="w-20 h-20 grid grid-cols-2 rounded-lg overflow-hidden shadow-md">
-              <div style={{ background: "#FFFFFF" }}></div>
-              <div style={{ background: "#F6B600" }}></div>
-              <div style={{ background: "#0B3C7C" }}></div>
-              <div style={{ background: "#4B573E" }}></div>
-            </div>
+          <div className="w-full h-32 sm:h-40 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+             <div className="absolute inset-0 bg-[#E6C785]/10 group-hover:bg-[#E6C785]/20 transition-colors duration-300"></div>
+             
+             <div className="w-16 h-16 sm:w-20 sm:h-20 grid grid-cols-2 rounded-lg overflow-hidden shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105 relative z-10 ring-1 ring-white/50">
+                <div className="bg-white"></div>
+                <div className="bg-[#FFD700]"></div> 
+                <div className="bg-[#0f4c81]"></div> 
+                <div className="bg-[#4b5320]"></div> 
+             </div>
+          </div>
 
-            <p className="font-semibold text-[#532418]">Wandfarbe wählen (RAL)</p>
-            <p className="text-xs text-gray-700">RAL-Farbtöne ausprobieren</p>
+          <div className="p-3 sm:p-4 w-full bg-white text-center relative z-10 border-t border-[#E6C785]/20">
+            <span className="block text-sm sm:text-base font-semibold text-[#532418] group-hover:text-[#B08642] transition-colors">
+              Wandfarbe wählen (RAL)
+            </span>
+            <span className="block text-[10px] sm:text-xs text-[#B08642]/70 mt-1 font-medium">
+              RAL-Farbtöne ausprobieren
+            </span>
           </div>
         </button>
       </div>
