@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
-import { getAuth, browserLocalPersistence, setPersistence } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -23,15 +23,9 @@ const app = initializeApp(firebaseConfig);
 const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
 // Initialize Services
+// Firebase Auth verwendet standardmäßig browserLocalPersistence (IndexedDB)
+// Das bedeutet, der Auth-State überlebt Browser-Neustarts und Stripe-Redirects
 const auth = getAuth(app);
-
-// Auth-Persistenz auf LOCAL setzen (überlebt Browser-Neustarts und Stripe-Redirects)
-if (typeof window !== 'undefined') {
-  setPersistence(auth, browserLocalPersistence).catch((error) => {
-    console.error('Error setting auth persistence:', error);
-  });
-}
-
 const db = getFirestore(app);
 const storage = getStorage(app);
 
