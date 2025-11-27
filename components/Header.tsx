@@ -82,14 +82,20 @@ const Header: React.FC<HeaderProps> = ({
     action();
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
+    // 1. Menü sofort visuell schließen
     setShowAccountDropdown(false);
-    if (onLogout) {
-      onLogout();
-    } else {
-      await logout();
-      navigate('/');
-    }
+
+    // 2. Logout-Logik leicht verzögern (100ms),
+    // damit React Zeit hat, das Menü sauber aus dem DOM zu entfernen.
+    setTimeout(async () => {
+      if (onLogout) {
+        onLogout();
+      } else {
+        await logout();
+        navigate('/');
+      }
+    }, 100);
   };
 
   return (
