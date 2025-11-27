@@ -191,7 +191,7 @@ const AccountPage: React.FC = () => {
                         Endet am {formatDate(user.subscriptionEndsAt)}
                       </p>
                       <p className="text-sm text-yellow-700 mt-2">
-                        Ihre Credits und gespeicherten Daten sind bis zu diesem Datum verfügbar.
+                        Ihre monatlichen Credits sind bis zu diesem Datum verfügbar.
                       </p>
                     </div>
                   ) : (

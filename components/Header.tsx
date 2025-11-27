@@ -127,22 +127,22 @@ const Header: React.FC<HeaderProps> = ({
                     <span className="text-sm font-semibold">{getInitials()}</span>
                   </button>
                   {showAccountDropdown && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="absolute right-0 mt-2 min-w-[180px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                       <button
                         onClick={() => handleMenuItemClick(() => navigate('/account'))}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors"
+                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap"
                       >
                         Mein Konto
                       </button>
                       <button
                         onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors"
+                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap"
                       >
                         Guthaben kaufen
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1"
+                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1 whitespace-nowrap"
                       >
                         Abmelden
                       </button>
