@@ -5,7 +5,7 @@ import { glassHeaderButton } from '../glass';
 import { User } from '../types';
 import { useAuth } from '../context/AuthContext';
 
-// Kleines Icon für den Logout-Button
+// NEU: Das korrekte Icon für "Logout" (Pfeil zeigt nach draußen)
 const LogoutIcon = ({ className }: { className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -15,7 +15,7 @@ const LogoutIcon = ({ className }: { className?: string }) => (
     stroke="currentColor" 
     className={className}
   >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
   </svg>
 );
 
@@ -96,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({
     action();
   };
 
-  // Einfacher, direkter Logout ohne Dropdown-Sorgen
+  // Einfacher, direkter Logout
   const handleLogout = async () => {
     if (onLogout) {
       onLogout();
@@ -162,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({
                       )}
                     </div>
 
-                    {/* Separater Logout Button */}
+                    {/* Separater Logout Button mit korrektem Icon */}
                     <button
                         onClick={handleLogout}
                         className="w-10 h-10 rounded-full bg-white border border-gray-200 text-[#67534F] flex items-center justify-center hover:bg-gray-100 hover:text-red-600 transition-colors shadow-sm"
