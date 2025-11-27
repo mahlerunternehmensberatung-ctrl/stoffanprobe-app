@@ -1,310 +1,149 @@
 // legalTexts.ts
 
-export const impressumText = `Mahler Filmproduktion GmbH
-Geschäftsführerin: Anke Mahler
+export const impressumText = `
+# Impressum
 
-Teterower Strasse 8
-18279 Lalendorf, Ortsteil Roggow
-Deutschland
+## Angaben gemäß § 5 TMG
 
-Telefon: 0174 179 4167
-E-Mail: anke@mahler-filmproduktion.de
-Webseite: www.mahler-filmproduktion.de
-
-Registergericht: Bitte ergänzen (z. B. Amtsgericht Potsdam )
-HRB-Nummer: HRB 34019 P
-USt-IdNr.: DE 404242307`;
-
-export const datenschutzText = `DATENSCHUTZERKLÄRUNG FÜR DIE NUTZUNG DER STOFFANPROBE-APP
-
-Diese App ermöglicht es, Fotos von Wohnräumen oder Einrichtungsgegenständen hochzuladen und KI-gestützte Visualisierungen zu erstellen. Der Schutz Ihrer Daten sowie der Schutz Ihrer Kundinnen und Kunden ist uns ein wesentliches Anliegen. Nachfolgend informieren wir Sie transparent über Art, Zweck und Umfang der Verarbeitung.
-
----
-
-1. VERANTWORTLICHE STELLE
-
-Mahler Filmproduktion GmbH
-Geschäftsführerin: Anke Mahler
+**Mahler Filmproduktion GmbH**
 Teterower Straße 8
 18279 Lalendorf, Ortsteil Roggow
 Deutschland
 
-E-Mail: anke@mahler-filmproduktion.de
+**Vertreten durch:**
+Geschäftsführerin: Anke Mahler
+
+## Kontakt
 Telefon: 0174 179 4167
+E-Mail: anke@mahler-filmproduktion.de
 Webseite: www.mahler-filmproduktion.de
 
----
+## Registereintrag
+Eintragung im Handelsregister.
+Registergericht: Amtsgericht Potsdam
+Registernummer: HRB 34019 P
 
-2. ART DER VERARBEITETEN DATEN
+## Umsatzsteuer-ID
+Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:
+DE 404242307
 
-Wenn Sie oder Ihre Kund:innen die App nutzen, können folgende Daten verarbeitet werden:
+## EU-Streitschlichtung
+Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/.
+Unsere E-Mail-Adresse finden Sie oben im Impressum.
 
-2.1 Hochgeladene Bilder
+## Verbraucherstreitbeilegung/Universalschlichtungsstelle
+Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+`;
 
-Dies umfasst Fotos von:
-- privaten Wohnräumen
-- Möbeln, Textilien, Tapeten oder Objekten
+export const datenschutzText = `
+# Datenschutzerklärung
 
-Fotos können Rückschlüsse auf persönliche Lebensumstände zulassen (z. B. Lebensstil, Einkommen, religiöse Symbole, Familienverhältnisse, Vorlieben).
+Stand: 27. November 2025
 
-Wir verarbeiten solche Informationen nicht aktiv, aber technisch ist ihre Mitverarbeitung möglich.
+## 1. Datenschutz auf einen Blick
 
----
+**Allgemeine Hinweise**
+Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
 
-3. ZWECK DER VERARBEITUNG
+**Verantwortliche Stelle**
+Mahler Filmproduktion GmbH
+Anke Mahler
+Teterower Straße 8
+18279 Lalendorf
+E-Mail: anke@mahler-filmproduktion.de
 
-Die Bilder werden ausschließlich verarbeitet, um:
-- eine visuelle Darstellung der gewählten Stoffe, Farben oder Muster zu erzeugen
-- die Beratung durch Raumausstatter:innen zu unterstützen
-- Kund:innen eine Vorschau ihrer individuellen Raumgestaltung zu ermöglichen
+## 2. Hosting und Content Delivery Networks (CDN)
 
-Es findet keine Profilbildung, kein Tracking und keine kommerzielle Auswertung der Bilder statt.
+**Vercel**
+Wir hosten unsere Website bei Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA.
+Vercel ist eine Cloud-Plattform, über die wir unsere Webanwendung bereitstellen. Wenn Sie unsere Website besuchen, werden Ihre IP-Adresse und weitere technische Daten (Browser, Betriebssystem) an die Server von Vercel übertragen. Dies ist technisch notwendig, um Ihnen die Website anzuzeigen.
 
----
+## 3. Allgemeine Hinweise und Pflichtinformationen
 
-4. WO WERDEN DIE BILDER GESPEICHERT?
+**Datensicherheit**
+Wir nutzen aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte eine SSL- bzw. TLS-Verschlüsselung.
 
-4.1 Auf Ihrem eigenen Gerät (Browser-Speicher / IndexedDB)
+## 4. Datenerfassung auf dieser Website
 
-Die App speichert Sitzungen ausschließlich lokal im Browser der jeweiligen Nutzerin / des Nutzers.
-Die Daten sind nicht für uns einsehbar und werden nicht an unsere Server übertragen.
+**Firebase (Google Ireland Limited)**
+Wir nutzen Firebase (Authentication & Firestore) für die Benutzerverwaltung und Datenspeicherung.
+Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.
+- **Authentication:** Wenn Sie sich registrieren oder anmelden, werden Ihre E-Mail-Adresse und ggf. Ihr Name gespeichert, um Ihren Zugang zu verwalten.
+- **Firestore Database:** Wir speichern Ihren Credit-Stand, Ihre Abo-Statusinformationen und Metadaten zu Ihren Sitzungen.
 
-4.2 Verarbeitung durch Google (KI-Dienst)
+**Stripe (Zahlungsabwicklung)**
+Wir wickeln Zahlungen über den Dienstleister Stripe Payments Europe, Ltd., 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland, ab.
+Wir selbst speichern **keine** Kreditkartendaten. Diese werden direkt an Stripe übermittelt.
+Stripe verwendet die Daten zur Zahlungsabwicklung und zur Erfüllung gesetzlicher Pflichten. Weitere Informationen finden Sie in der Datenschutzerklärung von Stripe: https://stripe.com/de/privacy.
 
-Für die Bildverarbeitung verwenden wir den KI-Dienst „Gemini“ der Google LLC.
+## 5. Nutzung von KI-Diensten (Künstliche Intelligenz)
 
-Die hochgeladenen Bilder werden für diesen Zweck an Google übermittelt.
-Dies erfolgt nur nach Ihrer aktiven Einwilligung beim Upload.
+Zur Bereitstellung unserer Kernfunktion (Visualisierung von Räumen) leiten wir Daten an spezialisierte KI-Dienstleister weiter. Dies erfolgt ausschließlich auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) durch Nutzung der "Generieren"-Funktion.
 
-Google verarbeitet die Daten als Auftragsverarbeiter gemäß Art. 28 DSGVO.
+**fal.ai (Bildgenerierung)**
+Für die Erstellung der KI-Bilder nutzen wir den Dienst fal.ai (Fal AI Inc.).
+- **Übermittelte Daten:** Das von Ihnen hochgeladene Raumfoto, das Musterfoto und Ihre Text-Hinweise.
+- **Zweck:** Generierung des visualisierten Bildes.
+- **Speicherung:** Die Bilder werden für die Dauer der Berechnung verarbeitet. Wir haben keinen Einfluss auf die interne Speicherdauer bei fal.ai, nutzen den Dienst aber so datensparsam wie möglich.
 
----
+**x.ai (Textverarbeitung)**
+Zur Optimierung Ihrer Texteingaben (Prompts) nutzen wir x.ai.
+- **Übermittelte Daten:** Ihre Textbeschreibung des Raumes oder Wunsches.
+- **Zweck:** Verbesserung der Anweisungen an die Bild-KI für bessere Ergebnisse.
 
-5. RECHTSGRUNDLAGE
+## 6. Ihre Rechte
 
-Die Verarbeitung erfolgt ausschließlich auf Basis Ihrer ausdrücklichen Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO.
+Sie haben jederzeit das Recht auf unentgeltliche Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen. Hierzu sowie zu weiteren Fragen zum Thema Datenschutz können Sie sich jederzeit an uns wenden.
+`;
 
-Bei hochsensiblen oder ableitbaren Informationen (z. B. religiöse Symbole, Lebensverhältnisse) stützen wir uns auf:
-Art. 9 Abs. 2 lit. a DSGVO – ausdrückliche Einwilligung
+export const agbText = `
+# Allgemeine Geschäftsbedingungen (AGB)
 
-Sie können die Einwilligung jederzeit widerrufen.
-Ein Widerruf wirkt nur für die Zukunft.
+**Mahler Filmproduktion GmbH** (nachfolgend "Anbieter")
+Stand: 27. November 2025
 
----
+## 1. Geltungsbereich
+1.1 Diese AGB gelten für die Nutzung der Web-Applikation "stoffanprobe.de" und aller damit verbundenen Dienste.
+1.2 Abweichende Bedingungen des Nutzers werden nicht anerkannt, es sei denn, der Anbieter stimmt ihrer Geltung ausdrücklich schriftlich zu.
 
-6. SICHERHEIT UND MINIMIERUNG
+## 2. Leistungsgegenstand
+2.1 Der Anbieter stellt eine Software-as-a-Service (SaaS) Lösung zur Verfügung, die es Nutzern ermöglicht, mittels Künstlicher Intelligenz (KI) Fotos von Räumen mit neuen Oberflächen (Stoffen, Farben, Tapeten) zu visualisieren.
+2.2 **Haftungsausschluss für KI-Ergebnisse:** Der Nutzer nimmt zur Kenntnis, dass die erzeugten Bilder durch eine KI generiert werden (Simulation). Sie stellen **keine** verbindliche Farbwiedergabe, Maßhaltigkeit oder technische Machbarkeit dar. Die Ergebnisse dienen ausschließlich der Inspiration und Visualisierung.
 
-Wir treffen folgende Maßnahmen zum Schutz Ihrer Daten:
-- keine Speicherung auf unseren Servern
-- Daten bleiben lokal im Browser
-- keine Weitergabe an Dritte außer Google (KI-Verarbeitung)
-- keine Profilbildung
-- keine anonymisierte Weiterverwendung
-- minimierte Bildübertragung ausschließlich zur Visualisierung
+## 3. Registrierung und Konto
+3.1 Für die Nutzung der Dienste ist eine Registrierung erforderlich.
+3.2 Der Nutzer ist verpflichtet, seine Zugangsdaten geheim zu halten und vor dem Zugriff Dritter zu schützen.
 
----
-
-7. EINWILLIGUNG VOR UPLOAD
-
-Bevor ein Bild verarbeitet wird, informieren wir Sie deutlich über:
-- den Zweck der Verarbeitung
-- die Übermittlung an Google
-- die möglichen Risiken
-- Ihr Widerrufsrecht
-
-Sie müssen vor dem Upload aktiv zustimmen.
-
----
-
-8. LÖSCHUNG UND SPEICHERDAUER
-
-In Ihrem Browser:
-Sie können die gespeicherten Sitzungen jederzeit selbst löschen.
-Beim Löschen einer Sitzung wird das Bild unwiderruflich entfernt.
-
-Bei Google (KI-Verarbeitung):
-Google speichert die Bilder nur für die Dauer der Verarbeitung gemäß eigenen Richtlinien.
-Weiterverarbeitung findet nicht statt.
-
----
-
-9. RECHTE DER BETROFFENEN PERSONEN
-
-Sie haben jederzeit das Recht auf:
-- Auskunft
-- Berichtigung
-- Löschung
-- Einschränkung der Verarbeitung
-- Widerruf der Einwilligung
-- Datenübertragbarkeit
-- Beschwerde bei einer Aufsichtsbehörde
-
-Für Anfragen nutzen Sie bitte die oben genannten Kontaktdaten.
-
----
-
-10. BESCHWERDERECHT
-
-Sie haben das Recht, sich an eine Datenschutz-Aufsichtsbehörde zu wenden, z. B.:
-
-Landesbeauftragter für Datenschutz und Informationsfreiheit
-Mecklenburg-Vorpommern
-(Wenn Sie eine andere Behörde bevorzugen, kann ich sie einfügen.)
-
----
-
-11. STAND
-
-Letzte Aktualisierung: 14. November 2025`;
-
-export const agbText = `# 📄 **AGB – stoffanprobe.de (Vorabversion für Anwalt / IT-Recht 24)**
-
-*(Software-as-a-Service / KI-gestützte Interior-Visualisierung)*
-
----
-
-## **1. Geltungsbereich**
-
-1.1. Die nachstehenden Allgemeinen Geschäftsbedingungen („AGB“) regeln die Nutzung der Web-App **„stoffanprobe.de“**, einer digitalen Visualisierungsplattform der
-**Mahler Filmproduktion GmbH**, vertreten durch Anke Mahler
-(„Anbieterin“).
-
-1.2. Die App ermöglicht es Nutzer:innen, Raumfotos hochzuladen und verschiedene Stoffmuster, Farben oder RAL-Töne visuell zu simulieren.
-Die Ergebnisse werden KI-gestützt generiert und dienen ausschließlich zur Orientierung und Visualisierung.
-
-1.3. Abweichende Geschäftsbedingungen der Nutzer:innen finden keine Anwendung, es sei denn, die Anbieterin stimmt ihnen schriftlich zu.
-
----
-
-## **2. Vertragsgegenstand und Leistungsbeschreibung**
-
-2.1. Die Anbieterin stellt eine browserbasierte Anwendung bereit, mit der Nutzer:innen:
-
-* eigene Raumfotos hochladen,
-* Muster- oder Farbdateien hochladen,
-* Beispielräume auswählen,
-* KI-gestützte Visualisierungen erzeugen,
-* Ergebnisse herunterladen oder speichern können.
-
-2.2. Die Visualisierungen sind **Simulationen**. Sie stellen **keine verbindliche Farbwiedergabe**, **keine technische Maßangabe** und **keine sachverständige Beratung** dar.
-
-2.3. Bei Nutzung des „RAL EXAKT / Profi“-Modus wird durch Farbmapping eine **nä­herungsweise farbtreue Simulation** bereitgestellt. Technisch bedingt können dennoch Abweichungen durch Licht, Displaydarstellung oder Materialbeschaffenheit auftreten.
-
-2.4. Die Anbieterin schuldet **keine erfolgreiche Umsetzung eines Visualisierungsergebnisses**, sondern ausschließlich die Bereitstellung der Plattform.
-
----
-
-## **3. Vertragsschluss**
-
-3.1. Die Nutzung der App ist erst nach Registrierung bzw. Erwerb eines entsprechenden Pakets möglich (sofern vorgesehen).
-
-3.2. Durch das Anlegen eines Accounts oder die Nutzung eines Angebots kommt ein Vertrag mit der Anbieterin zustande.
-
-3.3. Die Anbieterin ist berechtigt, Registrierungen abzulehnen.
-
----
-
-## **4. Nutzungsrechte**
-
-4.1. Die Anbieterin räumt Nutzern ein **einfaches, nicht übertragbares, nicht unterlizenzierbares Recht** ein, die App für eigene Zwecke zu nutzen.
-
-4.2. **Für gewerbliche Raumausstatter / Innenarchitekturbüros:**
-Soweit dies tariflich vorgesehen ist, dürfen Visualisierungen für Kundenberatungen, Angebote und Verkaufsprozesse genutzt werden.
-
-4.3. Die Rechte an allen verwendeten KI-Modellen, Algorithmen, Layouts, Programmcodes und Designs verbleiben vollständig bei der Anbieterin.
-
-4.4. Eine Weitergabe, Vervielfältigung oder kommerzielle Nutzung der Software außerhalb der vereinbarten Pakete ist untersagt.
-
----
-
-## **5. Uploads, Inhalte und Verantwortlichkeit**
-
-5.1. Nutzer:innen dürfen nur solche Bilder oder Musterdateien hochladen, an denen sie die erforderlichen Rechte besitzen.
-
-5.2. Die Anbieterin übernimmt **keine Haftung für Urheberrechtsverletzungen**, die durch Uploads der Nutzer entstehen.
-
-5.3. Die Anbieterin behält sich vor, Inhalte zu löschen oder Accounts zu sperren, wenn:
-
-* Rechte Dritter verletzt werden,
-* strafbare Inhalte hochgeladen werden,
-* technische Risiken bestehen,
-* Missbrauch der App erfolgt.
-
----
-
-## **6. KI-Funktionen und Haftungsbeschränkung**
-
-6.1. Die App verwendet KI-Modelle von Drittanbietern (z. B. Google Gemini). Die Anbieterin hat keinen Einfluss auf deren Funktionsweise, Ergebnisse oder Verfügbarkeit.
-
-6.2. KI-Ergebnisse können inhaltliche Fehler, Farbschwankungen oder Verzerrungen enthalten.
-
-6.3. Die Anbieterin übernimmt **keine Gewähr** für:
-
-* farbverbindliche Ergebnisse,
-* technische Kompatibilität der Farben,
-* Maßhaltigkeit,
-* Genauigkeit der KI-Ausgaben.
-
-6.4. Die Haftung der Anbieterin ist
-– außer bei Vorsatz und grober Fahrlässigkeit,
-– sowie bei Verletzung des Lebens, Körpers oder der Gesundheit
-**auf vertragstypische, vorhersehbare Schäden begrenzt.**
-
----
-
-## **7. Verfügbarkeit / Wartung**
-
-7.1. Die Anbieterin gewährleistet eine durchschnittliche Verfügbarkeit von 97 % im Jahresmittel.
-
-7.2. Updates, Wartungsarbeiten oder Änderungen am Funktionsumfang können jederzeit erfolgen.
-
-7.3. Es besteht kein Anspruch auf bestimmte KI-Modelle, bestimmte Prompt-Ergebnisse oder eine feste Bildgenerierungsqualität.
-
----
-
-## **8. Preise und Zahlungsbedingungen**
-
-*(wird später finalisiert – abhängig von deinem Abo-Modell)*
-
-Platzhalter:
-
-* Monatsabos
-* Staffelpreise für Raumausstatter
-* Nutzung nach Credits
-* Kündigungsfristen
-* Testphase
-
-Ich ergänze das, sobald du mir dein Modell gibst.
-
----
-
-## **9. Datenschutz**
-
-9.1. Die Verarbeitung personenbezogener Daten erfolgt gemäß der **Datenschutzerklärung** der Anbieterin.
-
-9.2. Hochgeladene Bilder werden:
-
-* nur für die Visualisierung verwendet,
-* nicht an Dritte zu Werbezwecken weitergegeben,
-* je nach Modell kurzzeitig an KI-Dienstleister übertragen (zur Bildanalyse),
-* nach Prozessende automatisiert gelöscht bzw. pseudonymisiert (je nach Paket).
-
-9.3. Du kannst mir sagen, falls du *strenges lokales Processing* willst — dann baue ich das hier ein.
-
----
-
-## **10. Kündigung / Vertragslaufzeit**
-
-Platzhalter → wird nach deinem Tarifmodell fertig gestellt.
-
----
-
-## **11. Schlussbestimmungen**
-
-11.1. Es gilt das Recht der Bundesrepublik Deutschland.
-
-11.2. Gerichtsstand ist, sofern zulässig, der Sitz der Anbieterin.
-
-11.3. Sollten einzelne Bestimmungen dieser AGB unwirksam sein, bleibt der Vertrag im Übrigen wirksam.
-
----`;
+## 4. Credits und Abonnements
+4.1 **Credits:** Die Erstellung von Bildern wird in "Credits" abgerechnet.
+4.2 **Monats-Abonnement (Pro-Plan):**
+- Der Nutzer erhält monatlich ein Kontingent an Credits (z.B. 40 Credits).
+- Nicht genutzte Credits aus dem Monatskontingent verfallen am Ende des Abrechnungsmonats und sind nicht übertragbar.
+- Das Abo verlängert sich automatisch um jeweils einen Monat, sofern es nicht gekündigt wird.
+- **Kündigung:** Das Abo ist jederzeit zum Ende der aktuellen Laufzeit kündbar.
+
+4.3 **Gekaufte Credit-Pakete (Einmalkauf):**
+- Zusätzlich können Credit-Pakete erworben werden.
+- Diese Credits sind ab Kaufdatum 12 Monate gültig und verfallen danach.
+- Beim Generieren von Bildern werden zuerst die monatlichen Abo-Credits (da diese schneller verfallen) und erst danach die gekauften Credits verbraucht.
+
+## 5. Zahlungsbedingungen
+5.1 Die Zahlung erfolgt über den Dienstleister Stripe. Akzeptiert werden die dort angebotenen Zahlungsmethoden (z.B. Kreditkarte, Apple Pay, Google Pay).
+5.2 Die Entgelte sind sofort zur Zahlung fällig.
+
+## 6. Nutzungsrechte an Inhalten
+6.1 **Uploads:** Der Nutzer behält die Rechte an seinen hochgeladenen Bildern. Er versichert, dass er über die notwendigen Rechte an den hochgeladenen Fotos verfügt und keine Rechte Dritter (Urheberrechte, Persönlichkeitsrechte) verletzt.
+6.2 **Generierte Bilder:** Der Anbieter räumt dem Nutzer an den generierten Bildern ein einfaches, zeitlich und räumlich unbeschränktes Nutzungsrecht für private und gewerbliche Zwecke (z.B. Kundenberatung) ein.
+
+## 7. Widerrufsrecht für Verbraucher
+7.1 **Erlöschen des Widerrufsrechts:** Der Nutzer stimmt ausdrücklich zu, dass der Anbieter mit der Ausführung des Vertrags (Bereitstellung der digitalen Inhalte/Credits) vor Ablauf der Widerrufsfrist beginnt. Der Nutzer nimmt zur Kenntnis, dass er durch diese Zustimmung sein Widerrufsrecht mit Beginn der Ausführung des Vertrags verliert.
+
+## 8. Haftungsbeschränkung
+8.1 Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit.
+8.2 Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung wesentlicher Vertragspflichten (Kardinalpflichten), begrenzt auf den vertragstypischen, vorhersehbaren Schaden.
+8.3 Der Anbieter übernimmt keine Gewähr für die ständige Verfügbarkeit der KI-Dienste (fal.ai / x.ai), da diese von Drittanbietern abhängen.
+
+## 9. Schlussbestimmungen
+9.1 Es gilt das Recht der Bundesrepublik Deutschland.
+9.2 Gerichtsstand ist, soweit gesetzlich zulässig, der Sitz der Mahler Filmproduktion GmbH (Amtsgericht Potsdam / Sitz in Lalendorf).
+`;
