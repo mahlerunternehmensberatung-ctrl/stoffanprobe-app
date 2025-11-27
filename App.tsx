@@ -28,6 +28,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 const App: React.FC = () => {
+  // React Router Hooks - müssen ganz oben stehen
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // Auth Context - User und Credits werden live abonniert
   const { user, loading: isAuthLoading, refreshUser } = useAuth();
   
@@ -293,10 +297,6 @@ const App: React.FC = () => {
     fetchSessions(); // Refresh list to show updated data
     setIsSaveModalOpen(false);
   };
-
-  // React Hooks müssen IMMER vor allen bedingten Returns stehen
-  const navigate = useNavigate();
-  const location = useLocation();
 
   // Routing für Pricing, Success und Account Pages
   if (location.pathname === '/pricing') {
