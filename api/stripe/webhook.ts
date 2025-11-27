@@ -86,13 +86,28 @@ async function addPurchasedCredits(uid: string, credits: number): Promise<void> 
 async function resetMonthlyCredits(uid: string): Promise<void> {
   const db = getAdminDb();
   const userRef = db.collection('users').doc(uid);
-  
+
   await userRef.update({
     monthlyCredits: MONTHLY_PRO_CREDITS,
     updatedAt: FieldValue.serverTimestamp(),
   });
 
   console.log(`Reset monthly credits for user ${uid}`);
+}
+
+async function downgradeToFree(uid: string): Promise<void> {
+  const db = getAdminDb();
+  const userRef = db.collection('users').doc(uid);
+
+  await userRef.update({
+    plan: 'free',
+    monthlyCredits: 0,
+    subscriptionCancelledAt: FieldValue.delete(),
+    subscriptionEndsAt: FieldValue.delete(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  console.log(`User ${uid} downgraded to free plan`);
 }
 
 export const config = {
@@ -163,18 +178,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (event.type === 'invoice.paid') {
       const invoice = event.data.object as Stripe.Invoice;
-      
+
       if (invoice.subscription && invoice.billing_reason === 'subscription_cycle') {
-        const subscriptionId = typeof invoice.subscription === 'string' 
-          ? invoice.subscription 
+        const subscriptionId = typeof invoice.subscription === 'string'
+          ? invoice.subscription
           : invoice.subscription.id;
-        
+
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const userId = subscription.metadata?.userId;
-        
+
         if (userId) {
           await resetMonthlyCredits(userId);
         }
+      }
+    }
+
+    // Abo wurde endgültig beendet (nach Kündigungsperiode)
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.userId;
+
+      console.log(`Subscription deleted - userId: ${userId}`);
+
+      if (userId) {
+        await downgradeToFree(userId);
       }
     }
 

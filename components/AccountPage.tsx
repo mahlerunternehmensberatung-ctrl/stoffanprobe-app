@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
@@ -6,22 +6,75 @@ import Footer from './Footer';
 
 const AccountPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const [subscriptionInfo, setSubscriptionInfo] = useState<{
-    nextBillingDate?: Date;
-    status?: string;
-  } | null>(null);
+  const { user, loading, refreshUser } = useAuth();
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelConfirmed, setCancelConfirmed] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // TODO: Hole Subscription-Info von Stripe API
-    // Für jetzt: Placeholder
-    if (user?.plan === 'pro' && user?.stripeCustomerId) {
-      // In Zukunft: API Call zu /api/stripe/get-subscription
-      // const response = await fetch(`/api/stripe/get-subscription?customerId=${user.stripeCustomerId}`);
-      // const data = await response.json();
-      // setSubscriptionInfo({ nextBillingDate: new Date(data.current_period_end * 1000), status: data.status });
+  const handleCancelSubscription = async () => {
+    if (!user || !cancelConfirmed) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.uid, action: 'cancel' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Fehler bei der Kündigung');
+      }
+
+      await refreshUser();
+      setShowCancelModal(false);
+      setCancelConfirmed(false);
+    } catch (err: any) {
+      setError(err.message || 'Ein Fehler ist aufgetreten');
+    } finally {
+      setIsProcessing(false);
     }
-  }, [user]);
+  };
+
+  const handleReactivateSubscription = async () => {
+    if (!user) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.uid, action: 'reactivate' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Fehler beim Widerrufen der Kündigung');
+      }
+
+      await refreshUser();
+    } catch (err: any) {
+      setError(err.message || 'Ein Fehler ist aufgetreten');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
 
   if (loading) {
     return (
@@ -98,15 +151,14 @@ const AccountPage: React.FC = () => {
               
               {user.plan === 'pro' && (
                 <>
-                  {subscriptionInfo?.nextBillingDate ? (
-                    <div>
-                      <p className="text-sm text-gray-600">Nächste Verlängerung</p>
-                      <p className="text-lg font-semibold text-[#532418]">
-                        {subscriptionInfo.nextBillingDate.toLocaleDateString('de-DE', {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
+                  {user.subscriptionEndsAt ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p className="text-sm text-yellow-800 font-medium">Abo wird gekündigt</p>
+                      <p className="text-lg font-semibold text-yellow-900">
+                        Endet am {formatDate(user.subscriptionEndsAt)}
+                      </p>
+                      <p className="text-sm text-yellow-700 mt-2">
+                        Ihre Credits und gespeicherten Daten sind bis zu diesem Datum verfügbar.
                       </p>
                     </div>
                   ) : (
@@ -115,17 +167,24 @@ const AccountPage: React.FC = () => {
                       <p className="text-lg font-semibold text-[#532418]">Aktiv</p>
                     </div>
                   )}
-                  
+
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <button
-                      className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium"
-                      onClick={() => {
-                        // TODO: Implementiere Abo-Kündigung
-                        alert('Abo-Kündigung wird in Kürze verfügbar sein.');
-                      }}
-                    >
-                      Abo kündigen
-                    </button>
+                    {user.subscriptionEndsAt ? (
+                      <button
+                        className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium disabled:opacity-50"
+                        onClick={handleReactivateSubscription}
+                        disabled={isProcessing}
+                      >
+                        {isProcessing ? 'Wird verarbeitet...' : 'Kündigung widerrufen'}
+                      </button>
+                    ) : (
+                      <button
+                        className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium"
+                        onClick={() => setShowCancelModal(true)}
+                      >
+                        Abo kündigen
+                      </button>
+                    )}
                   </div>
                 </>
               )}
@@ -175,6 +234,84 @@ const AccountPage: React.FC = () => {
         onOpenAgb={() => {}}
         onOpenCookieSettings={() => {}}
       />
+
+      {/* Kündigungs-Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-[#532418] mb-4">
+              Abo kündigen
+            </h3>
+
+            <div className="space-y-4 mb-6">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-800 font-medium mb-2">
+                  Bitte beachten Sie:
+                </p>
+                <ul className="text-sm text-red-700 space-y-2 list-disc list-inside">
+                  <li>Ihr Abo wird zum Ende der aktuellen Abrechnungsperiode beendet</li>
+                  <li>Verbleibende monatliche Credits verfallen</li>
+                  <li>Gespeicherte Galerien werden gelöscht</li>
+                  <li>Gekaufte Credit-Pakete bleiben bis zu ihrem Ablaufdatum gültig</li>
+                </ul>
+              </div>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={cancelConfirmed}
+                  onChange={(e) => setCancelConfirmed(e.target.checked)}
+                  className="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                />
+                <span className="text-sm text-gray-700">
+                  Ich verstehe, dass meine monatlichen Credits verfallen und meine gespeicherten Daten gelöscht werden.
+                </span>
+              </label>
+
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
+                  {error}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowCancelModal(false);
+                  setCancelConfirmed(false);
+                  setError(null);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                disabled={isProcessing}
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleCancelSubscription}
+                disabled={!cancelConfirmed || isProcessing}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? 'Wird verarbeitet...' : 'Abo wirklich kündigen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fehler-Anzeige */}
+      {error && !showCancelModal && (
+        <div className="fixed bottom-5 right-5 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50">
+          <strong className="font-bold">Fehler!</strong>
+          <span className="block sm:inline ml-2">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="ml-4 text-red-700 hover:text-red-900"
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 };

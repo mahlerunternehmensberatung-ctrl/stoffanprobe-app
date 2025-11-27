@@ -59,6 +59,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         purchasedCredits: data.purchasedCredits ?? 0,
         purchasedCreditsExpiry: data.purchasedCreditsExpiry?.toDate(),
         stripeCustomerId: data.stripeCustomerId,
+        subscriptionCancelledAt: data.subscriptionCancelledAt?.toDate(),
+        subscriptionEndsAt: data.subscriptionEndsAt?.toDate(),
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),
       };
@@ -105,6 +107,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 purchasedCredits: data.purchasedCredits ?? 0,
                 purchasedCreditsExpiry: data.purchasedCreditsExpiry?.toDate(),
                 stripeCustomerId: data.stripeCustomerId,
+                subscriptionCancelledAt: data.subscriptionCancelledAt?.toDate(),
+                subscriptionEndsAt: data.subscriptionEndsAt?.toDate(),
                 createdAt: data.createdAt?.toDate() || new Date(),
                 updatedAt: data.updatedAt?.toDate() || new Date(),
               });

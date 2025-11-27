@@ -84,6 +84,8 @@ export interface User {
   purchasedCredits: number; // Gekauft, 12 Monate gültig
   purchasedCreditsExpiry?: Date; // Ablaufdatum für purchasedCredits
   stripeCustomerId?: string;
+  subscriptionCancelledAt?: Date; // Zeitpunkt der Kündigung
+  subscriptionEndsAt?: Date; // Abo endet zu diesem Datum
   createdAt: Date;
   updatedAt: Date;
 }
