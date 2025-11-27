@@ -82,12 +82,16 @@ const Header: React.FC<HeaderProps> = ({
     action();
   };
 
-  const handleLogout = () => {
+  // FIX: Logout Logik verbessert um visuelle Glitches ("melde") zu verhindern
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     // 1. Menü sofort visuell schließen
     setShowAccountDropdown(false);
 
-    // 2. Logout-Logik leicht verzögern (100ms),
-    // damit React Zeit hat, das Menü sauber aus dem DOM zu entfernen.
+    // 2. Kurze Verzögerung (200ms), damit das Menü sauber aus dem DOM entfernt ist,
+    // BEVOR die Daten (User, Credits) gelöscht werden. Das verhindert das "Zusammenzucken" des Layouts.
     setTimeout(async () => {
       if (onLogout) {
         onLogout();
@@ -95,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({
         await logout();
         navigate('/');
       }
-    }, 100);
+    }, 200);
   };
 
   return (
@@ -133,22 +137,22 @@ const Header: React.FC<HeaderProps> = ({
                     <span className="text-sm font-semibold">{getInitials()}</span>
                   </button>
                   {showAccountDropdown && (
-                    <div className="absolute right-0 mt-2 min-w-[180px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="absolute right-0 mt-2 min-w-[200px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 overflow-hidden">
                       <button
                         onClick={() => handleMenuItemClick(() => navigate('/account'))}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap"
+                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap block"
                       >
                         Mein Konto
                       </button>
                       <button
                         onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap"
+                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap block"
                       >
                         Guthaben kaufen
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1 whitespace-nowrap"
+                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1 whitespace-nowrap block"
                       >
                         Abmelden
                       </button>
