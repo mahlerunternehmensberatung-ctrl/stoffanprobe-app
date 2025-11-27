@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 // Firebase Admin initialisieren
 function getAdminDb() {
@@ -70,20 +70,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
       // Speichere Kündigungsdatum in Firestore
-      // Math.floor() weil Stripe manchmal Floats zurückgibt und Firestore Ganzzahlen erwartet
-      const periodEndMs = Math.floor(updatedSubscription.current_period_end) * 1000;
-      const periodEnd = new Date(periodEndMs);
+      // Stripe gibt Unix-Timestamp in Sekunden zurück
+      // Firestore Timestamp erwartet Sekunden und Nanosekunden als Ganzzahlen
+      const periodEndSeconds = Math.floor(updatedSubscription.current_period_end);
+      const periodEndTimestamp = new Timestamp(periodEndSeconds, 0);
+      const periodEndDate = new Date(periodEndSeconds * 1000);
 
       await userRef.update({
         subscriptionCancelledAt: FieldValue.serverTimestamp(),
-        subscriptionEndsAt: periodEnd,
+        subscriptionEndsAt: periodEndTimestamp,
         updatedAt: FieldValue.serverTimestamp(),
       });
 
       return res.status(200).json({
         success: true,
         message: 'Abo wird zum Ende der Abrechnungsperiode gekündigt.',
-        subscriptionEndsAt: periodEnd.toISOString(),
+        subscriptionEndsAt: periodEndDate.toISOString(),
       });
 
     } else if (action === 'reactivate') {
