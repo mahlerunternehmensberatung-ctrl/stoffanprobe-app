@@ -1,9 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlusIcon, UserIcon } from './Icon';
+import { UserPlusIcon } from './Icon';
 import { glassHeaderButton } from '../glass';
 import { User } from '../types';
 import { useAuth } from '../context/AuthContext';
+
+// Kleines Icon für den Logout-Button
+const LogoutIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    fill="none" 
+    viewBox="0 0 24 24" 
+    strokeWidth={1.5} 
+    stroke="currentColor" 
+    className={className}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+  </svg>
+);
 
 interface HeaderProps {
     onNewSession: () => void;
@@ -82,24 +96,14 @@ const Header: React.FC<HeaderProps> = ({
     action();
   };
 
-  // FIX: Logout Logik verbessert um visuelle Glitches ("melde") zu verhindern
-  const handleLogout = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // 1. Menü sofort visuell schließen
-    setShowAccountDropdown(false);
-
-    // 2. Kurze Verzögerung (200ms), damit das Menü sauber aus dem DOM entfernt ist,
-    // BEVOR die Daten (User, Credits) gelöscht werden. Das verhindert das "Zusammenzucken" des Layouts.
-    setTimeout(async () => {
-      if (onLogout) {
-        onLogout();
-      } else {
-        await logout();
-        navigate('/');
-      }
-    }, 200);
+  // Einfacher, direkter Logout ohne Dropdown-Sorgen
+  const handleLogout = async () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      await logout();
+      navigate('/');
+    }
   };
 
   return (
@@ -127,37 +131,46 @@ const Header: React.FC<HeaderProps> = ({
                     </span>
                   )}
                 </div>
-                {/* Account Icon mit Dropdown */}
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={handleAccountClick}
-                    className="w-10 h-10 rounded-full bg-[#FF954F] text-white flex items-center justify-center hover:bg-[#CC5200] transition-colors shadow-sm"
-                    aria-label="Account-Menü"
-                  >
-                    <span className="text-sm font-semibold">{getInitials()}</span>
-                  </button>
-                  {showAccountDropdown && (
-                    <div className="absolute right-0 mt-2 min-w-[200px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 overflow-hidden">
+                
+                {/* Gruppe: Avatar + Logout Button */}
+                <div className="flex items-center gap-2">
+                    {/* Account Dropdown (Nur noch für Settings/Credits) */}
+                    <div className="relative" ref={dropdownRef}>
                       <button
-                        onClick={() => handleMenuItemClick(() => navigate('/account'))}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap block"
+                        onClick={handleAccountClick}
+                        className="w-10 h-10 rounded-full bg-[#FF954F] text-white flex items-center justify-center hover:bg-[#CC5200] transition-colors shadow-sm"
+                        aria-label="Account-Menü"
                       >
-                        Mein Konto
+                        <span className="text-sm font-semibold">{getInitials()}</span>
                       </button>
-                      <button
-                        onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap block"
-                      >
-                        Guthaben kaufen
-                      </button>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1 whitespace-nowrap block"
-                      >
-                        Abmelden
-                      </button>
+                      
+                      {showAccountDropdown && (
+                        <div className="absolute right-0 mt-2 min-w-[180px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 overflow-hidden">
+                          <button
+                            onClick={() => handleMenuItemClick(() => navigate('/account'))}
+                            className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap block"
+                          >
+                            Mein Konto
+                          </button>
+                          <button
+                            onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
+                            className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors whitespace-nowrap block"
+                          >
+                            Guthaben kaufen
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
+
+                    {/* Separater Logout Button */}
+                    <button
+                        onClick={handleLogout}
+                        className="w-10 h-10 rounded-full bg-white border border-gray-200 text-[#67534F] flex items-center justify-center hover:bg-gray-100 hover:text-red-600 transition-colors shadow-sm"
+                        title="Abmelden"
+                        aria-label="Abmelden"
+                    >
+                        <LogoutIcon className="w-5 h-5" />
+                    </button>
                 </div>
               </>
             ) : (
