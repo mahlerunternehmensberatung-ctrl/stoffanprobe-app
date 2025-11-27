@@ -1,9 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 
-// Stripe initialisieren
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-11-17.clover',
+  apiVersion: '2025-11-17.clover', // Oder deine aktuelle Version
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -12,57 +11,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { priceId, userId, mode } = req.body;
+    const { priceId, userId, customerEmail, mode = 'subscription' } = req.body;
 
-    if (!priceId || !userId || !mode) {
-      return res.status(400).json({ error: 'priceId, userId und mode sind erforderlich.' });
+    if (!priceId || !userId) {
+      return res.status(400).json({ error: 'Missing parameters' });
     }
 
-    if (!['subscription', 'payment'].includes(mode)) {
-      return res.status(400).json({ error: 'mode muss "subscription" oder "payment" sein.' });
-    }
-
-    // Base URL aus Environment Variable oder Default
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : process.env.NEXT_PUBLIC_BASE_URL || 'https://stoffanprobe.de';
-
-    // Basis-Optionen für Checkout Session
-    const sessionOptions: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: ['card'],
+    // Basis-Konfiguration für die Session
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
+      payment_method_types: ['card', 'paypal', 'sofort', 'sepa_debit'],
       line_items: [
         {
           price: priceId,
           quantity: 1,
         },
       ],
-      mode: mode as 'subscription' | 'payment',
-      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/pricing`,
-      client_reference_id: userId, // User-ID für Webhook
+      mode: mode as Stripe.Checkout.SessionCreateParams.Mode,
+      success_url: `${req.headers.origin}/profile?success=true`,
+      cancel_url: `${req.headers.origin}/pricing?canceled=true`,
+      customer_email: customerEmail,
+      client_reference_id: userId,
       metadata: {
-        userId: userId,
-        priceId: priceId,
-        mode: mode,
+        userId,
+        mode,
+        priceId
       },
+      // WICHTIG: Das hier aktiviert das Gutschein-Feld im Checkout!
+      allow_promotion_codes: true,
     };
 
-    // WICHTIG: Bei Subscriptions auch die Subscription-Metadata setzen
-    // Damit invoice.paid und customer.subscription.deleted die userId haben
-    if (mode === 'subscription') {
-      sessionOptions.subscription_data = {
-        metadata: {
-          userId: userId,
-        },
-      };
-    }
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
-    // Stripe Checkout Session erstellen
-    const session = await stripe.checkout.sessions.create(sessionOptions);
-
-    return res.status(200).json({ url: session.url });
+    return res.status(200).json({ sessionId: session.id });
   } catch (error: any) {
-    console.error('Error creating checkout session:', error);
-    return res.status(500).json({ error: error.message || 'Fehler beim Erstellen der Checkout-Session' });
+    console.error('Stripe Error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
