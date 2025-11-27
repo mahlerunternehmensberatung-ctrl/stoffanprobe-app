@@ -38,10 +38,15 @@ const CREDIT_PACKAGES: Record<string, number> = {
 async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<void> {
   const db = getAdminDb();
   const userRef = db.collection('users').doc(uid);
-  
+
+  // Hole bestehende User-Daten um Credits zu addieren
+  const userSnap = await userRef.get();
+  const existingCredits = userSnap.exists ? (userSnap.data()?.monthlyCredits ?? 0) : 0;
+
   const updateData: Record<string, any> = {
     plan: 'pro',
-    monthlyCredits: MONTHLY_PRO_CREDITS,
+    // Addiere Pro-Credits zu bestehenden Credits (z.B. 10 Gratis + 40 Pro = 50)
+    monthlyCredits: existingCredits + MONTHLY_PRO_CREDITS,
     updatedAt: FieldValue.serverTimestamp(),
   };
 
@@ -50,7 +55,7 @@ async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<voi
   }
 
   await userRef.update(updateData);
-  console.log(`User ${uid} upgraded to Pro`);
+  console.log(`User ${uid} upgraded to Pro (${existingCredits} + ${MONTHLY_PRO_CREDITS} = ${existingCredits + MONTHLY_PRO_CREDITS} credits)`);
 }
 
 async function addPurchasedCredits(uid: string, credits: number): Promise<void> {

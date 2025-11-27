@@ -1,32 +1,43 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
 import Footer from './Footer';
+import Spinner from './Spinner';
 
 const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, loading: isAuthLoading, refreshUser } = useAuth();
   const sessionId = searchParams.get('session_id');
+  const [hasRefreshed, setHasRefreshed] = useState(false);
+
+  // Immer stoffanprobe_has_visited setzen, auch wenn User ausgeloggt
+  // (damit nach App-Rückkehr keine Landing-Page erscheint)
+  useEffect(() => {
+    localStorage.setItem('stoffanprobe_has_visited', 'true');
+  }, []);
 
   useEffect(() => {
     // User-Daten aktualisieren nach erfolgreicher Zahlung
-    if (sessionId && user) {
+    if (sessionId && user && !hasRefreshed) {
       // Warte kurz, damit Webhook verarbeitet werden kann
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         refreshUser();
+        setHasRefreshed(true);
       }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [sessionId, user, refreshUser]);
+  }, [sessionId, user, refreshUser, hasRefreshed]);
 
-  // Wenn User eingeloggt ist, markiere isFirstVisit als false und leite zur App weiter
-  useEffect(() => {
-    if (!isAuthLoading && user) {
-      // Setze isFirstVisit auf false, damit nach Redirect zur App keine Landing Page angezeigt wird
-      localStorage.setItem('stoffanprobe_has_visited', 'true');
-    }
-  }, [user, isAuthLoading]);
+  // Warte auf Auth-State nach Stripe-Redirect (kann kurz dauern)
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#FAF1DC] flex items-center justify-center">
+        <Spinner message="Wird geladen..." />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF1DC] flex flex-col">

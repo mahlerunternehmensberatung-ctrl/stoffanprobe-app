@@ -77,12 +77,13 @@ const App: React.FC = () => {
     }
 
     // Normale Prüfung für ersten Besuch
+    // Prüfe bei JEDER Location-Änderung, um nach Success-Page-Redirect korrekt zu reagieren
     const hasVisitedBefore = localStorage.getItem('stoffanprobe_has_visited');
     setIsFirstVisit(!hasVisitedBefore);
     if (!hasVisitedBefore) {
       localStorage.setItem('stoffanprobe_has_visited', 'true');
     }
-  }, [isStripeRedirect]);
+  }, [isStripeRedirect, location.pathname]);
 
   // Prüfe auf erfolgreiche Stripe-Zahlung (URL-Parameter)
   useEffect(() => {
