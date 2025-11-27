@@ -1,0 +1,21 @@
+{
+  "name": "Stoffanprobe - KI Raumvisualisierung",
+  "short_name": "Stoffanprobe",
+  "description": "Visualisieren Sie Stoffe und Materialien in Ihren Räumen mit KI",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#E6C785",
+  "background_color": "#E6C785",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

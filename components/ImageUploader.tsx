@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { glassBase, glassOrange, glassOrangeActive } from '../glass';
+import { glassBase } from '../glass';
 
 interface ImageUploaderProps {
   onImageSelect: (imageDataUrl: string) => void;
@@ -19,6 +19,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+
+  // Der edle Gold-Verlauf für Buttons und Highlights
+  const goldGradient = "bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642]";
 
   const processFile = useCallback((file: File) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -86,17 +89,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   }, [processFile]);
 
-  // Removed scale-[1.03] to prevent layout shifts that cause double-click issues
+  // Design-Logik: Goldener Rahmen beim Draggen, subtiler Schimmer beim Hover
   const borderStyle = isDragging 
-    ? 'border-[#FF954F] shadow-lg' 
+    ? 'border-[#CDA35E] shadow-lg ring-2 ring-[#E6C785]/30' // Goldener Fokus beim Ziehen
     : isHovering 
-      ? 'border-white/40 shadow-xl' 
+      ? 'border-[#E6C785]/40 shadow-xl' 
       : 'border-white/20';
 
 
   return (
     <div
-      className={`${glassBase} ${borderStyle} overflow-hidden`}
+      className={`${glassBase} ${borderStyle} overflow-hidden transition-all duration-300`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -117,7 +120,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
             <button
               onClick={handleClear}
-              className="absolute top-2 right-2 bg-black/40 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl hover:bg-black/60 z-10 cursor-pointer"
+              className="absolute top-2 right-2 bg-black/40 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl hover:bg-black/60 z-10 cursor-pointer transition-colors"
               aria-label="Bild entfernen"
             >
               &times;
@@ -127,7 +130,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           <div className="flex flex-col items-center justify-center gap-4 p-6">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-16 w-16 text-gray-300"
+              className={`h-16 w-16 transition-colors duration-300 ${isHovering ? 'text-[#CDA35E]/60' : 'text-gray-300'}`}
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -136,7 +139,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
 
-            <button onClick={handleClick} className={`${isHovering ? glassOrangeActive : glassOrange} cursor-pointer`}>
+            <button 
+              onClick={handleClick} 
+              className={`px-6 py-3 text-sm sm:text-base font-bold text-white rounded-full shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${goldGradient} cursor-pointer`}
+            >
               {buttonText}
             </button>
           </div>
