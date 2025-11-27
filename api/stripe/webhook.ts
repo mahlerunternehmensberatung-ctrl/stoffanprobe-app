@@ -19,20 +19,21 @@ function getAdminDb() {
 
 // Stripe initialisieren
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-11-17.clover',
+  apiVersion: '2025-11-17.clover', // Stelle sicher, dass diese Version stimmt, sonst '2023-10-16' o.ä. nutzen
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-const MONTHLY_PRO_CREDITS = 40;
+const MONTHLY_PRO_CREDITS = 40; // Hast du hier auch auf 40 angepasst? Falls ja, passt es.
 
 // Credit-Pakete Mapping
+// WICHTIG: Hier sind jetzt die neuen Variablen und Mengen (40 & 400)
 const CREDIT_PACKAGES: Record<string, number> = {
   [process.env.STRIPE_PRICE_10_CREDITS || '']: 10,
   [process.env.STRIPE_PRICE_20_CREDITS || '']: 20,
-  [process.env.STRIPE_PRICE_50_CREDITS || '']: 50,
+  [process.env.STRIPE_PRICE_40_CREDITS || '']: 40,   // NEU: 40 statt 50
   [process.env.STRIPE_PRICE_100_CREDITS || '']: 100,
   [process.env.STRIPE_PRICE_200_CREDITS || '']: 200,
-  [process.env.STRIPE_PRICE_500_CREDITS || '']: 500,
+  [process.env.STRIPE_PRICE_400_CREDITS || '']: 400, // NEU: 400 statt 500
 };
 
 async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<void> {
@@ -45,7 +46,7 @@ async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<voi
 
   const updateData: Record<string, any> = {
     plan: 'pro',
-    // Addiere Pro-Credits zu bestehenden Credits (z.B. 10 Gratis + 40 Pro = 50)
+    // Addiere Pro-Credits zu bestehenden Credits
     monthlyCredits: existingCredits + MONTHLY_PRO_CREDITS,
     updatedAt: FieldValue.serverTimestamp(),
   };
@@ -70,13 +71,14 @@ async function addPurchasedCredits(uid: string, credits: number): Promise<void> 
   const userData = userSnap.data()!;
   const currentPurchasedCredits = userData.purchasedCredits ?? 0;
   
+  // Credits verfallen erst in 12 Monaten
   const expiryDate = new Date();
   expiryDate.setMonth(expiryDate.getMonth() + 12);
 
   await userRef.update({
     purchasedCredits: currentPurchasedCredits + credits,
     purchasedCreditsExpiry: expiryDate,
-    credits: (userData.monthlyCredits ?? 0) + currentPurchasedCredits + credits,
+    credits: (userData.monthlyCredits ?? 0) + currentPurchasedCredits + credits, // Gesamt-Credits aktualisieren
     updatedAt: FieldValue.serverTimestamp(),
   });
 
@@ -169,8 +171,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (mode === 'subscription') {
         await upgradeToPro(userId, stripeCustomerId);
 
-        // WICHTIG: Setze userId in Subscription-Metadata falls nicht vorhanden
-        // (für invoice.paid und customer.subscription.deleted Events)
+        // User-ID in Subscription speichern für spätere Events
         if (session.subscription) {
           const subscriptionId = typeof session.subscription === 'string'
             ? session.subscription
@@ -186,9 +187,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
       } else if (mode === 'payment' && priceId) {
+        // HIER GREIFT DAS NEUE MAPPING
         const credits = CREDIT_PACKAGES[priceId];
+        
         if (credits) {
           await addPurchasedCredits(userId, credits);
+        } else {
+          console.error(`Keine Credits für PriceID ${priceId} gefunden. Prüfe Environment Variables!`);
         }
       }
     }
@@ -210,7 +215,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Abo wurde endgültig beendet (nach Kündigungsperiode)
     if (event.type === 'customer.subscription.deleted') {
       const subscription = event.data.object as Stripe.Subscription;
       const userId = subscription.metadata?.userId;

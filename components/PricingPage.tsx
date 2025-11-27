@@ -1,217 +1,166 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
-import { glassButton } from '../glass';
+import { useAuth } from '../context/AuthContext';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Gold-Styles (wie gewünscht)
+const goldGradient = "bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642]";
+const goldTextGradient = "bg-clip-text text-transparent bg-gradient-to-br from-[#B08642] to-[#8C6A30]";
+
+// Die Pakete mit den NEUEN Variablennamen aus deinem Screenshot
+const creditPackages = [
+  { 
+    credits: 10, 
+    price: '4,90€', 
+    id: import.meta.env.VITE_STRIPE_PRICE_10_CREDITS,
+    description: "Einsteiger-Paket: Ideal zum Testen"
+  },
+  { 
+    credits: 20, 
+    price: '9,90€', 
+    id: import.meta.env.VITE_STRIPE_PRICE_20_CREDITS,
+    description: "Basic-Paket: Für kleine Projekte"
+  },
+  { 
+    credits: 40, 
+    price: '19,90€', 
+    id: import.meta.env.VITE_STRIPE_PRICE_40_CREDITS, // Angepasst auf 40
+    description: "Standard-Paket: Unsere Empfehlung"
+  },
+  { 
+    credits: 100, 
+    price: '49,00€', 
+    id: import.meta.env.VITE_STRIPE_PRICE_100_CREDITS,
+    description: "Plus-Paket: Für regelmäßige Nutzung"
+  },
+  { 
+    credits: 200, 
+    price: '99,00€', 
+    id: import.meta.env.VITE_STRIPE_PRICE_200_CREDITS,
+    description: "Pro-Paket: Für hohe Anforderungen"
+  },
+  { 
+    credits: 400, 
+    price: '199,00€', 
+    id: import.meta.env.VITE_STRIPE_PRICE_400_CREDITS, // Angepasst auf 400
+    description: "Max-Paket: Maximaler Vorrat ohne Abo"
+  },
+];
 
 const PricingPage: React.FC = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Environment Variables für Price IDs
-  const PRICE_ABO = import.meta.env.VITE_STRIPE_PRICE_ABO || '';
-  const PRICE_10 = import.meta.env.VITE_STRIPE_PRICE_10_CREDITS || '';
-  const PRICE_20 = import.meta.env.VITE_STRIPE_PRICE_20_CREDITS || '';
-  const PRICE_50 = import.meta.env.VITE_STRIPE_PRICE_50_CREDITS || '';
-  const PRICE_100 = import.meta.env.VITE_STRIPE_PRICE_100_CREDITS || '';
-  const PRICE_200 = import.meta.env.VITE_STRIPE_PRICE_200_CREDITS || '';
-  const PRICE_500 = import.meta.env.VITE_STRIPE_PRICE_500_CREDITS || '';
-
-  const creditPackages = [
-    { credits: 10, priceId: PRICE_10, price: '5,00' },
-    { credits: 20, priceId: PRICE_20, price: '10,00' },
-    { credits: 50, priceId: PRICE_50, price: '25,00' },
-    { credits: 100, priceId: PRICE_100, price: '50,00' },
-    { credits: 200, priceId: PRICE_200, price: '100,00' },
-    { credits: 500, priceId: PRICE_500, price: '250,00' },
-  ];
-
-  // Prüfe ob User ein aktives Abo hat
-  const hasActiveSubscription = user?.plan === 'pro';
-
-  const handleCheckout = async (priceId: string, mode: 'subscription' | 'payment') => {
+  const handlePurchase = async (priceId: string) => {
     if (!user) {
       navigate('/');
       return;
     }
 
-    // Credits nur mit Abo erlauben
-    if (mode === 'payment' && !hasActiveSubscription) {
-      alert('Bitte schließen Sie zuerst ein Abo ab, um Credits kaufen zu können.');
-      return;
+    if (!priceId) {
+        setError("Preis-ID nicht gefunden. Bitte prüfen Sie die Konfiguration.");
+        return;
     }
 
-    setIsLoading(priceId);
+    setLoadingId(priceId);
+    setError(null);
 
     try {
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+      if (!stripe) throw new Error('Stripe konnte nicht geladen werden');
+
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           priceId,
           userId: user.uid,
-          mode,
+          customerEmail: user.email,
+          mode: 'payment',
         }),
       });
 
-      const data = await response.json();
+      const { sessionId, error: apiError } = await response.json();
+      if (apiError) throw new Error(apiError);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Fehler beim Erstellen der Checkout-Session');
-      }
+      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
+      if (stripeError) throw stripeError;
 
-      // Weiterleitung zu Stripe Checkout
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error: any) {
-      console.error('Error creating checkout session:', error);
-      alert(error.message || 'Fehler beim Erstellen der Checkout-Session');
-      setIsLoading(null);
+    } catch (err: any) {
+      console.error('Purchase error:', err);
+      setError('Fehler beim Starten des Bezahlvorgangs.');
+      setLoadingId(null);
     }
-  };
-
-  // Berechne verfügbare Credits
-  const getTotalCredits = () => {
-    if (!user) return 0;
-    
-    const now = new Date();
-    let purchasedCredits = user.purchasedCredits ?? 0;
-    if (user.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {
-      purchasedCredits = 0;
-    }
-    
-    const monthlyCredits = user.monthlyCredits ?? 0;
-    return monthlyCredits + purchasedCredits;
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF1DC] flex flex-col">
+    <div className="min-h-screen bg-[#FAF1DC] flex flex-col font-sans">
       <Header 
-        onNewSession={() => navigate('/')}
-        onShowSessions={() => navigate('/')}
-        onSaveSession={() => navigate('/')}
+        onNewSession={() => navigate('/')} 
+        onShowSessions={() => navigate('/')} 
+        onSaveSession={() => navigate('/')} 
         hasSession={false}
         user={user}
         onLogin={() => navigate('/')}
         onShowPaywall={() => {}}
       />
-      
-      <main className="flex-grow container mx-auto px-4 py-8 sm:py-12">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] text-center mb-8">
-            Preise & Credits
-          </h1>
 
-          {/* Aktueller Status */}
-          {user && (
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-              <h2 className="text-xl font-semibold text-[#532418] mb-4">Ihr aktueller Status</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Plan</p>
-                  <p className="text-lg font-bold text-[#532418]">
-                    {hasActiveSubscription ? 'Pro-Abo' : 'Kostenlos'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Verfügbare Credits</p>
-                  <p className="text-lg font-bold text-[#532418]">{getTotalCredits()}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Monatliche Credits</p>
-                  <p className="text-lg font-bold text-[#532418]">{user.monthlyCredits ?? 0}</p>
-                </div>
-              </div>
+      <main className="flex-grow container mx-auto px-4 py-12">
+        <div className="max-w-6xl mx-auto text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-4">
+            Credit-Pakete kaufen
+          </h1>
+          <p className="text-[#67534F] text-lg mb-12 max-w-2xl mx-auto">
+            Volle Flexibilität ohne Abo-Bindung. Credits sind 12 Monate gültig.
+          </p>
+
+          {error && (
+            <div className="mb-8 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg">
+              {error}
             </div>
           )}
 
-          {/* Abo-Box */}
-          <div className="bg-gradient-to-br from-[#FF954F] to-[#CC5200] rounded-lg shadow-xl p-8 mb-12 text-white">
-            <div className="text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-2">Stoffanprobe Abo</h2>
-              <p className="text-xl mb-4">19,90€/Monat</p>
-              <p className="text-lg mb-6">40 Bilder pro Monat</p>
-              <button
-                onClick={() => handleCheckout(PRICE_ABO, 'subscription')}
-                disabled={isLoading !== null || !user || hasActiveSubscription}
-                className="px-8 py-3 bg-white text-[#FF954F] rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {creditPackages.map((pkg) => (
+              <div 
+                key={pkg.credits}
+                className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-8 border border-[#E6C785]/30 flex flex-col items-center relative"
               >
-                {isLoading === PRICE_ABO ? 'Wird geladen...' : hasActiveSubscription ? 'Bereits aktiv' : 'Jetzt abonnieren'}
-              </button>
-            </div>
-          </div>
-
-          {/* Credit-Pakete */}
-          <div>
-            <h2 className="text-2xl font-bold text-[#532418] text-center mb-6">
-              Credit-Pakete kaufen
-            </h2>
-            
-            {/* Hinweis für User ohne Abo */}
-            {user && !hasActiveSubscription && (
-              <div className="bg-amber-50 border border-amber-300 text-amber-800 px-6 py-4 rounded-lg mb-6 text-center">
-                <p className="font-medium">
-                  💡 Credit-Pakete sind nur für Abo-Kunden verfügbar.
-                </p>
-                <p className="text-sm mt-1">
-                  Schließen Sie zuerst ein Abo ab, um zusätzliche Credits kaufen zu können.
-                </p>
-              </div>
-            )}
-
-            {/* Hinweis für Abo-Kunden */}
-            {user && hasActiveSubscription && (
-              <p className="text-center text-gray-600 mb-8">
-                Credits sind 12 Monate gültig und ergänzen Ihr monatliches Kontingent.
-              </p>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {creditPackages.map((pkg) => (
-                <div
-                  key={pkg.credits}
-                  className={`bg-white rounded-lg shadow-lg p-6 transition-all ${
-                    hasActiveSubscription 
-                      ? 'hover:shadow-xl' 
-                      : 'opacity-60 cursor-not-allowed'
-                  }`}
-                >
-                  <div className="text-center">
-                    <h3 className="text-2xl font-bold text-[#532418] mb-2">
-                      {pkg.credits} Credits
-                    </h3>
-                    <p className="text-3xl font-bold text-[#FF954F] mb-4">
-                      {pkg.price}€
-                    </p>
-                    <button
-                      onClick={() => handleCheckout(pkg.priceId, 'payment')}
-                      disabled={isLoading !== null || !user || !pkg.priceId || !hasActiveSubscription}
-                      className={`${glassButton} w-full py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {isLoading === pkg.priceId ? 'Wird geladen...' : hasActiveSubscription ? 'Kaufen' : '🔒 Nur mit Abo'}
-                    </button>
+                <div className="text-center mb-6 w-full">
+                  <h3 className="text-2xl font-bold text-[#532418] mb-1">{pkg.credits} Credits</h3>
+                  <p className="text-sm text-[#8C6A30] mb-4 h-5">{pkg.description}</p>
+                  
+                  <div className={`text-4xl font-extrabold ${goldTextGradient} mb-2`}>
+                    {pkg.price}
+                  </div>
+                  
+                  <div className="text-xs text-gray-400">
+                     {(parseFloat(pkg.price.replace(',', '.').replace('€', '')) / pkg.credits).toFixed(2)}€ / Bild
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {!user && (
-            <div className="text-center mt-8">
-              <p className="text-gray-600 mb-4">Bitte melden Sie sich an, um ein Abo abzuschließen.</p>
-              <button
-                onClick={() => navigate('/')}
-                className="px-6 py-2 bg-[#FF954F] text-white rounded-lg font-semibold hover:bg-[#CC5200] transition-colors"
-              >
-                Zur Anmeldung
-              </button>
-            </div>
-          )}
+                <button
+                  onClick={() => pkg.id && handlePurchase(pkg.id)}
+                  disabled={!!loadingId || !pkg.id}
+                  className={`w-full py-3 px-6 rounded-full font-bold text-white shadow-md transition-all transform active:scale-95 hover:shadow-lg ${
+                    loadingId === pkg.id 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : `${goldGradient} hover:opacity-90`
+                  }`}
+                >
+                  {loadingId === pkg.id ? 'Lädt...' : 'Jetzt aufladen'}
+                </button>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-12 text-sm text-[#67534F]/70">
+            Alle Preise inkl. gesetzlicher MwSt. Sichere Zahlung via Stripe.
+          </div>
         </div>
       </main>
 
