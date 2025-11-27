@@ -13,7 +13,19 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
   useEffect(() => {
     // Prüfe, ob bereits eine Consent-Entscheidung getroffen wurde
     const consentDecision = localStorage.getItem('cookie_consent_decision');
-    
+
+    // Bei Stripe-Redirect: Zeige Banner NICHT erneut an
+    // (der User hat vorher bereits zugestimmt, localStorage könnte verzögert laden)
+    const urlParams = new URLSearchParams(window.location.search);
+    const isStripeRedirect = !!urlParams.get('session_id') || window.location.pathname === '/success';
+
+    if (isStripeRedirect && !onClose) {
+      // Bei Stripe-Redirect: Banner nicht zeigen (auch wenn consent fehlt)
+      // Der User hat vor dem Redirect bereits entschieden
+      setIsVisible(false);
+      return;
+    }
+
     // Zeige Modal nur, wenn noch keine Entscheidung getroffen wurde
     // Oder wenn explizit angefordert (z.B. über Footer-Link)
     if (!consentDecision || onClose) {

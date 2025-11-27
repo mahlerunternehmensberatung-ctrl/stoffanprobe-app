@@ -249,11 +249,18 @@ const AccountPage: React.FC = () => {
                   Bitte beachten Sie:
                 </p>
                 <ul className="text-sm text-red-700 space-y-2 list-disc list-inside">
-                  <li>Ihr Abo wird zum Ende der aktuellen Abrechnungsperiode beendet</li>
-                  <li>Verbleibende monatliche Credits verfallen</li>
-                  <li>Gespeicherte Galerien werden gelöscht</li>
+                  <li>Ihr Abo wird zum Ende der Abrechnungsperiode beendet</li>
+                  <li>Monatliche Credits (40/Monat) verfallen</li>
                   <li>Gekaufte Credit-Pakete bleiben bis zu ihrem Ablaufdatum gültig</li>
+                  <li>Sie können jederzeit ein neues Abo abschließen</li>
                 </ul>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">💡 Wichtig:</span> Ihre Galerien sind lokal in Ihrem Browser gespeichert.
+                  Laden Sie Ihre Bilder herunter, bevor Sie Ihren Browser-Cache leeren.
+                </p>
               </div>
 
               <label className="flex items-start gap-3 cursor-pointer">
@@ -264,7 +271,7 @@ const AccountPage: React.FC = () => {
                   className="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                 />
                 <span className="text-sm text-gray-700">
-                  Ich verstehe, dass meine monatlichen Credits verfallen und meine gespeicherten Daten gelöscht werden.
+                  Ich verstehe, dass meine monatlichen Credits verfallen.
                 </span>
               </label>
 
