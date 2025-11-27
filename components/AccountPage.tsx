@@ -11,6 +11,7 @@ const AccountPage: React.FC = () => {
   const [cancelConfirmed, setCancelConfirmed] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleCancelSubscription = async () => {
     if (!user || !cancelConfirmed) return;
@@ -31,9 +32,15 @@ const AccountPage: React.FC = () => {
         throw new Error(data.error || 'Fehler bei der Kündigung');
       }
 
-      await refreshUser();
       setShowCancelModal(false);
       setCancelConfirmed(false);
+      setSuccessMessage('Ihr Abo wurde erfolgreich gekündigt.');
+      
+      // Refresh nach kurzer Verzögerung
+      setTimeout(async () => {
+        await refreshUser();
+      }, 500);
+      
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten');
     } finally {
@@ -60,7 +67,12 @@ const AccountPage: React.FC = () => {
         throw new Error(data.error || 'Fehler beim Widerrufen der Kündigung');
       }
 
-      await refreshUser();
+      setSuccessMessage('Ihre Kündigung wurde widerrufen. Ihr Abo läuft weiter.');
+      
+      setTimeout(async () => {
+        await refreshUser();
+      }, 500);
+      
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten');
     } finally {
@@ -84,9 +96,17 @@ const AccountPage: React.FC = () => {
     );
   }
 
-  if (!user) {
+  if (!user && !loading) {
     navigate('/');
     return null;
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#FAF1DC] flex items-center justify-center">
+        <div className="text-[#532418]">Wird geladen...</div>
+      </div>
+    );
   }
 
   const getPlanDisplay = () => {
@@ -124,6 +144,19 @@ const AccountPage: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-8">
             Mein Konto
           </h1>
+
+          {/* Erfolgs-Meldung */}
+          {successMessage && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 flex justify-between items-center">
+              <span>{successMessage}</span>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="text-green-700 hover:text-green-900 font-bold"
+              >
+                ×
+              </button>
+            </div>
+          )}
 
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 className="text-xl font-semibold text-[#532418] mb-4">Kontoinformationen</h2>
@@ -324,4 +357,3 @@ const AccountPage: React.FC = () => {
 };
 
 export default AccountPage;
-
