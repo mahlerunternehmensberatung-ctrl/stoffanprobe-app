@@ -441,6 +441,7 @@ const App: React.FC = () => {
         onShowPaywall={() => setShowPaywallModal(true)}
         onDecrementCredits={handleDecrementCredits}
         onImageGenerated={handleImageGeneration}
+        onShowLogin={() => setShowLoginModal(true)}
       />
 
       <Footer

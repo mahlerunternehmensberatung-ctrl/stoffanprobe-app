@@ -35,6 +35,7 @@ interface WorkspaceProps {
   onShowPaywall?: () => void;
   onDecrementCredits?: () => Promise<void>;
   onImageGenerated?: () => void;
+  onShowLogin?: () => void;
 }
 
 const Workspace: React.FC<WorkspaceProps> = ({
@@ -51,7 +52,8 @@ const Workspace: React.FC<WorkspaceProps> = ({
   user,
   onShowPaywall,
   onDecrementCredits,
-  onImageGenerated
+  onImageGenerated,
+  onShowLogin
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<PresetType | null>(null);
@@ -239,6 +241,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
         // Prüfe ob User angemeldet ist
         const firebaseUser = getCurrentUser();
         if (!firebaseUser) {
+          // Fallback, sollte eigentlich durch UI abgefangen sein
           throw new Error('Nicht angemeldet');
         }
 
@@ -539,13 +542,29 @@ const Workspace: React.FC<WorkspaceProps> = ({
                           )}
                       </form>
                       
-                      <button
+                      {!user && onShowLogin ? (
+                        <div className="mt-4 text-center">
+                            <button
+                                type="button"
+                                onClick={onShowLogin}
+                                disabled={!isGenerationEnabled}
+                                className={`${actionButtonClasses} w-full text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                            >
+                                Anmelden zum Generieren
+                            </button>
+                            <p className="text-xs text-[#67534F] mt-2">
+                                Bitte registrieren oder anmelden, um Bilder generieren zu können.
+                            </p>
+                        </div>
+                      ) : (
+                        <button
                           onClick={handleGenerate} 
                           disabled={!isGenerationEnabled || isLoading}
                           className={`${actionButtonClasses} w-full text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed mt-4`}
-                      >
-                          Bild generieren
-                      </button>
+                        >
+                            Bild generieren
+                        </button>
+                      )}
                    </div>
                 ) : (
                   <ImageUploader 
@@ -610,13 +629,30 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                )}
                             </form>
                         </div>
-                        <button 
-                            onClick={handleGenerate} 
-                            disabled={!isGenerationEnabled || isLoading}
-                            className={`${actionButtonClasses} w-full max-w-sm mt-2 text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
-                        >
-                            Bild generieren
-                        </button>
+                        
+                        {!user && onShowLogin ? (
+                           <div className="w-full max-w-sm mt-2 text-center">
+                                <button 
+                                    type="button"
+                                    onClick={onShowLogin}
+                                    disabled={!isGenerationEnabled}
+                                    className={`${actionButtonClasses} w-full text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                                >
+                                    Anmelden zum Generieren
+                                </button>
+                                <p className="text-xs text-[#67534F] mt-2">
+                                    Bitte registrieren oder anmelden, um Bilder generieren zu können.
+                                </p>
+                           </div>
+                        ) : (
+                            <button 
+                                onClick={handleGenerate} 
+                                disabled={!isGenerationEnabled || isLoading}
+                                className={`${actionButtonClasses} w-full max-w-sm mt-2 text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                            >
+                                Bild generieren
+                            </button>
+                        )}
                     </div>
                 </div>
             </section>
