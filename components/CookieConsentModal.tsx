@@ -4,9 +4,10 @@ import { updateGA4Consent, hasGA4Consent } from '../services/analytics';
 interface CookieConsentModalProps {
   onClose?: () => void;
   onOpenPrivacyPolicy?: () => void;
+  trigger?: boolean; // Wenn true, wird das Modal angezeigt (für Auth-Interaktionen)
 }
 
-const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpenPrivacyPolicy }) => {
+const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpenPrivacyPolicy, trigger }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -14,28 +15,35 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
     // Prüfe, ob bereits eine Consent-Entscheidung getroffen wurde
     const consentDecision = localStorage.getItem('cookie_consent_decision');
 
-    // Bei Stripe-Redirect: Zeige Banner NICHT erneut an
-    // (der User hat vorher bereits zugestimmt, localStorage könnte verzögert laden)
-    const urlParams = new URLSearchParams(window.location.search);
-    const isStripeRedirect = !!urlParams.get('session_id') || window.location.pathname === '/success';
-
-    if (isStripeRedirect && !onClose) {
-      // Bei Stripe-Redirect: Banner nicht zeigen (auch wenn consent fehlt)
-      // Der User hat vor dem Redirect bereits entschieden
+    // Wenn bereits entschieden wurde, nicht erneut zeigen (außer explizit über Footer)
+    if (consentDecision && !onClose) {
       setIsVisible(false);
       return;
     }
 
-    // Zeige Modal nur, wenn noch keine Entscheidung getroffen wurde
-    // Oder wenn explizit angefordert (z.B. über Footer-Link)
-    if (!consentDecision || onClose) {
-      // Kurze Verzögerung für bessere UX (nur beim ersten Mal)
+    // Bei Stripe-Redirect: Zeige Banner NICHT erneut an
+    const urlParams = new URLSearchParams(window.location.search);
+    const isStripeRedirect = !!urlParams.get('session_id') || window.location.pathname === '/success';
+
+    if (isStripeRedirect && !onClose) {
+      setIsVisible(false);
+      return;
+    }
+
+    // Zeige Modal nur wenn:
+    // 1. Explizit angefordert über Footer-Link (onClose ist gesetzt)
+    // 2. Trigger ist true (Auth-Interaktion) UND noch keine Entscheidung getroffen
+    if (onClose) {
+      // Footer-Link: sofort zeigen
+      setIsVisible(true);
+    } else if (trigger && !consentDecision) {
+      // Auth-Interaktion: mit kurzer Verzögerung zeigen
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, consentDecision ? 0 : 1000);
+      }, 300);
       return () => clearTimeout(timer);
     }
-  }, [onClose]);
+  }, [onClose, trigger]);
 
   const handleAccept = () => {
     updateGA4Consent(true);

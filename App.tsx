@@ -40,6 +40,7 @@ const App: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showPaywallModal, setShowPaywallModal] = useState<boolean>(false);
   const [showCookieSettings, setShowCookieSettings] = useState<boolean>(false);
+  const [showCookieConsentTrigger, setShowCookieConsentTrigger] = useState<boolean>(false);
 
   // App State
   const [session, setSession] = useState<Session | null>(null);
@@ -326,12 +327,28 @@ const App: React.FC = () => {
   // WICHTIG: NIEMALS Landing Page zeigen wenn:
   // 1. Stripe-Redirect (session_id oder success Parameter vorhanden)
   // 2. User eingeloggt ist (dann sollte App angezeigt werden)
+  // Helper-Funktion: Prüfe ob Cookie-Consent bereits gegeben wurde
+  const hasCookieConsent = () => localStorage.getItem('cookie_consent_decision') !== null;
+
+  // Helper-Funktion: Zeige Cookie-Banner bei Auth-Interaktion (falls nötig)
+  const triggerCookieConsentIfNeeded = () => {
+    if (!hasCookieConsent()) {
+      setShowCookieConsentTrigger(true);
+    }
+  };
+
   if (!user && isFirstVisit && location.pathname === '/' && !isStripeRedirect) {
     return (
       <div className="min-h-screen bg-[#FAF1DC]">
-        <LandingPage 
-          onGetStarted={() => setShowRegisterModal(true)} 
-          onLogin={() => setShowLoginModal(true)}
+        <LandingPage
+          onGetStarted={() => {
+            triggerCookieConsentIfNeeded();
+            setShowRegisterModal(true);
+          }}
+          onLogin={() => {
+            triggerCookieConsentIfNeeded();
+            setShowLoginModal(true);
+          }}
         />
         {showRegisterModal && (
           <RegisterModal
@@ -357,7 +374,11 @@ const App: React.FC = () => {
             }}
           />
         )}
-        <CookieConsentModal onOpenPrivacyPolicy={() => setShowDatenschutz(true)} />
+        {/* Cookie-Banner nur bei Auth-Interaktion oder explizit über Footer */}
+        <CookieConsentModal
+          onOpenPrivacyPolicy={() => setShowDatenschutz(true)}
+          trigger={showCookieConsentTrigger}
+        />
       </div>
     );
   }
@@ -548,7 +569,7 @@ const App: React.FC = () => {
         />
       )}
 
-      <CookieConsentModal 
+      <CookieConsentModal
         onClose={showCookieSettings ? () => setShowCookieSettings(false) : undefined}
         onOpenPrivacyPolicy={() => {
           if (showCookieSettings) {
@@ -556,6 +577,7 @@ const App: React.FC = () => {
           }
           setShowDatenschutz(true);
         }}
+        trigger={showCookieConsentTrigger}
       />
 
       {error && (
