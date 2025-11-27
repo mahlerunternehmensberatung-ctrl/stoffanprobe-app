@@ -19,7 +19,7 @@ function getAdminDb() {
 
 // Stripe initialisieren
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-11-17.clover',
+  apiVersion: '2024-12-18.acacia',
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -65,21 +65,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (action === 'cancel') {
       // Kündigung zum Ende der Periode
-      const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
+      await stripe.subscriptions.update(subscription.id, {
         cancel_at_period_end: true,
       });
 
-      // Speichere Kündigungsdatum in Firestore
-      const periodEndSeconds = updatedSubscription.current_period_end;
+      // Hole die aktualisierte Subscription frisch von Stripe
+      const freshSubscription = await stripe.subscriptions.retrieve(subscription.id);
 
-      // Validierung: Prüfe ob Stripe einen gültigen Timestamp zurückgegeben hat
-      if (!periodEndSeconds || typeof periodEndSeconds !== 'number') {
-        console.error('Invalid current_period_end:', periodEndSeconds);
-        throw new Error('Ungültiges Abo-Enddatum von Stripe erhalten');
+      // Logge für Debugging
+      console.log('Subscription data:', JSON.stringify({
+        id: freshSubscription.id,
+        current_period_end: freshSubscription.current_period_end,
+        cancel_at_period_end: freshSubscription.cancel_at_period_end,
+      }));
+
+      // Nutze current_period_end von der frischen Subscription
+      const periodEndSeconds = freshSubscription.current_period_end;
+
+      // Fallback: Wenn immer noch kein Datum, berechne 30 Tage ab jetzt
+      let periodEndDate: Date;
+      if (periodEndSeconds && typeof periodEndSeconds === 'number' && periodEndSeconds > 0) {
+        periodEndDate = new Date(Math.floor(periodEndSeconds) * 1000);
+      } else {
+        // Fallback: 30 Tage ab jetzt
+        console.warn('No valid period_end, using 30 day fallback');
+        periodEndDate = new Date();
+        periodEndDate.setDate(periodEndDate.getDate() + 30);
       }
-
-      // JavaScript Date Objekt (Firestore akzeptiert Date direkt)
-      const periodEndDate = new Date(Math.floor(periodEndSeconds) * 1000);
 
       await userRef.update({
         subscriptionCancelledAt: FieldValue.serverTimestamp(),
@@ -95,7 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } else if (action === 'reactivate') {
       // Kündigung widerrufen
-      const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
+      await stripe.subscriptions.update(subscription.id, {
         cancel_at_period_end: false,
       });
 
