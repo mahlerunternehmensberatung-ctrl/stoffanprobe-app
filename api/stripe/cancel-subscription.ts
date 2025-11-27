@@ -70,7 +70,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
       // Speichere Kündigungsdatum in Firestore
-      const periodEnd = new Date(updatedSubscription.current_period_end * 1000);
+      // Math.floor() weil Stripe manchmal Floats zurückgibt und Firestore Ganzzahlen erwartet
+      const periodEndMs = Math.floor(updatedSubscription.current_period_end) * 1000;
+      const periodEnd = new Date(periodEndMs);
 
       await userRef.update({
         subscriptionCancelledAt: FieldValue.serverTimestamp(),
