@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserPlusIcon, UserIcon } from './Icon';
 import { glassHeaderButton } from '../glass';
 import { User } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
     onNewSession: () => void;
@@ -26,6 +27,7 @@ const Header: React.FC<HeaderProps> = ({
   onShowPaywall
 }) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
@@ -80,6 +82,16 @@ const Header: React.FC<HeaderProps> = ({
     action();
   };
 
+  const handleLogout = async () => {
+    setShowAccountDropdown(false);
+    if (onLogout) {
+      onLogout();
+    } else {
+      await logout();
+      navigate('/');
+    }
+  };
+
   return (
     <header className="bg-[#FAF1DC]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm">
       <div className="container mx-auto px-3 sm:px-4 lg:px-8">
@@ -126,16 +138,14 @@ const Header: React.FC<HeaderProps> = ({
                         onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
                         className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors"
                       >
-                        Credits kaufen
+                        Guthaben kaufen
                       </button>
-                      {onLogout && (
-                        <button
-                          onClick={() => handleMenuItemClick(onLogout)}
-                          className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1 whitespace-nowrap"
-                        >
-                          Abmelden
-                        </button>
-                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-gray-100 transition-colors border-t border-gray-200 mt-1"
+                      >
+                        Abmelden
+                      </button>
                     </div>
                   )}
                 </div>
