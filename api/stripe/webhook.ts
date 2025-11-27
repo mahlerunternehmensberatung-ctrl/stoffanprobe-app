@@ -168,6 +168,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (mode === 'subscription') {
         await upgradeToPro(userId, stripeCustomerId);
+
+        // WICHTIG: Setze userId in Subscription-Metadata falls nicht vorhanden
+        // (für invoice.paid und customer.subscription.deleted Events)
+        if (session.subscription) {
+          const subscriptionId = typeof session.subscription === 'string'
+            ? session.subscription
+            : session.subscription.id;
+
+          try {
+            await stripe.subscriptions.update(subscriptionId, {
+              metadata: { userId: userId },
+            });
+            console.log(`Updated subscription ${subscriptionId} with userId: ${userId}`);
+          } catch (err) {
+            console.error('Error updating subscription metadata:', err);
+          }
+        }
       } else if (mode === 'payment' && priceId) {
         const credits = CREDIT_PACKAGES[priceId];
         if (credits) {

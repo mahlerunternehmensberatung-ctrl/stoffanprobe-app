@@ -27,8 +27,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ? `https://${process.env.VERCEL_URL}` 
       : process.env.NEXT_PUBLIC_BASE_URL || 'https://stoffanprobe.de';
 
-    // Stripe Checkout Session erstellen
-    const session = await stripe.checkout.sessions.create({
+    // Basis-Optionen für Checkout Session
+    const sessionOptions: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       line_items: [
         {
@@ -45,7 +45,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         priceId: priceId,
         mode: mode,
       },
-    });
+    };
+
+    // WICHTIG: Bei Subscriptions auch die Subscription-Metadata setzen
+    // Damit invoice.paid und customer.subscription.deleted die userId haben
+    if (mode === 'subscription') {
+      sessionOptions.subscription_data = {
+        metadata: {
+          userId: userId,
+        },
+      };
+    }
+
+    // Stripe Checkout Session erstellen
+    const session = await stripe.checkout.sessions.create(sessionOptions);
 
     return res.status(200).json({ url: session.url });
   } catch (error: any) {
