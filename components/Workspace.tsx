@@ -442,7 +442,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
       
       <main className={`flex-grow container mx-auto p-4 sm:p-6 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
         <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-2">KI Visualisierung</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-2">Professionelle Visualisierung</h1>
             <p className="text-base sm:text-lg text-[#67534F] px-2">Beginnen Sie mit einem Beispielraum oder laden Sie Ihr eigenes Foto hoch.</p>
         </div>
 

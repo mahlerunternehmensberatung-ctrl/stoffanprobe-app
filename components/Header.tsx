@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
              {/* Logo Bild: Stelle sicher, dass logo.png im public Ordner liegt */}
              <img src="/logo.png" alt="S" className="h-8 w-8 sm:h-10 sm:w-10 mr-2 object-contain drop-shadow-sm" />
-             <span className="font-bold text-lg sm:text-xl lg:text-2xl text-[#532418] tracking-tight">stoffanprobe.de</span>
+             <span className="font-bold text-lg sm:text-xl lg:text-2xl text-[#532418] tracking-tight">Stoffanprobe</span>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
