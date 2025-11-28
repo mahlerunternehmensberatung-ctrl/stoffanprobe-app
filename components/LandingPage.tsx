@@ -21,27 +21,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
             10 Gratis-Entwürfe sichern
           </h2>
           <p className="text-lg text-[#67534F] mb-6">
-            Testen Sie unsere KI-gestützte Visualisierung kostenlos
+            Testen Sie unsere professionelle Visualisierung kostenlos
           </p>
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
             <p className="text-green-800 font-semibold">
               ✓ 0,00 € heute fällig
             </p>
             <p className="text-sm text-green-700 mt-1">
-              Ihre Daten werden sicher in unserem Datentresor gespeichert (DSGVO-konform)
+              Ihre Bilder bleiben auf Ihrem Gerät – keine Uploads auf unsere Server
             </p>
           </div>
           <div className="flex gap-4 justify-center">
             <button
               onClick={onGetStarted}
-              className="px-8 py-4 bg-[#FF954F] text-white rounded-lg hover:bg-[#CC5200] transition-colors font-bold text-lg shadow-lg"
+              className="px-8 py-4 bg-[#C8956C] text-white rounded-lg hover:bg-[#A67B5B] transition-colors font-bold text-lg shadow-lg"
             >
               Jetzt starten
             </button>
             {onLogin && (
               <button
                 onClick={onLogin}
-                className="px-8 py-4 bg-white text-[#FF954F] border-2 border-[#FF954F] rounded-lg hover:bg-[#FF954F] hover:text-white transition-colors font-bold text-lg shadow-lg"
+                className="px-8 py-4 bg-white text-[#C8956C] border-2 border-[#C8956C] rounded-lg hover:bg-[#C8956C] hover:text-white transition-colors font-bold text-lg shadow-lg"
               >
                 Anmelden
               </button>
@@ -57,18 +57,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
             </p>
           </div>
           <div className="bg-[#FFFFF5] rounded-lg p-6 shadow-md">
-            <h3 className="font-bold text-[#532418] mb-2">KI-gestützt</h3>
+            <h3 className="font-bold text-[#532418] mb-2">Automatische Visualisierung</h3>
             <p className="text-sm text-[#67534F]">
-              Moderne KI-Technologie für realistische und überzeugende Ergebnisse
+              Erhalten Sie in Sekunden realistische Vorschau-Bilder für Ihre Kunden
             </p>
           </div>
           <div className="bg-[#FFFFF5] rounded-lg p-6 shadow-md">
             <h3 className="font-bold text-[#532418] mb-2">DSGVO-konform</h3>
             <p className="text-sm text-[#67534F]">
-              Ihre Daten werden sicher gespeichert und geschützt
+              Ihre Bilder bleiben lokal auf Ihrem Gerät gespeichert
             </p>
           </div>
         </div>
+
+        <p className="text-xs text-[#67534F] mt-8 opacity-70">
+          Hinweis: Visualisierungen dienen der Veranschaulichung. Farben und Proportionen können vom Endergebnis abweichen.
+        </p>
       </div>
     </div>
   );
