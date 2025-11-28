@@ -484,7 +484,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                       
                           <div className="flex items-center gap-4">
                              <button
-                              className="text-sm font-medium text-[#532418] hover:text-[#FF954F] flex items-center gap-1 transition-colors"
+                              className="text-sm font-medium text-[#532418] hover:text-[#C8956C] flex items-center gap-1 transition-colors"
                               onClick={handleSelectWallColor}
                               aria-label="Wandfarbe ändern"
                             >
@@ -523,7 +523,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                           }
                                       }
                                   }}
-                                  className="w-full h-24 rounded-xl border border-gray-300 p-3 pr-12 sm:pr-14 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none"
+                                  className="w-full h-24 rounded-xl border border-gray-300 p-3 pr-12 sm:pr-14 text-sm focus:ring-2 focus:ring-[#C8956C] focus:border-[#C8956C] transition-shadow resize-none"
                               />
                               {isSpeechRecognitionSupported && (
                                 <div className="absolute right-2 top-2 sm:right-3 sm:top-3">
@@ -548,7 +548,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                 type="button"
                                 onClick={onShowLogin}
                                 disabled={!isGenerationEnabled}
-                                className={`${actionButtonClasses} w-full text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                                className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                             >
                                 Anmelden zum Generieren
                             </button>
@@ -560,7 +560,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                         <button
                           onClick={handleGenerate} 
                           disabled={!isGenerationEnabled || isLoading}
-                          className={`${actionButtonClasses} w-full text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed mt-4`}
+                          className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed mt-4`}
                         >
                             Bild generieren
                         </button>
@@ -610,7 +610,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                                 }
                                             }
                                         }}
-                                        className="w-full h-20 sm:h-24 rounded-xl border border-gray-300 p-2 sm:p-3 pr-12 sm:pr-14 text-sm focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-shadow resize-none"
+                                        className="w-full h-20 sm:h-24 rounded-xl border border-gray-300 p-2 sm:p-3 pr-12 sm:pr-14 text-sm focus:ring-2 focus:ring-[#C8956C] focus:border-[#C8956C] transition-shadow resize-none"
                                     />
                                     {isSpeechRecognitionSupported && (
                                         <div className="absolute right-2 top-2 sm:right-3 sm:top-3">
@@ -636,7 +636,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                     type="button"
                                     onClick={onShowLogin}
                                     disabled={!isGenerationEnabled}
-                                    className={`${actionButtonClasses} w-full text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                                    className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                                 >
                                     Anmelden zum Generieren
                                 </button>
@@ -648,7 +648,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                             <button 
                                 onClick={handleGenerate} 
                                 disabled={!isGenerationEnabled || isLoading}
-                                className={`${actionButtonClasses} w-full max-w-sm mt-2 text-lg bg-[#FF954F] hover:bg-[#CC5200] focus:ring-[#FF954F] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                                className={`${actionButtonClasses} w-full max-w-sm mt-2 text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                             >
                                 Bild generieren
                             </button>

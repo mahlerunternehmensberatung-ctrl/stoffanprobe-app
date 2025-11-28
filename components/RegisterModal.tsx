@@ -71,6 +71,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ onClose, onSuccess }) => 
         formData.firstName,
         formData.lastName
       );
+      // Kurze Verzögerung damit Firebase Auth-State Zeit hat sich zu aktualisieren
+      await new Promise(resolve => setTimeout(resolve, 500));
       onSuccess();
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
