@@ -15,8 +15,12 @@ export const glassButtonActive =
 export const glassHeaderButton =
   "px-3 py-2 text-sm font-medium text-[#532418] rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-sm hover:bg-white/30 transition-all duration-200";
 
-export const glassOrange =
-  "px-5 py-3 font-semibold bg-[#E8A870]/40 backdrop-blur-xl border border-[#E08A50]/60 shadow-[0_4px_16px_rgba(240,140,60,0.25)] text-[#532418] rounded-2xl transition-all duration-200";
+export const glassGold =
+  "px-5 py-3 font-semibold bg-[#C8956C]/40 backdrop-blur-xl border border-[#A67B5B]/60 shadow-[0_4px_16px_rgba(200,149,108,0.25)] text-[#532418] rounded-2xl transition-all duration-200";
 
-export const glassOrangeActive =
-  "px-5 py-3 font-semibold bg-[#E8A870]/60 backdrop-blur-xl border border-[#E08A50]/80 shadow-[0_6px_22px_rgba(240,140,60,0.35)] text-[#532418] rounded-2xl transition-all duration-200 scale-[1.02]";
+export const glassGoldActive =
+  "px-5 py-3 font-semibold bg-[#C8956C]/60 backdrop-blur-xl border border-[#A67B5B]/80 shadow-[0_6px_22px_rgba(200,149,108,0.35)] text-[#532418] rounded-2xl transition-all duration-200 scale-[1.02]";
+
+// Legacy aliases for backwards compatibility
+export const glassOrange = glassGold;
+export const glassOrangeActive = glassGoldActive;
