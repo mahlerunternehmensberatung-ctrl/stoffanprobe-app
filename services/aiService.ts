@@ -1,4 +1,5 @@
 import { PresetType, RALColor, VisualizationMode } from '../types';
+import { compressImage } from '../utils/imageCompression';
 
 // Helper to load an image into an HTMLImageElement
 const loadImage = (src: string): Promise<HTMLImageElement> =>
@@ -146,7 +147,7 @@ const urlToDataUrl = async (url: string): Promise<string> => {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
         const blob = await response.blob();
-        return new Promise((resolve, reject) => {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (typeof reader.result === 'string') {
@@ -157,6 +158,13 @@ const urlToDataUrl = async (url: string): Promise<string> => {
             };
             reader.onerror = (error) => reject(error);
             reader.readAsDataURL(blob);
+        });
+
+        // Compress the image to reduce payload size
+        return await compressImage(dataUrl, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.85,
         });
     } catch (error) {
         console.error(`Failed to fetch and convert URL ${url}:`, error);
@@ -279,8 +287,10 @@ export const generateVisualization = async (options: GenerateOptions): Promise<s
     // Die Cloud Function erwartet URLs, aber wir senden Base64 direkt an die API
     const useCloudFunction = false;
 
-    const finalRoomDataUrl = roomImage.startsWith('data:') 
-        ? roomImage 
+    // Ensure all images are compressed to avoid payload size issues
+    // urlToDataUrl already compresses, but we need to handle data: URLs too
+    const finalRoomDataUrl = roomImage.startsWith('data:')
+        ? await compressImage(roomImage, { maxWidth: 1920, maxHeight: 1920, quality: 0.85 })
         : await urlToDataUrl(roomImage);
 
     try {
@@ -290,7 +300,7 @@ export const generateVisualization = async (options: GenerateOptions): Promise<s
             case 'pattern':
                 if (!patternImage || !preset) throw new Error('Pattern image and preset are required for pattern mode.');
                 const finalPatternDataUrl = patternImage.startsWith('data:')
-                    ? patternImage
+                    ? await compressImage(patternImage, { maxWidth: 1920, maxHeight: 1920, quality: 0.85 })
                     : await urlToDataUrl(patternImage);
                 // Pass undefined for prompt to let API generate it with proper preservation instructions
                 generatedImage = await generateImageFromApi(undefined, finalRoomDataUrl, finalPatternDataUrl, preset, mode, undefined, textHint, useCloudFunction);

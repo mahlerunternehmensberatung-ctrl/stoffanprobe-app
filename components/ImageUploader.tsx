@@ -1,5 +1,6 @@
 import React, { useRef, useCallback, useState } from 'react';
 import { glassBase } from '../glass';
+import { compressImageFile } from '../utils/imageCompression';
 
 interface ImageUploaderProps {
   onImageSelect: (imageDataUrl: string) => void;
@@ -23,26 +24,37 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   // Der edle Gold-Verlauf für Buttons und Highlights
   const goldGradient = "bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642]";
 
-  const processFile = useCallback((file: File) => {
+  const processFile = useCallback(async (file: File) => {
     if (!file || !file.type.startsWith("image/")) return;
-  
-    const reader = new FileReader();
-  
-    reader.onload = (e) => {
-      const result = e.target?.result as string | null;
-  
-      if (result) {
-        // SOFORTIGE AUTO-PREVIEW
-        onImageSelect(result);
-      }
-  
+
+    try {
+      // Compress image to max 1920px and 85% JPEG quality
+      // This reduces typical phone photos from 8-15MB to ~200-500KB
+      const compressedDataUrl = await compressImageFile(file, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85,
+      });
+
+      // SOFORTIGE AUTO-PREVIEW mit komprimiertem Bild
+      onImageSelect(compressedDataUrl);
+    } catch (error) {
+      console.error('Image compression failed:', error);
+      // Fallback: Use original file if compression fails
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string | null;
+        if (result) {
+          onImageSelect(result);
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
       // Wichtig: Input immer resetten, damit gleiche Datei erneut funktioniert
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-    };
-  
-    reader.readAsDataURL(file);
+    }
   }, [onImageSelect]);
 
   const handleClick = (e?: React.MouseEvent) => {
