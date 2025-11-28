@@ -1,46 +1,34 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { glassBase } from '../glass';
 import { compressImageFile } from '../utils/imageCompression';
 
 interface ImageUploaderProps {
   onImageSelect: (imageDataUrl: string) => void;
   imageDataUrl?: string;
-  title: string;
-  description: string;
   buttonText: string;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageSelect,
   imageDataUrl,
-  title,
-  description,
   buttonText,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
 
-  // Der edle Gold-Verlauf für Buttons und Highlights
-  const goldGradient = "bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642]";
+  const goldGradient = "bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B]";
 
   const processFile = useCallback(async (file: File) => {
     if (!file || !file.type.startsWith("image/")) return;
 
     try {
-      // Compress image to max 1920px and 85% JPEG quality
-      // This reduces typical phone photos from 8-15MB to ~200-500KB
       const compressedDataUrl = await compressImageFile(file, {
         maxWidth: 1920,
         maxHeight: 1920,
         quality: 0.85,
       });
-
-      // SOFORTIGE AUTO-PREVIEW mit komprimiertem Bild
       onImageSelect(compressedDataUrl);
     } catch (error) {
       console.error('Image compression failed:', error);
-      // Fallback: Use original file if compression fails
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string | null;
@@ -50,24 +38,20 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       };
       reader.readAsDataURL(file);
     } finally {
-      // Wichtig: Input immer resetten, damit gleiche Datei erneut funktioniert
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     }
   }, [onImageSelect]);
 
-  const handleClick = (e?: React.MouseEvent) => {
-    if (e) {
-        e.stopPropagation();
-    }
+  const handleClick = () => {
     fileInputRef.current?.click();
   };
-  
+
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      fileInputRef.current.value = '';
     }
     onImageSelect('');
   };
@@ -78,19 +62,19 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       processFile(file);
     }
   };
-  
+
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   }, []);
-  
+
   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   }, []);
-  
+
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -101,71 +85,46 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   }, [processFile]);
 
-  // Design-Logik: Goldener Rahmen beim Draggen, subtiler Schimmer beim Hover
-  const borderStyle = isDragging 
-    ? 'border-[#CDA35E] shadow-lg ring-2 ring-[#E6C785]/30' // Goldener Fokus beim Ziehen
-    : isHovering 
-      ? 'border-[#E6C785]/40 shadow-xl' 
-      : 'border-white/20';
+  // Wenn bereits ein Bild vorhanden ist: Thumbnail mit X-Button
+  if (imageDataUrl) {
+    return (
+      <div
+        className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-md group"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <img
+          src={imageDataUrl}
+          alt="Upload"
+          className="w-full h-full object-cover"
+        />
+        <button
+          onClick={handleClear}
+          className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-black/70 transition-colors"
+          aria-label="Bild entfernen"
+        >
+          ×
+        </button>
+        <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+      </div>
+    );
+  }
 
-
+  // Kein Bild: Einfacher Button
   return (
     <div
-      className={`bg-white/10 backdrop-blur-xl border border-white/20 shadow-sm rounded-xl sm:rounded-2xl ${borderStyle} overflow-hidden transition-all duration-300`}
+      className={`flex-1 ${isDragging ? 'ring-2 ring-[#C8956C]' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="w-full h-16 sm:h-28 flex items-center justify-center relative rounded-t-xl sm:rounded-t-2xl overflow-hidden">
-        {imageDataUrl ? (
-          <>
-            <img
-              src={imageDataUrl}
-              alt={title}
-              className="w-full h-full object-cover transition-opacity duration-300 opacity-0"
-              onLoad={(e) => {
-                (e.currentTarget as HTMLImageElement).style.opacity = "1";
-              }}
-            />
-
-            <button
-              onClick={handleClear}
-              className="absolute top-1 right-1 bg-black/40 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-sm sm:text-base hover:bg-black/60 z-10 cursor-pointer transition-colors"
-              aria-label="Bild entfernen"
-            >
-              &times;
-            </button>
-          </>
-        ) : (
-          <div className="flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-6 w-6 sm:h-10 sm:w-10 transition-colors duration-300 ${isHovering ? 'text-[#CDA35E]/60' : 'text-gray-300'}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-
-            <button
-              onClick={handleClick}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-sm font-bold text-white rounded-full shadow-sm transition-all duration-300 ${goldGradient} cursor-pointer`}
-            >
-              {buttonText}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="p-1.5 sm:p-2 text-center">
-        <h4 className="text-[#532418] font-semibold text-xs sm:text-sm">{title}</h4>
-        <p className="text-[#67534F] text-[9px] sm:text-xs hidden sm:block">{description}</p>
-      </div>
-
+      <button
+        onClick={handleClick}
+        className={`w-full py-3 sm:py-4 px-4 text-xs sm:text-sm font-semibold text-white rounded-xl shadow-md transition-all ${goldGradient}`}
+      >
+        {buttonText}
+      </button>
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
     </div>
   );

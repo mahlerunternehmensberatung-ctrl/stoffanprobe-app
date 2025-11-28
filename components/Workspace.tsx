@@ -470,14 +470,12 @@ const Workspace: React.FC<WorkspaceProps> = ({
         {!session?.originalImage && <ExampleRooms onSelect={handleExampleRoomSelect} onSelectWallColor={handleSelectWallColor} />}
 
         <div className={`mb-3 sm:mb-6 p-2 sm:p-4 ${glassBase}`}>
-            <h3 className="text-[10px] sm:text-sm font-semibold text-center text-[#532418] mb-1.5 sm:mb-3">Oder eigenes Foto hochladen:</h3>
-            <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                <ImageUploader 
-                  onImageSelect={handleRoomImageSelect} 
+            <h3 className="text-[10px] sm:text-sm font-semibold text-center text-[#532418] mb-1.5 sm:mb-3">Eigenes Foto hochladen:</h3>
+            <div className="flex gap-2 sm:gap-3">
+                <ImageUploader
+                  onImageSelect={handleRoomImageSelect}
                   imageDataUrl={session?.originalImage}
-                  title="1. Raumfoto"
-                  description="Aufnehmen oder hochladen"
-                  buttonText="Eigenes Raumfoto auswählen"
+                  buttonText="Raumfoto"
                 />
                 
                 {session?.wallColor ? (
@@ -577,12 +575,10 @@ const Workspace: React.FC<WorkspaceProps> = ({
                       )}
                    </div>
                 ) : (
-                  <ImageUploader 
+                  <ImageUploader
                     onImageSelect={handlePatternImageUpload}
                     imageDataUrl={session?.patternImage}
-                    title="2. Muster-/Objektfoto"
-                    description="Aufnehmen oder hochladen"
-                    buttonText="Musterfoto auswählen"
+                    buttonText="Muster"
                   />
                 )}
             </div>
