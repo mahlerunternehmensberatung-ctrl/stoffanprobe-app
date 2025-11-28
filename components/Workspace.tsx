@@ -475,7 +475,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                 <ImageUploader
                   onImageSelect={handleRoomImageSelect}
                   imageDataUrl={session?.originalImage}
-                  buttonText="Raumfoto"
+                  buttonText="Raum auswählen"
                 />
                 
                 {session?.wallColor ? (
@@ -578,7 +578,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                   <ImageUploader
                     onImageSelect={handlePatternImageUpload}
                     imageDataUrl={session?.patternImage}
-                    buttonText="Muster"
+                    buttonText="Stoff auswählen"
                   />
                 )}
             </div>
