@@ -86,8 +86,8 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
     });
   };
 
-  const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF954F] transition-all";
-  const glassInputClasses = "w-full p-3 rounded-xl border border-white/30 bg-white/30 backdrop-blur-xl focus:ring-2 focus:ring-[#FF954F] focus:border-[#FF954F] transition-all text-[#532418]";
+  const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all";
+  const glassInputClasses = "w-full p-3 rounded-xl border border-white/30 bg-white/30 backdrop-blur-xl focus:ring-2 focus:ring-[#C8956C] focus:border-[#C8956C] transition-all text-[#532418]";
 
   return (
     <div 
@@ -187,7 +187,7 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
                                 const isSelected = salesCategories.includes(cat);
                                 return (
                                 <button type="button" key={cat} onClick={() => handleToggleCategory(cat)}
-                                    className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${isSelected ? 'bg-[#FF954F] text-white border-transparent shadow-md' : 'bg-white/50 border-white/30 text-[#532418] hover:bg-white/80'}`}>
+                                    className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${isSelected ? 'bg-[#C8956C] text-white border-transparent shadow-md' : 'bg-white/50 border-white/30 text-[#532418] hover:bg-white/80'}`}>
                                     {cat}
                                 </button>
                                 );
@@ -217,7 +217,7 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
 
             <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3 flex-shrink-0">
                 <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">Abbrechen</button>
-                <button type="submit" className="px-6 py-2 text-sm font-medium text-white bg-[#FF954F] rounded-md hover:bg-[#CC5200] transition-colors">Speichern</button>
+                <button type="submit" className="px-6 py-2 text-sm font-medium text-white bg-[#C8956C] rounded-md hover:bg-[#A67B5B] transition-colors">Speichern</button>
             </div>
         </form>
       </div>
@@ -236,7 +236,7 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
             <button
                 type="button"
                 onClick={() => setShowSignature(false)}
-                className="mt-6 px-4 py-2 bg-[#FF954F] text-white rounded-lg shadow hover:bg-[#cc5200]"
+                className="mt-6 px-4 py-2 bg-[#C8956C] text-white rounded-lg shadow hover:bg-[#cc5200]"
             >
                 Schließen
             </button>

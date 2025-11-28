@@ -44,7 +44,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
       <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
         <h3 className="text-white font-semibold truncate">
           {isOriginal && (
-            <span className="text-xs font-bold uppercase tracking-wider bg-[#FF954F] text-white px-2 py-1 rounded-full mr-2">
+            <span className="text-xs font-bold uppercase tracking-wider bg-[#C8956C] text-white px-2 py-1 rounded-full mr-2">
               Original
             </span>
           )}

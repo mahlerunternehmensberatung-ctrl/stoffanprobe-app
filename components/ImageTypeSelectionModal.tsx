@@ -33,13 +33,13 @@ const ImageTypeSelectionModal: React.FC<ImageTypeSelectionModalProps> = ({ isOpe
         <div className="space-y-4">
           <button
             onClick={() => onSelect('private')}
-            className="w-full px-6 py-4 bg-[#FF954F] text-white rounded-lg hover:bg-[#CC5200] transition-colors font-semibold text-lg shadow-md"
+            className="w-full px-6 py-4 bg-[#C8956C] text-white rounded-lg hover:bg-[#A67B5B] transition-colors font-semibold text-lg shadow-md"
           >
             Meine eigene Wohnung
           </button>
           <button
             onClick={() => onSelect('commercial')}
-            className="w-full px-6 py-4 bg-white text-[#FF954F] border-2 border-[#FF954F] rounded-lg hover:bg-[#FF954F] hover:text-white transition-colors font-semibold text-lg shadow-md"
+            className="w-full px-6 py-4 bg-white text-[#C8956C] border-2 border-[#C8956C] rounded-lg hover:bg-[#C8956C] hover:text-white transition-colors font-semibold text-lg shadow-md"
           >
             Wohnung eines Kunden
           </button>

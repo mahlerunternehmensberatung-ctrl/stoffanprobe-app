@@ -120,7 +120,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
           <button
             onClick={handleUpgrade}
             disabled={isLoading}
-            className="flex-1 px-4 py-3 bg-[#FF954F] text-white rounded-lg hover:bg-[#CC5200] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-3 bg-[#C8956C] text-white rounded-lg hover:bg-[#A67B5B] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Wird geladen...' : 'Jetzt upgraden'}
           </button>

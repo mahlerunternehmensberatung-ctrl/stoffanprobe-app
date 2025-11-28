@@ -25,7 +25,7 @@ const ColorPickerModal: React.FC<Props> = ({ onClose, onSelect }) => {
         <input
           type="text"
           placeholder="Suchen: z. B. 9010, Weiß, Beige…"
-          className="w-full mb-4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF954F] transition-all"
+          className="w-full mb-4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           autoFocus
@@ -36,7 +36,7 @@ const ColorPickerModal: React.FC<Props> = ({ onClose, onSelect }) => {
               {filtered.map((color) => (
                 <div
                   key={color.code}
-                  className="cursor-pointer border bg-white rounded-md overflow-hidden hover:ring-2 hover:ring-[#FF954F] transition"
+                  className="cursor-pointer border bg-white rounded-md overflow-hidden hover:ring-2 hover:ring-[#C8956C] transition"
                   onClick={() => onSelect(color)}
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(color)}
                   role="button"

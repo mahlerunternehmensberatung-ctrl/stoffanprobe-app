@@ -84,7 +84,7 @@ const SuccessPage: React.FC = () => {
           
           <button
             onClick={() => navigate('/')}
-            className="px-8 py-3 bg-[#FF954F] text-white rounded-lg font-semibold text-lg hover:bg-[#CC5200] transition-colors"
+            className="px-8 py-3 bg-[#C8956C] text-white rounded-lg font-semibold text-lg hover:bg-[#A67B5B] transition-colors"
           >
             Zur App zurückkehren
           </button>

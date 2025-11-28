@@ -510,7 +510,7 @@ const App: React.FC = () => {
                           placeholder="🔍 Name, E-Mail oder Projekttitel eingeben"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF954F] transition-all"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all"
                       />
                   </div>
                   <div className="overflow-y-auto">

@@ -15,21 +15,21 @@ const Footer: React.FC<FooterProps> = ({
 }) => {
   return (
     <footer className="text-center text-sm text-gray-600 py-6 mt-10">
-      <button onClick={onOpenImpressum} className="mx-2 underline hover:text-[#FF954F]">
+      <button onClick={onOpenImpressum} className="mx-2 underline hover:text-[#C8956C]">
         Impressum
       </button>
       ·
-      <button onClick={onOpenDatenschutz} className="mx-2 underline hover:text-[#FF954F]">
+      <button onClick={onOpenDatenschutz} className="mx-2 underline hover:text-[#C8956C]">
         Datenschutz
       </button>
       ·
-      <button onClick={onOpenAgb} className="mx-2 underline hover:text-[#FF954F]">
+      <button onClick={onOpenAgb} className="mx-2 underline hover:text-[#C8956C]">
         AGB
       </button>
       {onOpenCookieSettings && (
         <>
           ·
-          <button onClick={onOpenCookieSettings} className="mx-2 underline hover:text-[#FF954F]">
+          <button onClick={onOpenCookieSettings} className="mx-2 underline hover:text-[#C8956C]">
             Cookie-Einstellungen
           </button>
         </>

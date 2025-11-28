@@ -30,7 +30,7 @@ const CustomerDataModal: React.FC<CustomerDataModalProps> = ({ onClose, onSave }
     onSave(); // No customer data
   };
 
-  const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF954F] transition-all";
+  const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all";
 
   return (
     <div 
@@ -93,7 +93,7 @@ const CustomerDataModal: React.FC<CustomerDataModalProps> = ({ onClose, onSave }
                 </button>
                 <button
                     type="submit"
-                    className="px-6 py-2 text-sm font-medium text-white bg-[#FF954F] rounded-md hover:bg-[#CC5200] transition-colors"
+                    className="px-6 py-2 text-sm font-medium text-white bg-[#C8956C] rounded-md hover:bg-[#A67B5B] transition-colors"
                 >
                     Speichern & fortfahren
                 </button>

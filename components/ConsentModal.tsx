@@ -158,7 +158,7 @@ const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm 
     onConfirm(consentData, customerData);
   };
   
-  const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF954F] transition-all";
+  const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all";
 
   return (
     <div
@@ -197,7 +197,7 @@ const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm 
                   type="checkbox"
                   checked={consent}
                   onChange={(e) => setConsent(e.target.checked)}
-                  className="mt-1 h-5 w-5 rounded border-gray-300 text-[#FF954F] focus:ring-[#CC5200]"
+                  className="mt-1 h-5 w-5 rounded border-gray-300 text-[#C8956C] focus:ring-[#A67B5B]"
                 />
                 <span className="ml-3 text-sm text-gray-800">
                   <span className="font-bold">Notwendig:</span> Ich bestätige, dass der Kunde der Verarbeitung des Fotos zur Visualisierung zugestimmt hat und die Rechte am Bild geklärt sind.
@@ -216,7 +216,7 @@ const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm 
             type="button"
             onClick={handleConfirm}
             disabled={!isFormValid}
-            className="px-6 py-2 text-sm font-medium text-white bg-[#FF954F] rounded-md hover:bg-[#CC5200] transition-colors disabled:bg-[#C8B6A6] disabled:cursor-not-allowed"
+            className="px-6 py-2 text-sm font-medium text-white bg-[#C8956C] rounded-md hover:bg-[#A67B5B] transition-colors disabled:bg-[#C8B6A6] disabled:cursor-not-allowed"
           >
             Bestätigen & Weiter
           </button>

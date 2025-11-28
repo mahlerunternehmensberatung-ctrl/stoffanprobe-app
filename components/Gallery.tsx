@@ -33,7 +33,7 @@ const Gallery: React.FC<GalleryProps> = ({
 
   return (
     <div className="mt-12 w-full">
-      <h3 className="text-xl font-semibold text-center text-[#532418] mb-6 border-b-2 border-[#FF954F]/50 pb-2">
+      <h3 className="text-xl font-semibold text-center text-[#532418] mb-6 border-b-2 border-[#C8956C]/50 pb-2">
         Gespeicherte Varianten
       </h3>
 

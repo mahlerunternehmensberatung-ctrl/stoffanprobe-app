@@ -459,9 +459,9 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
         {!session?.originalImage && <ExampleRooms onSelect={handleExampleRoomSelect} onSelectWallColor={handleSelectWallColor} />}
 
-        <div className={`mb-4 sm:mb-8 p-3 sm:p-6 ${glassBase}`}>
-            <h3 className="text-sm sm:text-lg font-semibold text-center text-[#532418] mb-2 sm:mb-4">Oder laden Sie Ihre eigenen Fotos hoch:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+        <div className={`mb-3 sm:mb-8 p-2 sm:p-6 ${glassBase}`}>
+            <h3 className="text-xs sm:text-lg font-semibold text-center text-[#532418] mb-2 sm:mb-4">Oder eigenes Foto hochladen:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
                 <ImageUploader 
                   onImageSelect={handleRoomImageSelect} 
                   imageDataUrl={session?.originalImage}
