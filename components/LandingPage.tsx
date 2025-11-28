@@ -9,9 +9,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
   return (
     <div className="min-h-screen bg-[#FAF1DC] flex flex-col items-center justify-center px-3 py-4 sm:px-4 sm:py-8">
       <div className="max-w-4xl w-full text-center">
-        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#532418] mb-1 sm:mb-4">
-          stoffanprobe.de
-        </h1>
+        <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-4">
+          <img src="/logo.png" alt="Stoffanprobe Logo" className="w-10 h-10 sm:w-12 sm:h-12" />
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#532418]">
+            Stoffanprobe
+          </h1>
+        </div>
         <p className="text-sm sm:text-xl text-[#67534F] mb-3 sm:mb-6">
           Professionelle Visualisierungen für Raumausstatter, Polsterer und Handwerker
         </p>
