@@ -1,6 +1,5 @@
 import React from "react";
 import { Variant } from "../types";
-import VariantCard from "./VariantCard";
 import { EmailIcon, DownloadIcon, DiscardIcon } from "./Icon";
 
 interface GalleryProps {
@@ -32,36 +31,44 @@ const Gallery: React.FC<GalleryProps> = ({
     "px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-[#532418] bg-white rounded-lg shadow-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-all flex items-center justify-center gap-1 sm:gap-2";
 
   return (
-    <div className="mt-12 w-full">
-      <h3 className="text-xl font-semibold text-center text-[#532418] mb-6 border-b-2 border-[#C8956C]/50 pb-2">
-        Gespeicherte Varianten
-      </h3>
-
-      <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-        <button onClick={onEmailAll} className={buttonClasses}>
-          <EmailIcon /> Galerie senden
-        </button>
-
-        <button onClick={onDownloadAll} className={buttonClasses}>
-          <DownloadIcon /> Galerie speichern
-        </button>
-
-        <button
-          onClick={onDeleteAll}
-          className={`${buttonClasses} text-red-600 hover:bg-red-50 border-red-200 hover:border-red-400 focus:ring-red-300`}
-        >
-          <DiscardIcon /> Galerie löschen
-        </button>
+    <div className="mt-6 sm:mt-8 w-full">
+      <div className="flex items-center justify-between mb-3 sm:mb-4 border-b border-[#C8956C]/30 pb-2">
+        <h3 className="text-sm sm:text-base font-semibold text-[#532418]">
+          Galerie ({variants.length})
+        </h3>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <button onClick={onEmailAll} className={buttonClasses} title="Galerie senden">
+            <EmailIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Senden</span>
+          </button>
+          <button onClick={onDownloadAll} className={buttonClasses} title="Galerie speichern">
+            <DownloadIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Download</span>
+          </button>
+          <button
+            onClick={onDeleteAll}
+            className={`${buttonClasses} text-red-500 hover:bg-red-50 border-red-200`}
+            title="Galerie löschen"
+          >
+            <DiscardIcon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1.5 sm:gap-2">
         {sortedVariants.map((variant) => (
-          <VariantCard
+          <button
             key={variant.id}
-            imageUrl={variant.imageUrl}
-            title={variant.preset}
             onClick={() => onVariantSelect(variant)}
-          />
+            className="relative aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer group"
+          >
+            <img
+              src={variant.imageUrl}
+              alt={variant.preset}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+          </button>
         ))}
       </div>
     </div>

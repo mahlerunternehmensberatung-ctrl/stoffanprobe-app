@@ -111,14 +111,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   return (
     <div
-      className={`${glassBase} ${borderStyle} overflow-hidden transition-all duration-300`}
+      className={`bg-white/10 backdrop-blur-xl border border-white/20 shadow-sm rounded-xl sm:rounded-2xl ${borderStyle} overflow-hidden transition-all duration-300`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="w-full h-28 sm:h-40 flex items-center justify-center relative rounded-t-2xl sm:rounded-t-3xl overflow-hidden">
+      <div className="w-full h-16 sm:h-28 flex items-center justify-center relative rounded-t-xl sm:rounded-t-2xl overflow-hidden">
         {imageDataUrl ? (
           <>
             <img
@@ -132,17 +132,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
             <button
               onClick={handleClear}
-              className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-black/40 text-white rounded-full w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-lg sm:text-xl hover:bg-black/60 z-10 cursor-pointer transition-colors"
+              className="absolute top-1 right-1 bg-black/40 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-sm sm:text-base hover:bg-black/60 z-10 cursor-pointer transition-colors"
               aria-label="Bild entfernen"
             >
               &times;
             </button>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-2 sm:gap-4 p-3 sm:p-6">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 p-2 sm:p-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className={`h-10 w-10 sm:h-16 sm:w-16 transition-colors duration-300 ${isHovering ? 'text-[#CDA35E]/60' : 'text-gray-300'}`}
+              className={`h-6 w-6 sm:h-10 sm:w-10 transition-colors duration-300 ${isHovering ? 'text-[#CDA35E]/60' : 'text-gray-300'}`}
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -153,7 +153,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
             <button
               onClick={handleClick}
-              className={`px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-base font-bold text-white rounded-full shadow-md transition-all duration-300 ${goldGradient} cursor-pointer`}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-sm font-bold text-white rounded-full shadow-sm transition-all duration-300 ${goldGradient} cursor-pointer`}
             >
               {buttonText}
             </button>
@@ -161,9 +161,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         )}
       </div>
 
-      <div className="p-2 sm:p-4 text-center">
-        <h4 className="text-[#532418] font-semibold text-sm sm:text-base">{title}</h4>
-        <p className="text-[#67534F] text-[10px] sm:text-xs">{description}</p>
+      <div className="p-1.5 sm:p-2 text-center">
+        <h4 className="text-[#532418] font-semibold text-xs sm:text-sm">{title}</h4>
+        <p className="text-[#67534F] text-[9px] sm:text-xs hidden sm:block">{description}</p>
       </div>
 
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />

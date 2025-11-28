@@ -459,9 +459,9 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
         {!session?.originalImage && <ExampleRooms onSelect={handleExampleRoomSelect} onSelectWallColor={handleSelectWallColor} />}
 
-        <div className={`mb-3 sm:mb-8 p-2 sm:p-6 ${glassBase}`}>
-            <h3 className="text-xs sm:text-lg font-semibold text-center text-[#532418] mb-2 sm:mb-4">Oder eigenes Foto hochladen:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
+        <div className={`mb-3 sm:mb-6 p-2 sm:p-4 ${glassBase}`}>
+            <h3 className="text-[10px] sm:text-sm font-semibold text-center text-[#532418] mb-1.5 sm:mb-3">Oder eigenes Foto hochladen:</h3>
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 <ImageUploader 
                   onImageSelect={handleRoomImageSelect} 
                   imageDataUrl={session?.originalImage}
@@ -659,36 +659,56 @@ const Workspace: React.FC<WorkspaceProps> = ({
         )}
         
         {pendingVariant && (
-             <section className="mt-12 animate-fade-in">
-                 <div className="text-center mb-6">
-                    <h2 className="text-2xl font-semibold text-[#532418]">Neuer Vorschlag</h2>
-                    <p className="text-md text-[#67534F]/90">Was möchten Sie mit dieser neuer Variante tun?</p>
+             <section className="mt-6 sm:mt-10 animate-fade-in">
+                 <div className="text-center mb-3 sm:mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-[#532418]">Ergebnis</h2>
                 </div>
-                 <div className="max-w-md mx-auto">
-                    <VariantCard 
-                        imageUrl={pendingVariant.imageUrl}
-                        title={`Vorschlag für: ${pendingVariant.preset}`}
-                        isLarge={true}
-                    />
+                 <div className="max-w-2xl mx-auto">
+                    <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-xl">
+                        <img
+                            src={pendingVariant.imageUrl}
+                            alt={`Vorschlag für: ${pendingVariant.preset}`}
+                            className="w-full h-auto"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 sm:p-4">
+                            <p className="text-white text-xs sm:text-sm">{pendingVariant.preset}</p>
+                        </div>
+                    </div>
                  </div>
-                 <div className="flex justify-center items-center gap-4 mt-6">
-                     <button onClick={handleDiscardVariant} className={`${actionButtonClasses} bg-gray-500 hover:bg-gray-600 focus:ring-gray-400`}>
-                        <DiscardIcon /> Verwerfen
+                 <div className="flex justify-center items-center gap-3 mt-4">
+                     <button onClick={handleDiscardVariant} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1.5">
+                        <DiscardIcon className="h-4 w-4" /> Verwerfen
                      </button>
-                     <button onClick={handleSaveVariant} className={`${actionButtonClasses} bg-green-600 hover:bg-green-700 focus:ring-green-500`}>
-                        <SaveIcon /> In Galerie speichern
+                     <button onClick={handleSaveVariant} className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] rounded-lg shadow-md transition-all flex items-center gap-1.5">
+                        <SaveIcon className="h-4 w-4" /> Speichern
                      </button>
                  </div>
              </section>
         )}
 
         {showNextStep && (
-            <div className="mt-12 p-6 bg-green-50 border-2 border-dashed border-green-300 rounded-xl text-center animate-fade-in">
-                <h3 className="text-xl font-semibold text-green-800">Variante gespeichert!</h3>
-                <p className="text-green-700 mt-2">Sie können nun ein weiteres Musterfoto hochladen, um neue Ideen für denselben Raum zu visualisieren.</p>
-                <button onClick={handleNextPattern} className="mt-4 px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 shadow-md flex items-center justify-center gap-2 mx-auto">
-                   Nächstes Musterfoto <NextIcon />
-                </button>
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-green-600 text-white rounded-full shadow-lg">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm font-medium">Gespeichert!</span>
+                    <button
+                        onClick={handleNextPattern}
+                        className="ml-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-full text-xs font-semibold transition-colors flex items-center gap-1"
+                    >
+                        Nächstes Muster <NextIcon className="h-3 w-3" />
+                    </button>
+                    <button
+                        onClick={() => setShowNextStep(false)}
+                        className="ml-1 p-1 hover:bg-white/20 rounded-full transition-colors"
+                        aria-label="Schließen"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         )}
 
