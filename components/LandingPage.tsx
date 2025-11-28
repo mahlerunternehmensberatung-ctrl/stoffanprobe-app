@@ -34,7 +34,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
           <div className="flex gap-2 sm:gap-4 justify-center">
             <button
               onClick={onGetStarted}
-              className="px-4 sm:px-8 py-2 sm:py-3 bg-[#C8956C] text-white rounded-lg hover:bg-[#A67B5B] transition-colors font-bold text-sm sm:text-lg shadow-lg"
+              className="px-4 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white rounded-lg hover:from-[#A67B5B] hover:to-[#8B6B4B] transition-all font-bold text-sm sm:text-lg shadow-lg"
             >
               Jetzt starten
             </button>
