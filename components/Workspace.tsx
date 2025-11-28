@@ -93,6 +93,16 @@ const Workspace: React.FC<WorkspaceProps> = ({
     }
   }, [session?.wallColor]);
 
+  // Auto-dismiss success toast after 3 seconds
+  useEffect(() => {
+    if (showNextStep) {
+      const timer = setTimeout(() => {
+        setShowNextStep(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showNextStep]);
+
   const handleRoomImageUpload = (imageDataUrl: string, consentData?: ConsentData, customerData?: CustomerData, imageType?: ImageType) => {
     setShowNextStep(false);
     setTextHint(''); // Hinweisfeld zurücksetzen
@@ -440,7 +450,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
         onConfirm={handleConsentConfirm}
       />
       
-      <main className={`flex-grow container mx-auto p-3 sm:p-6 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+      <main className={`flex-grow container mx-auto p-3 sm:p-6 md:p-6 lg:p-8 overflow-x-hidden transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
         <div className="text-center mb-3 sm:mb-8">
             <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-1 sm:mb-2">Professionelle Visualisierung</h1>
             <p className="text-sm sm:text-lg text-[#67534F] px-2">Beginnen Sie mit einem Beispielraum oder laden Sie Ihr eigenes Foto hoch.</p>
@@ -687,26 +697,17 @@ const Workspace: React.FC<WorkspaceProps> = ({
         )}
 
         {showNextStep && (
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
-                <div className="flex items-center gap-3 px-4 py-2.5 bg-green-600 text-white rounded-full shadow-lg">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex justify-center mt-4 animate-fade-in">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="text-sm font-medium">Gespeichert!</span>
+                    <span>In Galerie gespeichert</span>
                     <button
                         onClick={handleNextPattern}
-                        className="ml-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-full text-xs font-semibold transition-colors flex items-center gap-1"
+                        className="ml-1 px-2 py-0.5 bg-green-600 text-white hover:bg-green-700 rounded-full text-[10px] font-semibold transition-colors"
                     >
-                        Nächstes Muster <NextIcon className="h-3 w-3" />
-                    </button>
-                    <button
-                        onClick={() => setShowNextStep(false)}
-                        className="ml-1 p-1 hover:bg-white/20 rounded-full transition-colors"
-                        aria-label="Schließen"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        Nächstes Muster
                     </button>
                 </div>
             </div>

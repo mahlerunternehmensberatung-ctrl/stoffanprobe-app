@@ -31,7 +31,7 @@ const Gallery: React.FC<GalleryProps> = ({
     "px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-[#532418] bg-white rounded-lg shadow-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-all flex items-center justify-center gap-1 sm:gap-2";
 
   return (
-    <div className="mt-6 sm:mt-8 w-full">
+    <div className="mt-6 sm:mt-8 w-full max-w-full overflow-x-hidden">
       <div className="flex items-center justify-between mb-3 sm:mb-4 border-b border-[#C8956C]/30 pb-2">
         <h3 className="text-sm sm:text-base font-semibold text-[#532418]">
           Galerie ({variants.length})
