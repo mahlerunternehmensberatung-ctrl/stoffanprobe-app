@@ -1,25 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { updateGA4Consent, hasGA4Consent } from '../services/analytics';
+import { updateGA4Consent } from '../services/analytics';
 
 interface CookieConsentModalProps {
   onClose?: () => void;
   onOpenPrivacyPolicy?: () => void;
-  trigger?: boolean; // Wenn true, wird das Modal angezeigt (für Auth-Interaktionen)
 }
 
-const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpenPrivacyPolicy, trigger }) => {
+const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpenPrivacyPolicy }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Prüfe, ob bereits eine Consent-Entscheidung getroffen wurde
     const consentDecision = localStorage.getItem('cookie_consent_decision');
-
-    // Wenn bereits entschieden wurde, nicht erneut zeigen (außer explizit über Footer)
-    if (consentDecision && !onClose) {
-      setIsVisible(false);
-      return;
-    }
 
     // Bei Stripe-Redirect: Zeige Banner NICHT erneut an
     const urlParams = new URLSearchParams(window.location.search);
@@ -30,20 +22,20 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
       return;
     }
 
-    // Zeige Modal nur wenn:
+    // Zeige Modal wenn:
     // 1. Explizit angefordert über Footer-Link (onClose ist gesetzt)
-    // 2. Trigger ist true (Auth-Interaktion) UND noch keine Entscheidung getroffen
+    // 2. KEINE Entscheidung getroffen wurde (erster Besuch)
     if (onClose) {
       // Footer-Link: sofort zeigen
       setIsVisible(true);
-    } else if (trigger && !consentDecision) {
-      // Auth-Interaktion: mit kurzer Verzögerung zeigen
+    } else if (!consentDecision) {
+      // Erster Besuch: sofort zeigen
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, 300);
+      }, 500);
       return () => clearTimeout(timer);
     }
-  }, [onClose, trigger]);
+  }, [onClose]);
 
   const handleAccept = () => {
     updateGA4Consent(true);
@@ -93,7 +85,7 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
                   Notwendige Cookies
                 </h3>
                 <p className="text-sm text-[#67534F]">
-                  Diese Cookies sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden. 
+                  Diese Cookies sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.
                   Sie werden normalerweise nur als Reaktion auf Ihre Aktionen gesetzt, z.B. bei der Anmeldung oder beim Ausfüllen von Formularen.
                 </p>
               </div>
@@ -103,8 +95,8 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
                   Analytics Cookies (Google Analytics 4)
                 </h3>
                 <p className="text-sm text-[#67534F] mb-2">
-                  Diese Cookies helfen uns zu verstehen, wie Besucher mit unserer Website interagieren, 
-                  indem Informationen anonym gesammelt und gemeldet werden. Wir verwenden Google Analytics 4 
+                  Diese Cookies helfen uns zu verstehen, wie Besucher mit unserer Website interagieren,
+                  indem Informationen anonym gesammelt und gemeldet werden. Wir verwenden Google Analytics 4
                   mit IP-Anonymisierung und Consent Mode v2 für DSGVO-Konformität.
                 </p>
                 <p className="text-xs text-gray-600">
@@ -116,7 +108,7 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
 
               <div className="bg-blue-50 border border-blue-200 rounded p-3">
                 <p className="text-xs text-blue-800">
-                  <strong>Ihre Rechte:</strong> Sie können Ihre Einwilligung jederzeit widerrufen, 
+                  <strong>Ihre Rechte:</strong> Sie können Ihre Einwilligung jederzeit widerrufen,
                   indem Sie die Cookie-Einstellungen in Ihrem Browser ändern oder uns kontaktieren.
                 </p>
               </div>
@@ -166,4 +158,3 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
 };
 
 export default CookieConsentModal;
-
