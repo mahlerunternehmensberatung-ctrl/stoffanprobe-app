@@ -440,14 +440,14 @@ const Workspace: React.FC<WorkspaceProps> = ({
         onConfirm={handleConsentConfirm}
       />
       
-      <main className={`flex-grow container mx-auto p-4 sm:p-6 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-        <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-2">Professionelle Visualisierung</h1>
-            <p className="text-base sm:text-lg text-[#67534F] px-2">Beginnen Sie mit einem Beispielraum oder laden Sie Ihr eigenes Foto hoch.</p>
+      <main className={`flex-grow container mx-auto p-3 sm:p-6 md:p-6 lg:p-8 transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+        <div className="text-center mb-3 sm:mb-8">
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-1 sm:mb-2">Professionelle Visualisierung</h1>
+            <p className="text-sm sm:text-lg text-[#67534F] px-2">Beginnen Sie mit einem Beispielraum oder laden Sie Ihr eigenes Foto hoch.</p>
         </div>
 
         {!session && (
-          <div className="text-center mb-8">
+          <div className="text-center mb-4 sm:mb-8">
             <button
               onClick={onShowSessions}
               className={glassButton}
@@ -459,9 +459,9 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
         {!session?.originalImage && <ExampleRooms onSelect={handleExampleRoomSelect} onSelectWallColor={handleSelectWallColor} />}
 
-        <div className={`mb-6 sm:mb-8 p-4 sm:p-6 ${glassBase}`}>
-            <h3 className="text-base sm:text-lg font-semibold text-center text-[#532418] mb-4">Oder laden Sie Ihre eigenen Fotos hoch:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <div className={`mb-4 sm:mb-8 p-3 sm:p-6 ${glassBase}`}>
+            <h3 className="text-sm sm:text-lg font-semibold text-center text-[#532418] mb-2 sm:mb-4">Oder laden Sie Ihre eigenen Fotos hoch:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
                 <ImageUploader 
                   onImageSelect={handleRoomImageSelect} 
                   imageDataUrl={session?.originalImage}

@@ -33,12 +33,12 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
   const goldBorderClasses = "border-2 border-[#E6C785]/50 hover:border-[#CDA35E]";
 
   return (
-    <div className="w-full max-w-6xl mx-auto mb-8 sm:mb-12 animate-fade-in">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-[#532418]">Oder mit einem Beispiel starten:</h3>
+    <div className="w-full max-w-6xl mx-auto mb-4 sm:mb-12 animate-fade-in">
+      <div className="text-center mb-3 sm:mb-6">
+        <h3 className="text-sm sm:text-lg font-semibold text-[#532418]">Oder mit einem Beispiel starten:</h3>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-6">
         {/* Die 3 Fotokarten */}
         {rooms.map((room) => (
           <button
@@ -46,7 +46,7 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
             onClick={() => onSelect(room.image)}
             className={`${cardBaseClasses} ${goldBorderClasses} bg-[#FDFBF7]`}
           >
-            <div className="w-full h-32 sm:h-40 overflow-hidden relative">
+            <div className="w-full h-20 sm:h-40 overflow-hidden relative">
               <img
                 src={room.image}
                 alt={room.name}
@@ -61,8 +61,8 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
               <div className="absolute inset-0 bg-gradient-to-t from-[#B08642]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
 
-            <div className="p-3 sm:p-4 w-full bg-white relative z-10">
-              <span className="block text-sm sm:text-base font-semibold text-[#532418] group-hover:text-[#B08642] transition-colors text-center">
+            <div className="p-2 sm:p-4 w-full bg-white relative z-10">
+              <span className="block text-xs sm:text-base font-semibold text-[#532418] group-hover:text-[#B08642] transition-colors text-center">
                 {room.name}
               </span>
             </div>
@@ -74,23 +74,20 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
           onClick={() => onSelectWallColor({ code: 'RAL 9010', name: 'Reinweiß', hex: '#FFFFFF' })}
           className={`${cardBaseClasses} ${goldBorderClasses} bg-gradient-to-br from-[#FDFBF7] to-[#F8F4E3]`}
         >
-          <div className="w-full h-32 sm:h-40 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+          <div className="w-full h-20 sm:h-40 flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-hidden">
              <div className="absolute inset-0 bg-[#E6C785]/10 group-hover:bg-[#E6C785]/20 transition-colors duration-300"></div>
-             
-             <div className="w-16 h-16 sm:w-20 sm:h-20 grid grid-cols-2 rounded-lg overflow-hidden shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105 relative z-10 ring-1 ring-white/50">
+
+             <div className="w-10 h-10 sm:w-20 sm:h-20 grid grid-cols-2 rounded-lg overflow-hidden shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105 relative z-10 ring-1 ring-white/50">
                 <div className="bg-white"></div>
-                <div className="bg-[#FFD700]"></div> 
-                <div className="bg-[#0f4c81]"></div> 
-                <div className="bg-[#4b5320]"></div> 
+                <div className="bg-[#FFD700]"></div>
+                <div className="bg-[#0f4c81]"></div>
+                <div className="bg-[#4b5320]"></div>
              </div>
           </div>
 
-          <div className="p-3 sm:p-4 w-full bg-white text-center relative z-10 border-t border-[#E6C785]/20">
-            <span className="block text-sm sm:text-base font-semibold text-[#532418] group-hover:text-[#B08642] transition-colors">
-              Wandfarbe wählen (RAL)
-            </span>
-            <span className="block text-[10px] sm:text-xs text-[#B08642]/70 mt-1 font-medium">
-              RAL-Farbtöne ausprobieren
+          <div className="p-2 sm:p-4 w-full bg-white text-center relative z-10 border-t border-[#E6C785]/20">
+            <span className="block text-xs sm:text-base font-semibold text-[#532418] group-hover:text-[#B08642] transition-colors">
+              Wandfarbe (RAL)
             </span>
           </div>
         </button>
