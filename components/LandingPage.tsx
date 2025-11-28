@@ -23,9 +23,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
           <h2 className="text-lg sm:text-2xl font-bold text-[#532418] mb-1 sm:mb-3">
             10 Gratis-Entwürfe sichern
           </h2>
-          <p className="text-sm sm:text-lg text-[#67534F] mb-2 sm:mb-4">
+          <p className="text-sm sm:text-lg text-[#67534F] mb-3 sm:mb-4">
             Testen Sie unsere professionelle Visualisierung kostenlos
           </p>
+
+          {/* Demo Video */}
+          <div className="flex justify-center mb-3 sm:mb-5">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-48 sm:w-64 rounded-xl shadow-lg border-2 border-[#C8956C]/20"
+            >
+              <source src="/videos/demo.mp4" type="video/mp4" />
+            </video>
+          </div>
+
           <div className="bg-green-50 border border-green-200 rounded-lg p-2 sm:p-4 mb-3 sm:mb-4">
             <p className="text-green-800 font-semibold text-sm sm:text-base">
               ✓ 0,00 € heute fällig · Bilder bleiben auf Ihrem Gerät
