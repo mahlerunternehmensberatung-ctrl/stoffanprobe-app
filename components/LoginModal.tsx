@@ -61,7 +61,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onSuccess, onShowRegis
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF954F]"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C8956C]"
               required
             />
           </div>
@@ -74,7 +74,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onSuccess, onShowRegis
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF954F]"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C8956C]"
               required
             />
           </div>
@@ -88,7 +88,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onSuccess, onShowRegis
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full px-4 py-3 bg-[#FF954F] text-white rounded-lg hover:bg-[#CC5200] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white rounded-lg hover:from-[#A67B5B] hover:to-[#8B6B4B] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
           </button>
@@ -99,7 +99,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onSuccess, onShowRegis
             Noch kein Konto?{' '}
             <button
               onClick={onShowRegister}
-              className="text-[#FF954F] underline hover:text-[#CC5200]"
+              className="text-[#C8956C] underline hover:text-[#A67B5B]"
             >
               Jetzt registrieren
             </button>

@@ -68,30 +68,22 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-end sm:items-center justify-center p-4 animate-fade-in">
-      <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-[#532418] mb-4">
+    <div className="fixed inset-x-0 bottom-0 z-[100] p-3 sm:p-4 animate-slide-up">
+      <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-2xl mx-auto max-h-[80vh] overflow-y-auto border border-[#E6C785]/30">
+        <h2 className="text-lg sm:text-2xl font-bold text-[#532418] mb-2 sm:mb-4">
           Cookie-Einstellungen
         </h2>
 
-        <div className="mb-6">
-          <p className="text-[#67534F] mb-4">
-            Wir verwenden Cookies und ähnliche Technologien, um unsere Website zu analysieren und zu verbessern. 
-            Sie können selbst entscheiden, ob Sie diese zulassen möchten.
+        <div className="mb-3 sm:mb-6">
+          <p className="text-sm sm:text-base text-[#67534F] mb-2 sm:mb-4">
+            Wir verwenden Cookies zur Analyse und Verbesserung unserer Website.
           </p>
 
           {!showDetails ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold text-[#532418] mb-2">
-                Was sind Cookies?
-              </h3>
-              <p className="text-sm text-[#67534F] mb-2">
-                Cookies sind kleine Textdateien, die auf Ihrem Gerät gespeichert werden. 
-                Wir verwenden sie für:
-              </p>
-              <ul className="list-disc list-inside text-sm text-[#67534F] space-y-1">
-                <li><strong>Notwendige Cookies:</strong> Für die Grundfunktionen der Website (immer aktiv)</li>
-                <li><strong>Analytics:</strong> Google Analytics 4 zur Analyse des Nutzerverhaltens (optional)</li>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-4 mb-2 sm:mb-4">
+              <ul className="text-xs sm:text-sm text-[#67534F] space-y-1">
+                <li><strong>Notwendig:</strong> Grundfunktionen (immer aktiv)</li>
+                <li><strong>Analytics:</strong> Google Analytics 4 (optional)</li>
               </ul>
             </div>
           ) : (
@@ -133,41 +125,39 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
 
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="text-sm text-[#FF954F] hover:text-[#CC5200] underline"
+            className="text-sm text-[#C8956C] hover:text-[#A67B5B] underline"
           >
             {showDetails ? 'Weniger Details anzeigen' : 'Mehr Details anzeigen'}
           </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             onClick={handleReject}
-            className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm sm:text-base"
           >
-            Nur notwendige Cookies
+            Nur notwendige
           </button>
           <button
             onClick={handleAccept}
-            className="flex-1 px-6 py-3 bg-[#FF954F] text-white rounded-lg hover:bg-[#CC5200] transition-colors font-medium"
+            className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white rounded-lg hover:from-[#A67B5B] hover:to-[#8B6B4B] transition-all font-medium text-sm sm:text-base"
           >
-            Alle Cookies akzeptieren
+            Alle akzeptieren
           </button>
         </div>
 
-        <p className="text-xs text-center text-gray-500 mt-4">
-          Durch Klicken auf "Alle Cookies akzeptieren" stimmen Sie der Verwendung von Analytics-Cookies zu.
-          <br />
-          <a 
-            href="#" 
+        <p className="text-[10px] sm:text-xs text-center text-gray-500 mt-2 sm:mt-4">
+          <a
+            href="#"
             onClick={(e) => {
               e.preventDefault();
               if (onOpenPrivacyPolicy) {
                 onOpenPrivacyPolicy();
               }
             }}
-            className="text-[#FF954F] underline"
+            className="text-[#C8956C] underline"
           >
-            Weitere Informationen in unserer Datenschutzerklärung
+            Datenschutzerklärung
           </a>
         </p>
       </div>
