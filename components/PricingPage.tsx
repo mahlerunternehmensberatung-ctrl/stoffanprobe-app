@@ -115,7 +115,7 @@ const PricingPage: React.FC = () => {
             Credit-Pakete kaufen
           </h1>
           <p className="text-[#67534F] text-lg mb-12 max-w-2xl mx-auto">
-            Volle Flexibilität ohne Abo-Bindung. Credits sind 12 Monate gültig.
+            Volle Flexibilität. Credits sind 12 Monate gültig.
           </p>
 
           {error && (
