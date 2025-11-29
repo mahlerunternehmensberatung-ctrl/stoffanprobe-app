@@ -465,7 +465,7 @@ const App: React.FC = () => {
   }
   
   return (
-    <div className="min-h-screen bg-[#FAF1DC] text-[#67534F] flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-[#FAF1DC] text-[#67534F] flex flex-col overflow-x-hidden w-full max-w-full box-border">
       <Header 
         onNewSession={handleNewSession} 
         onShowSessions={() => setShowSessionList(true)} 

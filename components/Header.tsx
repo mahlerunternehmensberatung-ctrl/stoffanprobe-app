@@ -111,16 +111,16 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-[#FAF1DC]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm overflow-hidden">
-      <div className="w-full px-2 sm:px-4 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 min-h-[3.5rem] gap-2">
+    <header className="bg-[#FAF1DC]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm overflow-hidden w-full">
+      <div className="w-full px-2 pr-2 sm:px-4 lg:px-8 box-border">
+        <div className="flex items-center justify-between h-14 sm:h-16 min-h-[3.5rem] gap-1 sm:gap-2">
           {/* LOGO BEREICH - Text auf Mobile ausblenden */}
           <div className="flex items-center flex-shrink-0 cursor-pointer min-w-0" onClick={() => navigate('/')}>
              <img src="/logo.png" alt="Stoffanprobe" className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 object-contain drop-shadow-sm" />
              <span className="hidden sm:block font-bold text-xl lg:text-2xl text-[#532418] tracking-tight ml-2">Stoffanprobe</span>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0 mr-2 sm:mr-0">
             {user ? (
               <>
                 <div className="flex items-center gap-1.5 sm:gap-2">

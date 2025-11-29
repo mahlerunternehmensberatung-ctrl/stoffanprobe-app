@@ -7,8 +7,8 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
   return (
-    <div className="min-h-screen bg-[#FAF1DC] flex flex-col items-center justify-center px-4 py-4 sm:px-6 sm:py-8 overflow-x-hidden">
-      <div className="max-w-4xl w-full text-center box-border">
+    <div className="min-h-screen bg-[#FAF1DC] flex flex-col items-center justify-center px-4 py-4 sm:px-6 sm:py-8 overflow-x-hidden w-full max-w-full box-border">
+      <div className="max-w-4xl w-full text-center box-border px-0">
         <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-4">
           <img src="/logo.png" alt="Stoffanprobe Logo" className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0" />
           <h1 className="text-xl sm:text-4xl lg:text-5xl font-bold text-[#532418]">
