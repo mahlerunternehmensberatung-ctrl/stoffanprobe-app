@@ -86,7 +86,7 @@ const buildWallColorPrompt = (
     colorDescription = `${wallColor.name} (RAL ${wallColor.code})`;
   }
   
-  let prompt = `Change the walls in the image to be painted ${colorDescription}. Keep the rest of the room unchanged.`;
+  let prompt = `Change the walls in the image to be painted ${colorDescription}. Do NOT paint the ceiling - only the walls. The ceiling must remain in its original color. Keep the rest of the room unchanged.`;
   
   if (textHint && textHint.trim()) {
     prompt += ` Additional instruction: "${textHint.trim()}"`;

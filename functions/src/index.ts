@@ -135,7 +135,7 @@ function buildPrompt(
 
   if (mode === 'creativeWallColor' && wallColor) {
     const colorDesc = `${wallColor.name} (RAL ${wallColor.code})`;
-    let prompt = `Change the walls in the image to be painted ${colorDesc}. Keep the rest of the room unchanged.`;
+    let prompt = `Change the walls in the image to be painted ${colorDesc}. Do NOT paint the ceiling - only the walls. The ceiling must remain in its original color. Keep the rest of the room unchanged.`;
     if (textHint?.trim()) {
       prompt += ` Additional instruction: "${textHint.trim()}"`;
     }
