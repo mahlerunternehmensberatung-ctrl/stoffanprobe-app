@@ -7,15 +7,15 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
   return (
-    <div className="min-h-screen bg-[#FAF1DC] flex flex-col items-center justify-center px-3 py-4 sm:px-4 sm:py-8">
-      <div className="max-w-4xl w-full text-center">
+    <div className="min-h-screen bg-[#FAF1DC] flex flex-col items-center justify-center px-4 py-4 sm:px-6 sm:py-8 overflow-x-hidden">
+      <div className="max-w-4xl w-full text-center box-border">
         <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-4">
-          <img src="/logo.png" alt="Stoffanprobe Logo" className="w-10 h-10 sm:w-12 sm:h-12" />
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-[#532418]">
+          <img src="/logo.png" alt="Stoffanprobe Logo" className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0" />
+          <h1 className="text-xl sm:text-4xl lg:text-5xl font-bold text-[#532418]">
             Stoffanprobe
           </h1>
         </div>
-        <p className="text-sm sm:text-xl text-[#67534F] mb-3 sm:mb-6">
+        <p className="text-xs sm:text-xl text-[#67534F] mb-3 sm:mb-6 px-2">
           Professionelle Visualisierungen für Raumausstatter, Polsterer und Handwerker
         </p>
 
@@ -63,18 +63,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-1 sm:gap-4 mt-2 sm:mt-6">
-          <div className="flex items-center justify-center gap-2 bg-[#FFFFF5] rounded-full px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm">
-            <span className="text-[#C8956C] text-sm">⚡</span>
-            <span className="text-xs sm:text-sm text-[#532418] font-medium">Schnell & Einfach</span>
+        <div className="flex flex-wrap justify-center gap-1.5 sm:gap-4 mt-2 sm:mt-6">
+          <div className="flex items-center justify-center gap-1.5 bg-[#FFFFF5] rounded-full px-2.5 py-1 sm:px-4 sm:py-2 shadow-sm">
+            <span className="text-[#C8956C] text-xs sm:text-sm">⚡</span>
+            <span className="text-[10px] sm:text-sm text-[#532418] font-medium whitespace-nowrap">Schnell & Einfach</span>
           </div>
-          <div className="flex items-center justify-center gap-2 bg-[#FFFFF5] rounded-full px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm">
-            <span className="text-[#C8956C] text-sm">✨</span>
-            <span className="text-xs sm:text-sm text-[#532418] font-medium">Automatische Visualisierung</span>
+          <div className="flex items-center justify-center gap-1.5 bg-[#FFFFF5] rounded-full px-2.5 py-1 sm:px-4 sm:py-2 shadow-sm">
+            <span className="text-[#C8956C] text-xs sm:text-sm">✨</span>
+            <span className="text-[10px] sm:text-sm text-[#532418] font-medium whitespace-nowrap">Auto-Visualisierung</span>
           </div>
-          <div className="flex items-center justify-center gap-2 bg-[#FFFFF5] rounded-full px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm">
-            <span className="text-[#C8956C] text-sm">🔒</span>
-            <span className="text-xs sm:text-sm text-[#532418] font-medium">DSGVO-konform</span>
+          <div className="flex items-center justify-center gap-1.5 bg-[#FFFFF5] rounded-full px-2.5 py-1 sm:px-4 sm:py-2 shadow-sm">
+            <span className="text-[#C8956C] text-xs sm:text-sm">🔒</span>
+            <span className="text-[10px] sm:text-sm text-[#532418] font-medium whitespace-nowrap">DSGVO-konform</span>
           </div>
         </div>
 

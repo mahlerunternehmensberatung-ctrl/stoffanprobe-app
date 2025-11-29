@@ -60,8 +60,8 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[100] p-3 sm:p-4 animate-slide-up">
-      <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-2xl mx-auto max-h-[80vh] overflow-y-auto border border-[#E6C785]/30">
+    <div className="fixed inset-x-0 bottom-0 z-[100] p-2 sm:p-4 animate-slide-up box-border">
+      <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-3 sm:p-6 w-full max-w-2xl mx-auto max-h-[80vh] overflow-y-auto border border-[#E6C785]/30 box-border">
         <h2 className="text-lg sm:text-2xl font-bold text-[#532418] mb-2 sm:mb-4">
           Cookie-Einstellungen
         </h2>

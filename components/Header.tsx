@@ -111,40 +111,38 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-[#FAF1DC]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 min-h-[3.5rem]">
-          {/* LOGO BEREICH */}
-          <div className="flex items-center flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
-             {/* Logo Bild: Stelle sicher, dass logo.png im public Ordner liegt */}
-             <img src="/logo.png" alt="S" className="h-8 w-8 sm:h-10 sm:w-10 mr-2 object-contain drop-shadow-sm" />
-             <span className="font-bold text-lg sm:text-xl lg:text-2xl text-[#532418] tracking-tight">Stoffanprobe</span>
+    <header className="bg-[#FAF1DC]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm overflow-hidden">
+      <div className="w-full px-2 sm:px-4 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16 min-h-[3.5rem] gap-2">
+          {/* LOGO BEREICH - Text auf Mobile ausblenden */}
+          <div className="flex items-center flex-shrink-0 cursor-pointer min-w-0" onClick={() => navigate('/')}>
+             <img src="/logo.png" alt="Stoffanprobe" className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 object-contain drop-shadow-sm" />
+             <span className="hidden sm:block font-bold text-xl lg:text-2xl text-[#532418] tracking-tight ml-2">Stoffanprobe</span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             {user ? (
               <>
-                <div className="flex items-center gap-2">
-                  <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 border border-[#E6C785]/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 ${goldText}`} viewBox="0 0 24 24" fill="currentColor">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {/* Credits-Anzeige - kompakter auf Mobile */}
+                  <div className="bg-white/80 backdrop-blur-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg shadow-sm flex items-center gap-1 border border-[#E6C785]/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${goldText}`} viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
-                    <span className="text-xs sm:text-sm text-[#67534F]">
-                      <span className="font-bold text-[#532418]">{displayCredits}</span>
-                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#532418]">{displayCredits}</span>
                   </div>
                   {user.plan === 'pro' && (
-                    <span className={`text-xs ${goldGradient} text-white px-2 py-1 rounded font-semibold shadow-sm tracking-wide border border-white/20`}>
+                    <span className={`text-[10px] sm:text-xs ${goldGradient} text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-semibold shadow-sm tracking-wide border border-white/20`}>
                       PRO
                     </span>
                   )}
                 </div>
-                
+
                 {/* Account Avatar mit Dropdown-Menü */}
-                <div className="relative" ref={dropdownRef}>
+                <div className="relative flex-shrink-0" ref={dropdownRef}>
                   <button
                     onClick={handleAccountClick}
-                    className={`w-10 h-10 rounded-full ${goldGradient} text-white flex items-center justify-center hover:opacity-90 transition-opacity shadow-md border-2 border-white`}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full ${goldGradient} text-white flex items-center justify-center hover:opacity-90 transition-opacity shadow-md border-2 border-white flex-shrink-0`}
                     aria-label="Account-Menü"
                   >
                     <span className="text-sm font-bold shadow-sm">{getInitials()}</span>
