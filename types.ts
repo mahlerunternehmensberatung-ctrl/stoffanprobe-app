@@ -23,6 +23,7 @@ export interface Variant {
   imageUrl: string;
   createdAt: Date;
   comment?: string;
+  isDownloaded?: boolean; // Für DSGVO-Tracking bei Kundenbildern
 }
 
 export interface CustomerData {

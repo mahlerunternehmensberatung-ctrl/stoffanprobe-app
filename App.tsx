@@ -25,6 +25,7 @@ import { logoutUser } from './services/authService';
 import { decrementCredits } from './services/userService';
 import { trackPageView, trackEvent } from './services/analytics';
 import { v4 as uuidv4 } from 'uuid';
+import CustomerDataExitModal from './components/CustomerDataExitModal';
 
 
 const App: React.FC = () => {
@@ -55,6 +56,10 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const searchTimeoutRef = useRef<number | null>(null);
+
+  // DSGVO: State für Exit-Modal bei Kundenbildern
+  const [showCustomerDataExitModal, setShowCustomerDataExitModal] = useState(false);
+  const [pendingExitAction, setPendingExitAction] = useState<'logout' | 'newSession' | null>(null);
 
   // Check for MediaDevices support for Speech Recognition API
   const isSpeechRecognitionSupported = useMemo(() => 
@@ -115,6 +120,25 @@ const App: React.FC = () => {
     trackPageView(window.location.pathname);
   }, []);
 
+  // DSGVO: beforeunload Warnung bei ungesicherten Kundenbildern
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Prüfe ob ungesicherte Kundenbilder vorhanden sind
+      const isCustomerSession = session?.imageType === 'commercial' && session?.consentData?.accepted;
+      const hasUnsaved = isCustomerSession && session?.variants.some(v => !v.isDownloaded);
+
+      if (hasUnsaved) {
+        // Standard-Warnung anzeigen (Browser zeigt eigenen Text)
+        e.preventDefault();
+        e.returnValue = ''; // Erforderlich für Chrome
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [session]);
+
   // Track wichtige Events
   const handleUserRegistration = useCallback(() => {
     trackEvent('sign_up', {
@@ -134,23 +158,37 @@ const App: React.FC = () => {
     });
   }, [user]);
 
+  // DSGVO: Prüfe ob ungesicherte Kundenbilder vorhanden sind
+  const hasUnsavedCustomerData = useCallback(() => {
+    if (!session) return false;
+    const isCustomerSession = session.imageType === 'commercial' && session.consentData?.accepted;
+    if (!isCustomerSession) return false;
+    // Prüfe ob es Varianten gibt, die noch nicht heruntergeladen wurden
+    return session.variants.some(v => !v.isDownloaded);
+  }, [session]);
+
+  // DSGVO: Markiere alle Bilder als heruntergeladen
+  const markAllVariantsAsDownloaded = useCallback(() => {
+    if (!session) return;
+    updateSession(prev => ({
+      ...prev,
+      variants: prev.variants.map(v => ({ ...v, isDownloaded: true })),
+    }));
+  }, [session]);
+
   const handleLogout = async () => {
-    // DSGVO-Warnung: Prüfe ob Kundenbilder mit Einwilligung vorhanden sind
-    const hasCustomerData = session?.imageType === 'commercial' && session?.consentData?.accepted;
-
-    if (hasCustomerData && session?.variants && session.variants.length > 0) {
-      const confirmed = window.confirm(
-        'ACHTUNG: Sie haben Kundenbilder mit Einwilligungen in dieser Sitzung.\n\n' +
-        'Haben Sie alle Bilder und Einwilligungen bereits heruntergeladen?\n\n' +
-        'Nach dem Abmelden werden alle temporären Daten unwiderruflich gelöscht!\n\n' +
-        'Klicken Sie "OK" zum Abmelden oder "Abbrechen" um zurückzugehen und die Daten zu sichern.'
-      );
-
-      if (!confirmed) {
-        return; // Abbrechen wenn User nicht bestätigt
-      }
+    // DSGVO: Prüfe ob ungesicherte Kundenbilder vorhanden sind
+    if (hasUnsavedCustomerData()) {
+      setPendingExitAction('logout');
+      setShowCustomerDataExitModal(true);
+      return;
     }
 
+    // Direkt abmelden wenn keine ungesicherten Daten
+    await performLogout();
+  };
+
+  const performLogout = async () => {
     try {
       await logoutUser();
       setSession(null);
@@ -266,9 +304,53 @@ const App: React.FC = () => {
   }
 
   const handleNewSession = () => {
+    // DSGVO: Prüfe ob ungesicherte Kundenbilder vorhanden sind
+    if (hasUnsavedCustomerData()) {
+      setPendingExitAction('newSession');
+      setShowCustomerDataExitModal(true);
+      return;
+    }
+
+    // Direkt neue Session starten wenn keine ungesicherten Daten
+    performNewSession();
+  };
+
+  const performNewSession = () => {
     setSession(null);
     setShowSessionList(false);
-  }
+  };
+
+  // DSGVO: Handler für Exit-Modal
+  const handleExitModalDownloadComplete = () => {
+    // Alle Bilder als heruntergeladen markieren
+    markAllVariantsAsDownloaded();
+    setShowCustomerDataExitModal(false);
+
+    // Führe die wartende Aktion aus
+    if (pendingExitAction === 'logout') {
+      performLogout();
+    } else if (pendingExitAction === 'newSession') {
+      performNewSession();
+    }
+    setPendingExitAction(null);
+  };
+
+  const handleExitModalContinueWithoutSaving = async () => {
+    setShowCustomerDataExitModal(false);
+
+    // Führe die wartende Aktion aus ohne zu speichern
+    if (pendingExitAction === 'logout') {
+      await performLogout();
+    } else if (pendingExitAction === 'newSession') {
+      performNewSession();
+    }
+    setPendingExitAction(null);
+  };
+
+  const handleExitModalCancel = () => {
+    setShowCustomerDataExitModal(false);
+    setPendingExitAction(null);
+  };
 
   const handleDeleteVariant = (variantId: string) => {
     if (!session) return;
@@ -565,6 +647,16 @@ const App: React.FC = () => {
             });
           }}
           user={user}
+        />
+      )}
+
+      {/* DSGVO: Exit-Modal für ungesicherte Kundenbilder */}
+      {showCustomerDataExitModal && session && (
+        <CustomerDataExitModal
+          session={session}
+          onDownloadComplete={handleExitModalDownloadComplete}
+          onContinueWithoutSaving={handleExitModalContinueWithoutSaving}
+          onCancel={handleExitModalCancel}
         />
       )}
 
