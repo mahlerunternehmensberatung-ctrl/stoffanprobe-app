@@ -265,9 +265,10 @@ const Workspace: React.FC<WorkspaceProps> = ({
             textHint: textHint
         });
         
-        // Nur wenn Generierung erfolgreich war: Credit-Abzug (außer Pro-Plan)
+        // Nur wenn Generierung erfolgreich war: Credit-Abzug
         // WICHTIG: Credit-Abzug NUR wenn Bild erfolgreich generiert wurde
-        if (user && user.plan !== 'pro' && onDecrementCredits) {
+        // Credits werden für ALLE User abgezogen (Free und Pro)
+        if (user && onDecrementCredits) {
           try {
             await onDecrementCredits();
           } catch (creditError) {
