@@ -4,6 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '../context/AuthContext';
 import { loadStripe } from '@stripe/stripe-js';
+import PaywallModal from './PaywallModal';
 
 // Gold-Styles (wie gewünscht)
 const goldGradient = "bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642]";
@@ -54,10 +55,20 @@ const PricingPage: React.FC = () => {
   const { user } = useAuth();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Prüfe ob User ein aktives Abo hat
+  const hasActiveSubscription = user?.plan === 'pro' || user?.plan === 'home';
 
   const handlePurchase = async (priceId: string) => {
     if (!user) {
       navigate('/');
+      return;
+    }
+
+    // Ohne Abo keine Credits kaufen
+    if (!hasActiveSubscription) {
+      setShowPaywall(true);
       return;
     }
 
@@ -126,9 +137,24 @@ const PricingPage: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-4">
               Credit-Pakete kaufen
             </h1>
-          <p className="text-[#67534F] text-lg mb-12 max-w-2xl mx-auto">
+          <p className="text-[#67534F] text-lg mb-8 max-w-2xl mx-auto">
             Volle Flexibilität. Credits sind 12 Monate gültig.
           </p>
+
+          {/* Hinweis wenn kein aktives Abo */}
+          {!hasActiveSubscription && (
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-xl max-w-xl mx-auto">
+              <p className="text-amber-800 font-medium mb-3">
+                Credits können nur mit einem aktiven Abo erworben werden.
+              </p>
+              <button
+                onClick={() => setShowPaywall(true)}
+                className={`px-6 py-2 rounded-full font-bold text-white shadow-md transition-all ${goldGradient} hover:opacity-90`}
+              >
+                Abo abschließen
+              </button>
+            </div>
+          )}
 
           {error && (
             <div className="mb-8 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg">
@@ -153,11 +179,13 @@ const PricingPage: React.FC = () => {
 
                 <button
                   onClick={() => pkg.id && handlePurchase(pkg.id)}
-                  disabled={!!loadingId || !pkg.id}
-                  className={`w-full py-3 px-6 rounded-full font-bold text-white shadow-md transition-all transform active:scale-95 hover:shadow-lg ${
-                    loadingId === pkg.id 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : `${goldGradient} hover:opacity-90`
+                  disabled={!!loadingId || !pkg.id || !hasActiveSubscription}
+                  className={`w-full py-3 px-6 rounded-full font-bold text-white shadow-md transition-all ${
+                    !hasActiveSubscription
+                      ? 'bg-gray-300 cursor-not-allowed'
+                      : loadingId === pkg.id
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : `${goldGradient} hover:opacity-90 transform active:scale-95 hover:shadow-lg`
                   }`}
                 >
                   {loadingId === pkg.id ? 'Lädt...' : 'Jetzt aufladen'}
@@ -179,6 +207,13 @@ const PricingPage: React.FC = () => {
         onOpenAgb={() => {}}
         onOpenCookieSettings={() => {}}
       />
+
+      {showPaywall && (
+        <PaywallModal
+          onClose={() => setShowPaywall(false)}
+          user={user}
+        />
+      )}
     </div>
   );
 };
