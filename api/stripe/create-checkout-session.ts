@@ -18,8 +18,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Basis-Konfiguration für die Session
+    // payment_method_types wird nicht gesetzt - Stripe zeigt automatisch alle verfügbaren Methoden
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: ['card', 'paypal', 'sofort', 'sepa_debit'],
       line_items: [
         {
           price: priceId,
