@@ -140,45 +140,46 @@ const Header: React.FC<HeaderProps> = ({
                   )}
                 </div>
                 
-                {/* Gruppe: Avatar + Logout Button */}
-                <div className="flex items-center gap-2">
-                    {/* Account Avatar mit Gold-Verlauf */}
-                    <div className="relative" ref={dropdownRef}>
-                      <button
-                        onClick={handleAccountClick}
-                        className={`w-10 h-10 rounded-full ${goldGradient} text-white flex items-center justify-center hover:opacity-90 transition-opacity shadow-md border-2 border-white`}
-                        aria-label="Account-Menü"
-                      >
-                        <span className="text-sm font-bold shadow-sm">{getInitials()}</span>
-                      </button>
-                      
-                      {showAccountDropdown && (
-                        <div className="absolute right-0 mt-2 min-w-[180px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 overflow-hidden animate-fade-in-up">
-                          <button
-                            onClick={() => handleMenuItemClick(() => navigate('/account'))}
-                            className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-yellow-50 transition-colors whitespace-nowrap block"
-                          >
-                            Mein Konto
-                          </button>
-                          <button
-                            onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
-                            className="w-full text-left px-4 py-2 text-sm text-[#67534F] hover:bg-yellow-50 transition-colors whitespace-nowrap block"
-                          >
-                            Guthaben kaufen
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                {/* Account Avatar mit Dropdown-Menü */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={handleAccountClick}
+                    className={`w-10 h-10 rounded-full ${goldGradient} text-white flex items-center justify-center hover:opacity-90 transition-opacity shadow-md border-2 border-white`}
+                    aria-label="Account-Menü"
+                  >
+                    <span className="text-sm font-bold shadow-sm">{getInitials()}</span>
+                  </button>
 
-                    {/* Separater Logout Button */}
-                    <button
-                        onClick={handleLogout}
-                        className="w-10 h-10 rounded-full bg-white border border-gray-200 text-[#67534F] flex items-center justify-center hover:bg-gray-50 hover:text-red-600 transition-colors shadow-sm"
-                        title="Abmelden"
-                        aria-label="Abmelden"
-                    >
-                        <LogoutIcon className="w-5 h-5" />
-                    </button>
+                  {showAccountDropdown && (
+                    <div className="absolute right-0 mt-2 min-w-[180px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 overflow-hidden animate-fade-in-up">
+                      <button
+                        onClick={() => handleMenuItemClick(() => navigate('/account'))}
+                        className="w-full text-left px-4 py-2.5 text-sm text-[#67534F] hover:bg-yellow-50 transition-colors whitespace-nowrap flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                        Mein Konto
+                      </button>
+                      <button
+                        onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
+                        className="w-full text-left px-4 py-2.5 text-sm text-[#67534F] hover:bg-yellow-50 transition-colors whitespace-nowrap flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Guthaben kaufen
+                      </button>
+                      <div className="border-t border-gray-100 my-1"></div>
+                      <button
+                        onClick={() => handleMenuItemClick(handleLogout)}
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors whitespace-nowrap flex items-center gap-2"
+                      >
+                        <LogoutIcon className="w-4 h-4" />
+                        Abmelden
+                      </button>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
