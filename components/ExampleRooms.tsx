@@ -50,6 +50,9 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
               <img
                 src={room.image}
                 alt={room.name}
+                loading="lazy"
+                width={600}
+                height={400}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                     console.error(`Bild nicht gefunden: ${room.image}`);
