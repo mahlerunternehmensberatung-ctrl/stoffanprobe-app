@@ -135,6 +135,22 @@ const App: React.FC = () => {
   }, [user]);
 
   const handleLogout = async () => {
+    // DSGVO-Warnung: Prüfe ob Kundenbilder mit Einwilligung vorhanden sind
+    const hasCustomerData = session?.imageType === 'commercial' && session?.consentData?.accepted;
+
+    if (hasCustomerData && session?.variants && session.variants.length > 0) {
+      const confirmed = window.confirm(
+        'ACHTUNG: Sie haben Kundenbilder mit Einwilligungen in dieser Sitzung.\n\n' +
+        'Haben Sie alle Bilder und Einwilligungen bereits heruntergeladen?\n\n' +
+        'Nach dem Abmelden werden alle temporären Daten unwiderruflich gelöscht!\n\n' +
+        'Klicken Sie "OK" zum Abmelden oder "Abbrechen" um zurückzugehen und die Daten zu sichern.'
+      );
+
+      if (!confirmed) {
+        return; // Abbrechen wenn User nicht bestätigt
+      }
+    }
+
     try {
       await logoutUser();
       setSession(null);

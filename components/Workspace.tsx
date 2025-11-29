@@ -21,6 +21,7 @@ import { glassBase, glassButton } from '../glass';
 import SpeechButton from './SpeechButton';
 import { useLiveTranscription } from '../hooks/useLiveTranscription';
 import PrivacyNotice from './PrivacyNotice';
+import CustomerDataBanner from './CustomerDataBanner';
 
 interface WorkspaceProps {
   session: Session | null;
@@ -776,8 +777,10 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
         {session && session.variants.length > 0 && (
           <section className="mt-12 animate-fade-in">
-             <Gallery 
-                variants={session.variants} 
+             {/* DSGVO-Warnung für Kundenbilder */}
+             <CustomerDataBanner session={session} />
+             <Gallery
+                variants={session.variants}
                 onVariantSelect={setModalVariant}
                 onEmailAll={handleEmailGallery}
                 onDownloadAll={handleDownloadGallery}

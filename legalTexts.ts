@@ -124,7 +124,18 @@ export const datenschutzContent: LegalContent = {
       ],
     },
     {
-      heading: "6. Ihre Rechte",
+      heading: "6. Verarbeitung von Kundenbildern (Pro-Abo)",
+      content: [
+        "Bei der gewerblichen Nutzung des Pro-Abos können Raumausstatter und Interior Designer Bilder ihrer Kunden zur Visualisierung verwenden.",
+        { label: "Rechtsgrundlage:", text: "Die Verarbeitung erfolgt auf Basis der Einwilligung des Endkunden (Art. 6 Abs. 1 lit. a DSGVO), die der gewerbliche Nutzer selbstständig einholt." },
+        { label: "Keine Speicherung:", text: "stoffanprobe.de speichert Kundenbilder, Einwilligungen und personenbezogene Kundendaten NICHT auf seinen Servern. Alle Daten verbleiben temporär im Browser des Nutzers." },
+        { label: "Datenübertragung:", text: "Zur Bildgenerierung werden die Raumfotos an den KI-Dienstleister fal.ai übermittelt. Dies erfolgt nur bei aktiver Nutzung der Generieren-Funktion." },
+        { label: "Verantwortlichkeit:", text: "Der gewerbliche Nutzer ist selbst Verantwortlicher im Sinne der DSGVO für die Verarbeitung der Daten seiner Kunden. stoffanprobe.de stellt lediglich die technische Infrastruktur bereit." },
+        { label: "Archivierungspflicht:", text: "Der gewerbliche Nutzer ist verpflichtet, Einwilligungserklärungen und relevante Daten in seinem eigenen System DSGVO-konform zu archivieren, bevor er die Sitzung beendet." },
+      ],
+    },
+    {
+      heading: "7. Ihre Rechte",
       content: [
         "Sie haben jederzeit das Recht auf unentgeltliche Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen.",
         "Hierzu sowie zu weiteren Fragen zum Thema Datenschutz können Sie sich jederzeit an uns wenden.",
@@ -195,7 +206,17 @@ export const agbContent: LegalContent = {
       ],
     },
     {
-      heading: "9. Schlussbestimmungen",
+      heading: "9. Datenschutz bei Kundenbildern (Pro-Abo)",
+      content: [
+        "Bei der Nutzung des Pro-Abos für gewerbliche Zwecke (z.B. Kundenberatung) ist der Nutzer selbst verantwortlich für die Einholung der notwendigen Einwilligungen seiner Kunden gemäß DSGVO Art. 6 Abs. 1 lit. a.",
+        { label: "Verantwortlichkeit:", text: "Der gewerbliche Nutzer trägt die alleinige datenschutzrechtliche Verantwortung für die Verarbeitung personenbezogener Daten seiner Kunden (Raumfotos, Namen, Kontaktdaten)." },
+        { label: "Keine dauerhafte Speicherung:", text: "stoffanprobe.de speichert Kundenbilder und Einwilligungserklärungen NICHT dauerhaft. Diese verbleiben nur temporär im Browser des Nutzers." },
+        { label: "Archivierungspflicht:", text: "Der Nutzer ist verpflichtet, alle relevanten Daten (Bilder, Einwilligungen, Kundendaten) vor dem Beenden der Sitzung herunterzuladen und in seinem eigenen System DSGVO-konform zu archivieren." },
+        { label: "Löschung:", text: "Mit dem Schließen des Browsers oder Abmelden werden alle temporären Daten unwiderruflich gelöscht." },
+      ],
+    },
+    {
+      heading: "10. Schlussbestimmungen",
       content: [
         "Es gilt das Recht der Bundesrepublik Deutschland.",
         "Gerichtsstand ist, soweit gesetzlich zulässig, der Sitz der Mahler Filmproduktion GmbH (Amtsgericht Potsdam / Sitz in Lalendorf).",
