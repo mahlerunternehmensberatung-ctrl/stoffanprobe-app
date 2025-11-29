@@ -111,8 +111,8 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="bg-[#FAF1DC]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm overflow-hidden w-full">
-      <div className="w-full px-2 pr-2 sm:px-4 lg:px-8 box-border">
+    <header className="bg-[#FAF1DC]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm w-full">
+      <div className="w-full px-2 pr-3 sm:px-4 lg:px-8 box-border">
         <div className="flex items-center justify-between h-14 sm:h-16 min-h-[3.5rem] gap-1 sm:gap-2">
           {/* LOGO BEREICH - Text auf Mobile ausblenden */}
           <div className="flex items-center flex-shrink-0 cursor-pointer min-w-0" onClick={() => navigate('/')}>
@@ -139,13 +139,15 @@ const Header: React.FC<HeaderProps> = ({
                 </div>
 
                 {/* Account Avatar mit Dropdown-Menü */}
-                <div className="relative flex-shrink-0" ref={dropdownRef}>
+                <div className="relative flex-shrink-0 z-50" ref={dropdownRef}>
                   <button
+                    type="button"
                     onClick={handleAccountClick}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full ${goldGradient} text-white flex items-center justify-center hover:opacity-90 transition-opacity shadow-md border-2 border-white flex-shrink-0`}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full ${goldGradient} text-white flex items-center justify-center hover:opacity-90 transition-opacity shadow-md border-2 border-white flex-shrink-0 cursor-pointer pointer-events-auto`}
                     aria-label="Account-Menü"
+                    aria-expanded={showAccountDropdown}
                   >
-                    <span className="text-sm font-bold shadow-sm">{getInitials()}</span>
+                    <span className="text-sm font-bold">{getInitials()}</span>
                   </button>
 
                   {showAccountDropdown && (
