@@ -134,12 +134,8 @@ const PricingPage: React.FC = () => {
                   <h3 className="text-2xl font-bold text-[#532418] mb-1">{pkg.credits} Credits</h3>
                   <p className="text-sm text-[#8C6A30] mb-4 h-5">{pkg.description}</p>
                   
-                  <div className={`text-4xl font-extrabold ${goldTextGradient} mb-2`}>
+                  <div className={`text-4xl font-extrabold ${goldTextGradient}`}>
                     {pkg.price}
-                  </div>
-                  
-                  <div className="text-xs text-gray-400">
-                     {(parseFloat(pkg.price.replace(',', '.').replace('€', '')) / pkg.credits).toFixed(2)}€ / Bild
                   </div>
                 </div>
 
