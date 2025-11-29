@@ -36,7 +36,7 @@ const CREDIT_PACKAGES: Record<string, number> = {
   [process.env.STRIPE_PRICE_400_CREDITS || '']: 400, // NEU: 400 statt 500
 };
 
-async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<void> {
+async function upgradeToSubscription(uid: string, planType: 'pro' | 'home', stripeCustomerId?: string): Promise<void> {
   const db = getAdminDb();
   const userRef = db.collection('users').doc(uid);
 
@@ -45,8 +45,9 @@ async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<voi
   const existingCredits = userSnap.exists ? (userSnap.data()?.monthlyCredits ?? 0) : 0;
 
   const updateData: Record<string, any> = {
-    plan: 'pro',
-    // Addiere Pro-Credits zu bestehenden Credits
+    plan: planType, // 'pro' oder 'home'
+    planType: planType, // Explizit speichern für spätere Referenz
+    // Addiere Credits zu bestehenden Credits
     monthlyCredits: existingCredits + MONTHLY_PRO_CREDITS,
     updatedAt: FieldValue.serverTimestamp(),
   };
@@ -56,7 +57,7 @@ async function upgradeToPro(uid: string, stripeCustomerId?: string): Promise<voi
   }
 
   await userRef.update(updateData);
-  console.log(`User ${uid} upgraded to Pro (${existingCredits} + ${MONTHLY_PRO_CREDITS} = ${existingCredits + MONTHLY_PRO_CREDITS} credits)`);
+  console.log(`User ${uid} upgraded to ${planType} (${existingCredits} + ${MONTHLY_PRO_CREDITS} = ${existingCredits + MONTHLY_PRO_CREDITS} credits)`);
 }
 
 async function addPurchasedCredits(uid: string, credits: number): Promise<void> {
@@ -85,16 +86,24 @@ async function addPurchasedCredits(uid: string, credits: number): Promise<void> 
   console.log(`Added ${credits} credits to user ${uid}`);
 }
 
-async function resetMonthlyCredits(uid: string): Promise<void> {
+async function resetMonthlyCredits(uid: string, planType?: 'pro' | 'home'): Promise<void> {
   const db = getAdminDb();
   const userRef = db.collection('users').doc(uid);
 
-  await userRef.update({
+  const updateData: Record<string, any> = {
     monthlyCredits: MONTHLY_PRO_CREDITS,
     updatedAt: FieldValue.serverTimestamp(),
-  });
+  };
 
-  console.log(`Reset monthly credits for user ${uid}`);
+  // Stelle sicher dass plan und planType korrekt gesetzt sind
+  if (planType) {
+    updateData.plan = planType;
+    updateData.planType = planType;
+  }
+
+  await userRef.update(updateData);
+
+  console.log(`Reset monthly credits for user ${uid} (planType: ${planType || 'unknown'})`);
 }
 
 async function downgradeToFree(uid: string): Promise<void> {
@@ -152,26 +161,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      
+
       const userId = session.metadata?.userId || session.client_reference_id;
       const mode = session.metadata?.mode || session.mode;
       const priceId = session.metadata?.priceId;
-      
-      console.log(`Checkout completed - userId: ${userId}, mode: ${mode}, priceId: ${priceId}`);
+      const planType = (session.metadata?.planType as 'pro' | 'home') || 'pro';
+
+      console.log(`Checkout completed - userId: ${userId}, mode: ${mode}, priceId: ${priceId}, planType: ${planType}`);
 
       if (!userId) {
         console.error('User-ID nicht gefunden');
         return res.status(400).json({ error: 'User-ID nicht gefunden' });
       }
 
-      const stripeCustomerId = typeof session.customer === 'string' 
-        ? session.customer 
+      const stripeCustomerId = typeof session.customer === 'string'
+        ? session.customer
         : session.customer?.id;
 
       if (mode === 'subscription') {
-        await upgradeToPro(userId, stripeCustomerId);
+        await upgradeToSubscription(userId, planType, stripeCustomerId);
 
-        // User-ID in Subscription speichern für spätere Events
+        // User-ID und planType in Subscription speichern für spätere Events
         if (session.subscription) {
           const subscriptionId = typeof session.subscription === 'string'
             ? session.subscription
@@ -179,9 +189,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           try {
             await stripe.subscriptions.update(subscriptionId, {
-              metadata: { userId: userId },
+              metadata: { userId: userId, planType: planType },
             });
-            console.log(`Updated subscription ${subscriptionId} with userId: ${userId}`);
+            console.log(`Updated subscription ${subscriptionId} with userId: ${userId}, planType: ${planType}`);
           } catch (err) {
             console.error('Error updating subscription metadata:', err);
           }
@@ -208,9 +218,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const userId = subscription.metadata?.userId;
+        const planType = subscription.metadata?.planType as 'pro' | 'home' | undefined;
 
         if (userId) {
-          await resetMonthlyCredits(userId);
+          await resetMonthlyCredits(userId, planType);
         }
       }
     }

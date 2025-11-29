@@ -87,6 +87,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
           userId: user.uid,
           customerEmail: user.email,
           mode: 'subscription',
+          planType: plan.id, // 'pro' oder 'home'
         }),
       });
 

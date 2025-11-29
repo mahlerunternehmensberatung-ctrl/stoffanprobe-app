@@ -11,7 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { priceId, userId, customerEmail, mode = 'subscription' } = req.body;
+    const { priceId, userId, customerEmail, mode = 'subscription', planType } = req.body;
 
     if (!priceId || !userId) {
       return res.status(400).json({ error: 'Missing parameters' });
@@ -34,7 +34,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: {
         userId,
         mode,
-        priceId
+        priceId,
+        planType: planType || 'pro', // 'pro' oder 'home'
       },
       // WICHTIG: Das hier aktiviert das Gutschein-Feld im Checkout!
       allow_promotion_codes: true,
