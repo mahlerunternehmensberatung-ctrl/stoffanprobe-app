@@ -56,7 +56,8 @@ async function upgradeToSubscription(uid: string, planType: 'pro' | 'home', stri
     updateData.stripeCustomerId = stripeCustomerId;
   }
 
-  await userRef.update(updateData);
+  // Nutze set mit merge statt update, falls User-Dokument noch nicht existiert
+  await userRef.set(updateData, { merge: true });
   console.log(`User ${uid} upgraded to ${planType} (${existingCredits} + ${MONTHLY_PRO_CREDITS} = ${existingCredits + MONTHLY_PRO_CREDITS} credits)`);
 }
 
