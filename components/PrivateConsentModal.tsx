@@ -4,15 +4,23 @@ import { ConsentData } from '../types';
 interface PrivateConsentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (consentData: ConsentData) => void;
+  onConfirm: (consentData: ConsentData, dontShowAgain?: boolean) => void;
+  showDontAskAgain?: boolean; // Nur für Home-User anzeigen
 }
 
-const PrivateConsentModal: React.FC<PrivateConsentModalProps> = ({ isOpen, onClose, onConfirm }) => {
+const PrivateConsentModal: React.FC<PrivateConsentModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  showDontAskAgain = false
+}) => {
   const [consent, setConsent] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setConsent(false);
+      setDontShowAgain(false);
     }
   }, [isOpen]);
 
@@ -28,7 +36,7 @@ const PrivateConsentModal: React.FC<PrivateConsentModalProps> = ({ isOpen, onClo
       signature: null,
       timestamp: new Date(),
     };
-    onConfirm(consentData);
+    onConfirm(consentData, dontShowAgain);
   };
 
   return (
@@ -63,6 +71,20 @@ const PrivateConsentModal: React.FC<PrivateConsentModalProps> = ({ isOpen, onClo
               Ich bestätige, dass ich die Rechte an diesem Bild besitze.
             </span>
           </label>
+
+          {showDontAskAgain && (
+            <label className="flex items-start p-3 bg-gray-50 rounded-md cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={dontShowAgain}
+                onChange={(e) => setDontShowAgain(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-[#C8956C] focus:ring-[#A67B5B]"
+              />
+              <span className="ml-3 text-xs text-gray-600">
+                Nicht mehr anzeigen (ich bestätige immer, dass ich die Bildrechte besitze)
+              </span>
+            </label>
+          )}
         </div>
         <div className="mt-6 flex justify-end space-x-3">
           <button
@@ -87,4 +109,3 @@ const PrivateConsentModal: React.FC<PrivateConsentModalProps> = ({ isOpen, onClo
 };
 
 export default PrivateConsentModal;
-

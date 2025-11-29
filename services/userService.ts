@@ -66,11 +66,16 @@ export const getUserData = async (uid: string): Promise<User | null> => {
       firstName: data.firstName,
       lastName: data.lastName,
       plan: data.plan || 'free',
+      planType: data.planType,
       credits: data.credits ?? INITIAL_FREE_CREDITS, // Legacy
       monthlyCredits: data.monthlyCredits ?? 0,
       purchasedCredits: data.purchasedCredits ?? 0,
       purchasedCreditsExpiry: data.purchasedCreditsExpiry?.toDate(),
       stripeCustomerId: data.stripeCustomerId,
+      subscriptionCancelledAt: data.subscriptionCancelledAt?.toDate(),
+      subscriptionEndsAt: data.subscriptionEndsAt?.toDate(),
+      homeConsentDismissed: data.homeConsentDismissed ?? false,
+      homeInfoShown: data.homeInfoShown ?? false,
       createdAt: data.createdAt?.toDate() || new Date(),
       updatedAt: data.updatedAt?.toDate() || new Date(),
     };
@@ -224,19 +229,51 @@ export const hasCredits = async (uid: string): Promise<boolean> => {
   try {
     const user = await getUserData(uid);
     if (!user) return false;
-    
+
     // Prüfe abgelaufene purchasedCredits
     const now = new Date();
     let purchasedCredits = user.purchasedCredits ?? 0;
     if (user.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {
       purchasedCredits = 0;
     }
-    
+
     const monthlyCredits = user.monthlyCredits ?? 0;
     return (monthlyCredits + purchasedCredits) > 0;
   } catch (error) {
     console.error('Error checking credits:', error);
     return false;
+  }
+};
+
+/**
+ * Setzt homeConsentDismissed auf true (Home-User will Bildrechte-Dialog nicht mehr sehen)
+ */
+export const dismissHomeConsent = async (uid: string): Promise<void> => {
+  try {
+    const userRef = doc(db, COLLECTION_NAME, uid);
+    await updateDoc(userRef, {
+      homeConsentDismissed: true,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Error dismissing home consent:', error);
+    throw new Error('Fehler beim Speichern der Einstellung.');
+  }
+};
+
+/**
+ * Setzt homeInfoShown auf true (Home-User hat Info-Hinweis gesehen)
+ */
+export const markHomeInfoShown = async (uid: string): Promise<void> => {
+  try {
+    const userRef = doc(db, COLLECTION_NAME, uid);
+    await updateDoc(userRef, {
+      homeInfoShown: true,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Error marking home info shown:', error);
+    throw new Error('Fehler beim Speichern der Einstellung.');
   }
 };
 

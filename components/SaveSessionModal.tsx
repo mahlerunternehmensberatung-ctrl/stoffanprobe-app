@@ -15,9 +15,10 @@ interface SaveSessionModalProps {
   onClose: () => void;
   onSave: (details: { name: string; customerData: CustomerData; notes: string; }) => void;
   isSpeechRecognitionSupported: boolean;
+  isHomeUser?: boolean; // Home-User sehen keine CRM-Felder
 }
 
-const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, onSave, isSpeechRecognitionSupported }) => {
+const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, onSave, isSpeechRecognitionSupported, isHomeUser = false }) => {
   const [sessionName, setSessionName] = useState(session.name || '');
   
   // Customer Data State
@@ -99,7 +100,9 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
-            <h2 className="text-2xl font-bold text-[#532418]">Sitzung & Kundendaten speichern</h2>
+            <h2 className="text-2xl font-bold text-[#532418]">
+              {isHomeUser ? 'Sitzung speichern' : 'Sitzung & Kundendaten speichern'}
+            </h2>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
         </div>
         <form onSubmit={handleSave} className="flex-grow overflow-y-auto pr-2 space-y-4">
@@ -127,28 +130,34 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
 
             <div>
                 <label htmlFor="sessionName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Projekttitel (z.B. "Wohnzimmer Frau Müller")
+                    {isHomeUser ? 'Projekttitel (z.B. "Wohnzimmer neu")' : 'Projekttitel (z.B. "Wohnzimmer Frau Müller")'}
                 </label>
                 <input id="sessionName" type="text" value={sessionName} onChange={(e) => setSessionName(e.target.value)} className={inputClasses} required />
             </div>
-             <div>
-                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">Kundenname</label>
-                <input id="customerName" type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={inputClasses}/>
-            </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Kundendaten nur für Pro-User */}
+            {!isHomeUser && (
+              <>
                 <div>
-                    <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
-                    <input id="customerEmail" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className={inputClasses} />
+                    <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">Kundenname</label>
+                    <input id="customerName" type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={inputClasses}/>
                 </div>
-                 <div>
-                    <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-                    <input id="customerPhone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className={inputClasses} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+                        <input id="customerEmail" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className={inputClasses} />
+                    </div>
+                    <div>
+                        <label htmlFor="customerPhone" className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                        <input id="customerPhone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className={inputClasses} />
+                    </div>
                 </div>
-            </div>
-            <div>
-                <label htmlFor="customerAddress" className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-                <textarea id="customerAddress" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} className={`${inputClasses} resize-none`} rows={2} />
-            </div>
+                <div>
+                    <label htmlFor="customerAddress" className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+                    <textarea id="customerAddress" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} className={`${inputClasses} resize-none`} rows={2} />
+                </div>
+              </>
+            )}
             <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Notizen & Gesprächsprotokoll</label>
                 <div className="relative">
@@ -177,43 +186,46 @@ const SaveSessionModal: React.FC<SaveSessionModalProps> = ({ session, onClose, o
                 {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
             </div>
 
-            <div className={`${glassBase} p-4 mt-6`}>
-                <h4 className="text-[#532418] font-semibold mb-3">Verkaufsabschluss</h4>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-[#532418] mb-2">Verkaufskategorien</label>
-                        <div className="flex flex-wrap gap-2">
-                            {salesCategoryOptions.map(cat => {
-                                const isSelected = salesCategories.includes(cat);
-                                return (
-                                <button type="button" key={cat} onClick={() => handleToggleCategory(cat)}
-                                    className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${isSelected ? 'bg-[#C8956C] text-white border-transparent shadow-md' : 'bg-white/50 border-white/30 text-[#532418] hover:bg-white/80'}`}>
-                                    {cat}
-                                </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-[#532418] mb-1">Auftragsstatus</label>
-                            <select value={orderStatus} onChange={(e) => setOrderStatus(e.target.value)} className={glassInputClasses}>
-                                <option value="">Bitte auswählen…</option>
-                                <option value="ja">Ja</option>
-                                <option value="nein">Nein</option>
-                                <option value="entscheidung">In Entscheidung</option>
-                                <option value="folgeangebot">Folgeangebot erstellt</option>
-                            </select>
-                        </div>
-                        {orderStatus === "ja" && (
-                            <div className="animate-fade-in">
-                                <label className="block text-sm font-medium text-[#532418] mb-1">Auftragshöhe (€)</label>
-                                <input type="number" min="0" step="0.01" placeholder="z.B. 1250.50" className={glassInputClasses} value={orderAmount ?? ""} onChange={(e) => setOrderAmount(e.target.value === '' ? null : Number(e.target.value))} />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+            {/* Verkaufsabschluss nur für Pro-User */}
+            {!isHomeUser && (
+              <div className={`${glassBase} p-4 mt-6`}>
+                  <h4 className="text-[#532418] font-semibold mb-3">Verkaufsabschluss</h4>
+                  <div className="space-y-4">
+                      <div>
+                          <label className="block text-sm font-medium text-[#532418] mb-2">Verkaufskategorien</label>
+                          <div className="flex flex-wrap gap-2">
+                              {salesCategoryOptions.map(cat => {
+                                  const isSelected = salesCategories.includes(cat);
+                                  return (
+                                  <button type="button" key={cat} onClick={() => handleToggleCategory(cat)}
+                                      className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${isSelected ? 'bg-[#C8956C] text-white border-transparent shadow-md' : 'bg-white/50 border-white/30 text-[#532418] hover:bg-white/80'}`}>
+                                      {cat}
+                                  </button>
+                                  );
+                              })}
+                          </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                              <label className="block text-sm font-medium text-[#532418] mb-1">Auftragsstatus</label>
+                              <select value={orderStatus} onChange={(e) => setOrderStatus(e.target.value)} className={glassInputClasses}>
+                                  <option value="">Bitte auswählen…</option>
+                                  <option value="ja">Ja</option>
+                                  <option value="nein">Nein</option>
+                                  <option value="entscheidung">In Entscheidung</option>
+                                  <option value="folgeangebot">Folgeangebot erstellt</option>
+                              </select>
+                          </div>
+                          {orderStatus === "ja" && (
+                              <div className="animate-fade-in">
+                                  <label className="block text-sm font-medium text-[#532418] mb-1">Auftragshöhe (€)</label>
+                                  <input type="number" min="0" step="0.01" placeholder="z.B. 1250.50" className={glassInputClasses} value={orderAmount ?? ""} onChange={(e) => setOrderAmount(e.target.value === '' ? null : Number(e.target.value))} />
+                              </div>
+                          )}
+                      </div>
+                  </div>
+              </div>
+            )}
 
             <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3 flex-shrink-0">
                 <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">Abbrechen</button>

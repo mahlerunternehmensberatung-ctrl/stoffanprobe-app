@@ -425,6 +425,7 @@ const App: React.FC = () => {
         onDecrementCredits={handleDecrementCredits}
         onImageGenerated={handleImageGeneration}
         onShowLogin={() => setShowLoginModal(true)}
+        onRefreshUser={refreshUser}
       />
 
       <Footer
@@ -470,6 +471,7 @@ const App: React.FC = () => {
             onClose={() => setIsSaveModalOpen(false)}
             onSave={handleSaveSessionDetails}
             isSpeechRecognitionSupported={isSpeechRecognitionSupported}
+            isHomeUser={user?.plan === 'home'}
         />
       )}
       

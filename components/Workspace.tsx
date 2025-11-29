@@ -3,6 +3,7 @@ import { Session, Variant, PresetType, CustomerData, ConsentData, RALColor, Visu
 import { saveSession } from '../services/dbService';
 import { generateVisualization } from '../services/aiService';
 import { getCurrentUser } from '../services/authService';
+import { dismissHomeConsent, markHomeInfoShown } from '../services/userService';
 import ImageUploader from './ImageUploader';
 import Gallery from './Gallery';
 import PresetButtons from './PresetButtons';
@@ -11,6 +12,7 @@ import { SaveIcon, DiscardIcon, NextIcon, PencilIcon } from './Icon';
 import ConsentModal from './ConsentModal';
 import ImageTypeSelectionModal from './ImageTypeSelectionModal';
 import PrivateConsentModal from './PrivateConsentModal';
+import HomeInfoModal from './HomeInfoModal';
 import ExampleRooms from './ExampleRooms';
 import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
@@ -36,6 +38,7 @@ interface WorkspaceProps {
   onDecrementCredits?: () => Promise<void>;
   onImageGenerated?: () => void;
   onShowLogin?: () => void;
+  onRefreshUser?: () => void;
 }
 
 const Workspace: React.FC<WorkspaceProps> = ({
@@ -53,7 +56,8 @@ const Workspace: React.FC<WorkspaceProps> = ({
   onShowPaywall,
   onDecrementCredits,
   onImageGenerated,
-  onShowLogin
+  onShowLogin,
+  onRefreshUser
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<PresetType | null>(null);
@@ -63,10 +67,22 @@ const Workspace: React.FC<WorkspaceProps> = ({
   const [consentState, setConsentState] = useState<{ isOpen: boolean; tempImageDataUrl: string | null }>({ isOpen: false, tempImageDataUrl: null });
   const [showImageTypeSelection, setShowImageTypeSelection] = useState<boolean>(false);
   const [showPrivateConsent, setShowPrivateConsent] = useState<boolean>(false);
+  const [showHomeInfo, setShowHomeInfo] = useState<boolean>(false);
   const [tempImageDataUrl, setTempImageDataUrl] = useState<string | null>(null);
   const [visualizationMode, setVisualizationMode] = useState<VisualizationMode | null>(null);
   // Privacy Mode: Speichere Storage-Pfade für temporäre Bilder
   const [tempImagePaths, setTempImagePaths] = useState<{ room?: string; pattern?: string }>({});
+
+  // Home-Abo: Prüfe ob Info-Hinweis angezeigt werden soll
+  const isHomeUser = user?.plan === 'home';
+  const isProUser = user?.plan === 'pro';
+
+  // Zeige Home-Info-Hinweis beim ersten Mal für Home-User
+  useEffect(() => {
+    if (isHomeUser && user && !user.homeInfoShown) {
+      setShowHomeInfo(true);
+    }
+  }, [isHomeUser, user]);
 
   const handleTranscript = useCallback((text: string) => {
       // Append text with space if there's existing text
@@ -127,7 +143,27 @@ const Workspace: React.FC<WorkspaceProps> = ({
       setTextHint(""); // Reset
       return;
     }
-    
+
+    // Home-User: Immer "private" - kein Bildtyp-Dialog
+    if (isHomeUser) {
+      // Prüfe ob Consent bereits dauerhaft bestätigt wurde
+      if (user?.homeConsentDismissed) {
+        // Direkt hochladen ohne Dialog
+        const autoConsent: ConsentData = {
+          accepted: true,
+          signature: null,
+          timestamp: new Date(),
+        };
+        handleRoomImageUpload(imageDataUrl, autoConsent, undefined, 'private');
+      } else {
+        // Zeige Consent-Dialog mit "Nicht mehr anzeigen" Option
+        setTempImageDataUrl(imageDataUrl);
+        setShowPrivateConsent(true);
+      }
+      return;
+    }
+
+    // Pro-User: Normale Logik mit Bildtyp-Auswahl
     // Wenn imageType bereits in der Session gesetzt ist, verwende es direkt
     if (session?.imageType) {
       if (session.imageType === 'private') {
@@ -162,8 +198,19 @@ const Workspace: React.FC<WorkspaceProps> = ({
     }
   };
 
-  const handlePrivateConsentConfirm = (consentData: ConsentData) => {
+  const handlePrivateConsentConfirm = async (consentData: ConsentData, dontShowAgain?: boolean) => {
     setShowPrivateConsent(false);
+
+    // Wenn Home-User "Nicht mehr anzeigen" gewählt hat, speichere das
+    if (isHomeUser && dontShowAgain && user) {
+      try {
+        await dismissHomeConsent(user.uid);
+        if (onRefreshUser) onRefreshUser();
+      } catch (err) {
+        console.error('Error saving home consent preference:', err);
+      }
+    }
+
     if (tempImageDataUrl) {
       handleRoomImageUpload(tempImageDataUrl, consentData, undefined, 'private');
       setTempImageDataUrl(null);
@@ -443,8 +490,25 @@ const Workspace: React.FC<WorkspaceProps> = ({
           setTempImageDataUrl(null);
         }}
         onConfirm={handlePrivateConsentConfirm}
+        showDontAskAgain={isHomeUser}
       />
-      
+
+      <HomeInfoModal
+        isOpen={showHomeInfo}
+        onClose={async () => {
+          setShowHomeInfo(false);
+          // Markiere als gesehen in Firestore
+          if (user) {
+            try {
+              await markHomeInfoShown(user.uid);
+              if (onRefreshUser) onRefreshUser();
+            } catch (err) {
+              console.error('Error marking home info shown:', err);
+            }
+          }
+        }}
+      />
+
       <ConsentModal 
         isOpen={consentState.isOpen}
         onClose={() => setConsentState({isOpen: false, tempImageDataUrl: null})}

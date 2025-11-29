@@ -110,10 +110,22 @@ const PricingPage: React.FC = () => {
       />
 
       <main className="flex-grow container mx-auto px-4 py-12">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-4">
-            Credit-Pakete kaufen
-          </h1>
+        <div className="max-w-6xl mx-auto">
+          {/* Zurück-Button */}
+          <button
+            onClick={() => navigate('/')}
+            className="mb-6 flex items-center gap-2 text-[#67534F] hover:text-[#532418] transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Zurück zum Editor
+          </button>
+
+          <div className="text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-4">
+              Credit-Pakete kaufen
+            </h1>
           <p className="text-[#67534F] text-lg mb-12 max-w-2xl mx-auto">
             Volle Flexibilität. Credits sind 12 Monate gültig.
           </p>
@@ -156,6 +168,7 @@ const PricingPage: React.FC = () => {
           
           <div className="mt-12 text-sm text-[#67534F]/70">
             Alle Preise inkl. gesetzlicher MwSt. Sichere Zahlung via Stripe.
+          </div>
           </div>
         </div>
       </main>

@@ -78,7 +78,8 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  plan: 'free' | 'pro';
+  plan: 'free' | 'pro' | 'home'; // free = kein Abo, pro = Profi-Abo, home = Home-Abo
+  planType?: 'pro' | 'home'; // Expliziter Abo-Typ für Firestore
   credits: number; // Deprecated - wird durch monthlyCredits + purchasedCredits ersetzt
   monthlyCredits: number; // Vom Abo, monatlich reset
   purchasedCredits: number; // Gekauft, 12 Monate gültig
@@ -86,6 +87,8 @@ export interface User {
   stripeCustomerId?: string;
   subscriptionCancelledAt?: Date; // Zeitpunkt der Kündigung
   subscriptionEndsAt?: Date; // Abo endet zu diesem Datum
+  homeConsentDismissed?: boolean; // Home-User hat Bildrechte-Hinweis dauerhaft bestätigt
+  homeInfoShown?: boolean; // Home-User hat Info-Hinweis gesehen
   createdAt: Date;
   updatedAt: Date;
 }
