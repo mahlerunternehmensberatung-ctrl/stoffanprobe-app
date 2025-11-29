@@ -23,18 +23,86 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-const MONTHLY_PRO_CREDITS = 40; // Hast du hier auch auf 40 angepasst? Falls ja, passt es.
+const MONTHLY_PRO_CREDITS = 40;
 
-// Credit-Pakete Mapping
-// WICHTIG: Hier sind jetzt die neuen Variablen und Mengen (40 & 400)
-const CREDIT_PACKAGES: Record<string, number> = {
-  [process.env.STRIPE_PRICE_10_CREDITS || '']: 10,
-  [process.env.STRIPE_PRICE_20_CREDITS || '']: 20,
-  [process.env.STRIPE_PRICE_40_CREDITS || '']: 40,   // NEU: 40 statt 50
-  [process.env.STRIPE_PRICE_100_CREDITS || '']: 100,
-  [process.env.STRIPE_PRICE_200_CREDITS || '']: 200,
-  [process.env.STRIPE_PRICE_400_CREDITS || '']: 400, // NEU: 400 statt 500
+// Credit-Pakete: Preis in Cent -> Anzahl Credits
+// Mapping über den Preis, da dieser eindeutig ist
+const CREDIT_PACKAGES_BY_PRICE: Record<number, number> = {
+  490: 10,    // 4,90€ = 10 Credits
+  990: 20,    // 9,90€ = 20 Credits
+  1990: 40,   // 19,90€ = 40 Credits
+  4900: 100,  // 49,00€ = 100 Credits
+  9900: 200,  // 99,00€ = 200 Credits
+  19900: 400, // 199,00€ = 400 Credits
 };
+
+// Hilfsfunktion: Extrahiere Credits aus Produkt-Name oder Metadaten
+async function getCreditsFromLineItems(session: Stripe.Checkout.Session): Promise<number | null> {
+  try {
+    // Hole die Line Items mit expand
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      expand: ['data.price.product'],
+    });
+
+    if (!lineItems.data || lineItems.data.length === 0) {
+      console.error('Keine Line Items gefunden');
+      return null;
+    }
+
+    const item = lineItems.data[0];
+    const price = item.price;
+
+    if (!price) {
+      console.error('Kein Preis in Line Item gefunden');
+      return null;
+    }
+
+    // Methode 1: Prüfe Produkt-Metadaten für "credits"
+    const product = price.product as Stripe.Product;
+    if (product && typeof product === 'object' && product.metadata?.credits) {
+      const credits = parseInt(product.metadata.credits, 10);
+      if (!isNaN(credits) && credits > 0) {
+        console.log(`Credits aus Produkt-Metadaten: ${credits}`);
+        return credits;
+      }
+    }
+
+    // Methode 2: Prüfe Preis-Metadaten für "credits"
+    if (price.metadata?.credits) {
+      const credits = parseInt(price.metadata.credits, 10);
+      if (!isNaN(credits) && credits > 0) {
+        console.log(`Credits aus Preis-Metadaten: ${credits}`);
+        return credits;
+      }
+    }
+
+    // Methode 3: Mapping über unit_amount (Preis in Cent)
+    if (price.unit_amount) {
+      const credits = CREDIT_PACKAGES_BY_PRICE[price.unit_amount];
+      if (credits) {
+        console.log(`Credits aus Preis-Mapping (${price.unit_amount} Cent): ${credits}`);
+        return credits;
+      }
+    }
+
+    // Methode 4: Extrahiere aus Produkt-Name (z.B. "10 Credits")
+    const productName = typeof product === 'object' ? product.name : '';
+    const nameMatch = productName.match(/(\d+)\s*Credits?/i);
+    if (nameMatch) {
+      const credits = parseInt(nameMatch[1], 10);
+      if (!isNaN(credits) && credits > 0) {
+        console.log(`Credits aus Produkt-Name "${productName}": ${credits}`);
+        return credits;
+      }
+    }
+
+    console.error(`Konnte Credits nicht ermitteln. Preis: ${price.unit_amount}, Produkt: ${productName}`);
+    return null;
+  } catch (error) {
+    console.error('Fehler beim Abrufen der Line Items:', error);
+    return null;
+  }
+}
 
 async function upgradeToSubscription(uid: string, planType: 'pro' | 'home', stripeCustomerId?: string): Promise<void> {
   const db = getAdminDb();
@@ -197,14 +265,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.error('Error updating subscription metadata:', err);
           }
         }
-      } else if (mode === 'payment' && priceId) {
-        // HIER GREIFT DAS NEUE MAPPING
-        const credits = CREDIT_PACKAGES[priceId];
-        
-        if (credits) {
+      } else if (mode === 'payment') {
+        // Credit-Paket gekauft - ermittle Anzahl aus Line Items
+        const credits = await getCreditsFromLineItems(session);
+
+        if (credits && credits > 0) {
           await addPurchasedCredits(userId, credits);
+          console.log(`Credit-Paket: ${credits} Credits zu User ${userId} hinzugefügt`);
         } else {
-          console.error(`Keine Credits für PriceID ${priceId} gefunden. Prüfe Environment Variables!`);
+          console.error(`Konnte Credit-Anzahl nicht ermitteln für Session ${session.id}`);
         }
       }
     }
