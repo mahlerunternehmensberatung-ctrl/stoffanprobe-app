@@ -205,6 +205,9 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
           <p className="text-xs text-[#67534F]/70">
             Alle Preise inkl. MwSt. Jederzeit kündbar. Sichere Zahlung via Stripe.
           </p>
+          <p className="text-xs text-[#67534F]/60 mt-2">
+            Tipp: Im Checkout auf "Ohne Link bezahlen" klicken für PayPal, Klarna & mehr Zahlungsoptionen.
+          </p>
         </div>
       </div>
     </div>
