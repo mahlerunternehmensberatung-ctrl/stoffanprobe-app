@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
 import { getCurrentUser } from '../services/authService';
 import { User } from '../types';
 
@@ -96,20 +95,18 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
         throw new Error(errorData.error || 'Fehler beim Erstellen der Checkout-Session');
       }
 
-      const { sessionId } = await response.json();
+      const { url, error: apiError } = await response.json();
 
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
-      if (!stripe) {
-        throw new Error('Stripe konnte nicht geladen werden.');
+      if (apiError) {
+        throw new Error(apiError);
       }
 
-      const { error: stripeError } = await stripe.redirectToCheckout({
-        sessionId,
-      });
-
-      if (stripeError) {
-        throw new Error(stripeError.message || 'Fehler beim Öffnen des Checkouts');
+      if (!url) {
+        throw new Error('Keine Checkout-URL erhalten');
       }
+
+      // Direkte Weiterleitung zur Stripe Checkout URL
+      window.location.href = url;
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
       setLoadingPlanId(null);

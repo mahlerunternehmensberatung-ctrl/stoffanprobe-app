@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '../context/AuthContext';
-import { loadStripe } from '@stripe/stripe-js';
 import PaywallModal from './PaywallModal';
 
 // Gold-Styles (wie gewünscht)
@@ -81,9 +80,6 @@ const PricingPage: React.FC = () => {
     setError(null);
 
     try {
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-      if (!stripe) throw new Error('Stripe konnte nicht geladen werden');
-
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,11 +91,15 @@ const PricingPage: React.FC = () => {
         }),
       });
 
-      const { sessionId, error: apiError } = await response.json();
+      const { url, error: apiError } = await response.json();
       if (apiError) throw new Error(apiError);
 
-      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
-      if (stripeError) throw stripeError;
+      if (!url) {
+        throw new Error('Keine Checkout-URL erhalten');
+      }
+
+      // Direkte Weiterleitung zur Stripe Checkout URL
+      window.location.href = url;
 
     } catch (err: any) {
       console.error('Purchase error:', err);

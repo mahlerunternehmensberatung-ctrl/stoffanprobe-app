@@ -43,7 +43,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
-    return res.status(200).json({ sessionId: session.id });
+    // Gib die URL zurück statt sessionId (redirectToCheckout ist deprecated)
+    return res.status(200).json({ url: session.url });
   } catch (error: any) {
     console.error('Stripe Error:', error);
     return res.status(500).json({ error: error.message });
