@@ -9,22 +9,66 @@ interface PaywallModalProps {
   user?: User | null;
 }
 
+interface PlanOption {
+  id: string;
+  title: string;
+  subtitle: string;
+  price: string;
+  priceId: string;
+  features: string[];
+  buttonText: string;
+}
+
+const plans: PlanOption[] = [
+  {
+    id: 'pro',
+    title: 'Für Profis',
+    subtitle: 'Für Raumausstatter & Interior Designer',
+    price: '19,90',
+    priceId: import.meta.env.VITE_STRIPE_PRICE_PRO_ABO || '',
+    features: [
+      'Kundenräume visualisieren',
+      'DSGVO-konformer Workflow',
+      '40 Credits/Monat',
+    ],
+    buttonText: 'Pro wählen',
+  },
+  {
+    id: 'home',
+    title: 'Für Zuhause',
+    subtitle: 'Für dein Zuhause',
+    price: '9,90',
+    priceId: import.meta.env.VITE_STRIPE_PRICE_HOME_ABO || '',
+    features: [
+      'Eigene Räume visualisieren',
+      'Schnell & einfach',
+      '40 Credits/Monat',
+    ],
+    buttonText: 'Home wählen',
+  },
+];
+
 const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, user }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleUpgrade = async () => {
-    setIsLoading(true);
+  const handleSelectPlan = async (plan: PlanOption) => {
+    setLoadingPlanId(plan.id);
     setError(null);
 
     if (!user) {
       setError('Bitte melden Sie sich an.');
-      setIsLoading(false);
+      setLoadingPlanId(null);
+      return;
+    }
+
+    if (!plan.priceId) {
+      setError('Preis-ID nicht konfiguriert. Bitte kontaktieren Sie den Support.');
+      setLoadingPlanId(null);
       return;
     }
 
     try {
-      // Firebase Auth Token holen
       const firebaseUser = getCurrentUser();
       if (!firebaseUser) {
         throw new Error('Nicht angemeldet');
@@ -32,7 +76,6 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
 
       const idToken = await firebaseUser.getIdToken();
 
-      // Stripe Checkout Session erstellen
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -40,7 +83,10 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
           'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({
+          priceId: plan.priceId,
           userId: user.uid,
+          customerEmail: user.email,
+          mode: 'subscription',
         }),
       });
 
@@ -51,7 +97,6 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
 
       const { sessionId } = await response.json();
 
-      // Stripe Checkout öffnen
       const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
       if (!stripe) {
         throw new Error('Stripe konnte nicht geladen werden.');
@@ -66,73 +111,106 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
       }
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
-      setIsLoading(false);
+      setLoadingPlanId(null);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-[#532418]">Upgrade auf Pro</h2>
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-[#FAF1DC] rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#532418]">Abo wählen</h2>
+            <p className="text-[#67534F] mt-1">Wähle das passende Abo für deine Bedürfnisse</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-[#67534F] hover:text-[#532418] text-2xl p-1 -mt-1 -mr-1"
+            aria-label="Schließen"
           >
             ×
           </button>
         </div>
 
-        <div className="mb-6">
-          <p className="text-lg text-[#67534F] mb-4">
-            Ihre Gratis-Phase ist beendet. Jetzt upgraden für unlimitierten Zugriff!
-          </p>
-
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-[#532418] mb-2">Pro-Plan Vorteile:</h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-[#67534F]">
-              <li>Unlimitierte Entwürfe</li>
-              <li>Alle Premium-Features</li>
-              <li>Prioritärer Support</li>
-              <li>Keine Wasserzeichen</li>
-            </ul>
-          </div>
-
-          <div className="text-center mb-4">
-            <p className="text-3xl font-bold text-[#532418]">29,00 €</p>
-            <p className="text-sm text-gray-600">pro Monat</p>
-          </div>
-        </div>
-
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-xl">
             {error}
           </div>
         )}
 
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-          >
-            Später
-          </button>
-          <button
-            onClick={handleUpgrade}
-            disabled={isLoading}
-            className="flex-1 px-4 py-3 bg-[#C8956C] text-white rounded-lg hover:bg-[#A67B5B] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Wird geladen...' : 'Jetzt upgraden'}
-          </button>
+        {/* Plan Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          {plans.map((plan) => (
+            <div
+              key={plan.id}
+              className="bg-white rounded-2xl p-6 shadow-sm border border-[#C8956C]/20 hover:shadow-lg hover:border-[#C8956C]/40 transition-all"
+            >
+              {/* Plan Header */}
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-[#532418]">{plan.title}</h3>
+                <p className="text-sm text-[#67534F]">{plan.subtitle}</p>
+              </div>
+
+              {/* Price */}
+              <div className="mb-6">
+                <span className="text-3xl font-bold text-[#532418]">{plan.price}€</span>
+                <span className="text-[#67534F]">/Monat</span>
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-3 mb-6">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-[#67534F]">
+                    <svg
+                      className="w-5 h-5 text-[#C8956C] flex-shrink-0 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Button */}
+              <button
+                onClick={() => handleSelectPlan(plan)}
+                disabled={!!loadingPlanId}
+                className={`w-full py-3 px-4 rounded-xl font-semibold text-white transition-all ${
+                  loadingPlanId === plan.id
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:opacity-90 hover:shadow-md'
+                }`}
+              >
+                {loadingPlanId === plan.id ? 'Wird geladen...' : plan.buttonText}
+              </button>
+            </div>
+          ))}
         </div>
 
-        <p className="text-xs text-center text-gray-500 mt-4">
-          Ihre Daten werden sicher über Stripe verarbeitet.
-        </p>
+        {/* Footer */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-[#67534F]/70">
+            Alle Preise inkl. MwSt. Jederzeit kündbar. Sichere Zahlung via Stripe.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
 export default PaywallModal;
-
