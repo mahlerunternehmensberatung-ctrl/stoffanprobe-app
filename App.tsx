@@ -9,7 +9,7 @@ import ImageModal from './components/ImageModal';
 import SaveSessionModal from './components/SaveSessionModal';
 import Footer from './components/Footer';
 import LegalModal from './components/LegalModal';
-import { impressumText, datenschutzText, agbText } from './legalTexts';
+import { impressumContent, datenschutzContent, agbContent } from './legalTexts';
 import Workspace from './components/Workspace';
 import ColorPickerModal from './components/ColorPickerModal';
 import LandingPage from './components/LandingPage';
@@ -436,22 +436,19 @@ const App: React.FC = () => {
 
       {showImpressum && (
         <LegalModal
-          title="Impressum"
-          text={impressumText}
+          content={impressumContent}
           onClose={() => setShowImpressum(false)}
         />
       )}
       {showDatenschutz && (
         <LegalModal
-          title="Datenschutzerklärung"
-          text={datenschutzText}
+          content={datenschutzContent}
           onClose={() => setShowDatenschutz(false)}
         />
       )}
       {showAgb && (
         <LegalModal
-          title="AGB"
-          text={agbText}
+          content={agbContent}
           onClose={() => setShowAgb(false)}
         />
       )}
