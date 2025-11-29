@@ -33,14 +33,14 @@ const CustomerDataModal: React.FC<CustomerDataModalProps> = ({ onClose, onSave }
   const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all";
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in"
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in p-4"
       onClick={onClose}
       aria-modal="true"
       role="dialog"
     >
-      <div 
-        className="bg-[#FFFFF5] rounded-lg shadow-xl p-6 w-full max-w-lg"
+      <div
+        className="bg-[#FFFFF5] rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
