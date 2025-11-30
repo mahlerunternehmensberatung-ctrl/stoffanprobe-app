@@ -1,0 +1,13 @@
+# robots.txt für stoffanprobe.de
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://stoffanprobe.de/sitemap.xml
+
+# Admin-Bereich nicht indexieren
+Disallow: /admin
+Disallow: /admin/*
+
+# API-Endpunkte nicht indexieren
+Disallow: /api/

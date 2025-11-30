@@ -107,13 +107,12 @@
     "chooseSubtitle": "Wähle das passende Abo für deine Bedürfnisse",
     "proTitle": "Für Profis",
     "proSubtitle": "Für Raumausstatter & Interior Designer",
+    "proCustomerRooms": "Kundenräume visualisieren",
     "proCredits": "40 Credits/Monat",
-    "proCommercial": "Für gewerbliche Nutzung",
-    "proDsgvo": "DSGVO-konforme Verarbeitung",
+    "proDsgvo": "DSGVO-konformer Workflow",
     "proAvv": "AVV verfügbar (hier ansehen)",
-    "proNoAiTraining": "Bilder werden nicht für KI-Training verwendet",
-    "proLegalSafe": "Rechtssicher für Kundenpräsentationen",
-    "proVatInvoice": "Rechnungen mit ausgewiesener MwSt.",
+    "proNoAiTraining": "Bilder nicht für KI-Training",
+    "proVatInvoice": "Rechnungen mit MwSt.",
     "proButton": "Pro wählen",
     "homeTitle": "Für Zuhause",
     "homeSubtitle": "Für dein Zuhause",
@@ -360,9 +359,9 @@
   },
   "comingSoon": {
     "badge": "Coming Soon",
-    "title": "Stoffberater Pro – KI-gestützte Beratung mit Reklamationsschutz",
-    "description": "Automatische Stoffempfehlungen basierend auf Raum, Lichtverhältnissen und Kundenwünschen. Inklusive rechtssicherer Dokumentation.",
-    "notifyMe": "Informiert mich"
+    "title": "Schluss mit Reklamationen",
+    "description": "Stoffe arbeiten – wir zeigen Ihnen wie. Stoffberater Pro kommt bald.",
+    "notifyMe": "Ich will dabei sein"
   },
   "waitlist": {
     "title": "Auf die Warteliste setzen",

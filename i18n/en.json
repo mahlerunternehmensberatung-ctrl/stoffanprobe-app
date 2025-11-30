@@ -107,12 +107,11 @@
     "chooseSubtitle": "Choose the right plan for your needs",
     "proTitle": "For Professionals",
     "proSubtitle": "For interior designers & decorators",
+    "proCustomerRooms": "Visualize client rooms",
     "proCredits": "40 credits/month",
-    "proCommercial": "For commercial use",
-    "proDsgvo": "GDPR-compliant processing",
+    "proDsgvo": "GDPR-compliant workflow",
     "proAvv": "DPA available (view here)",
-    "proNoAiTraining": "Images are not used for AI training",
-    "proLegalSafe": "Legally secure for client presentations",
+    "proNoAiTraining": "Images not used for AI training",
     "proVatInvoice": "Invoices with VAT",
     "proButton": "Choose Pro",
     "homeTitle": "For Home",
@@ -360,9 +359,9 @@
   },
   "comingSoon": {
     "badge": "Coming Soon",
-    "title": "Fabric Advisor Pro – AI-powered consultation with warranty protection",
-    "description": "Automatic fabric recommendations based on room, lighting conditions and customer preferences. Including legally compliant documentation.",
-    "notifyMe": "Notify me"
+    "title": "Say Goodbye to Complaints",
+    "description": "Fabrics move – we show you how. Fabric Advisor Pro coming soon.",
+    "notifyMe": "I want to be part of it"
   },
   "waitlist": {
     "title": "Join the Waitlist",

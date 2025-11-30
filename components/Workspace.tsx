@@ -44,6 +44,7 @@ interface WorkspaceProps {
   onImageGenerated?: () => void;
   onShowLogin?: () => void;
   onRefreshUser?: () => void;
+  hasSavedSessions?: boolean;
 }
 
 const Workspace: React.FC<WorkspaceProps> = ({
@@ -62,7 +63,8 @@ const Workspace: React.FC<WorkspaceProps> = ({
   onDecrementCredits,
   onImageGenerated,
   onShowLogin,
-  onRefreshUser
+  onRefreshUser,
+  hasSavedSessions
 }) => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -559,7 +561,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
             <p className="text-sm sm:text-lg text-[#67534F] px-2">{t('workspace.subheading')}</p>
         </div>
 
-        {!session && (
+        {!session && hasSavedSessions && (
           <div className="text-center mb-4 sm:mb-8">
             <button
               onClick={onShowSessions}
@@ -658,7 +660,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                 type="button"
                                 onClick={onShowLogin}
                                 disabled={!isGenerationEnabled}
-                                className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                                className={`${actionButtonClasses} w-full text-lg bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                             >
                                 {t('workspace.loginToGenerate')}
                             </button>
@@ -670,7 +672,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                         <button
                           onClick={handleGenerate}
                           disabled={!isGenerationEnabled || isLoading}
-                          className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed mt-4`}
+                          className={`${actionButtonClasses} w-full text-lg bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed mt-4`}
                         >
                             {t('workspace.generateImage')}
                         </button>
@@ -744,7 +746,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                     type="button"
                                     onClick={onShowLogin}
                                     disabled={!isGenerationEnabled}
-                                    className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                                    className={`${actionButtonClasses} w-full text-lg bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                                 >
                                     {t('workspace.loginToGenerate')}
                                 </button>
@@ -756,7 +758,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                             <button
                                 onClick={handleGenerate}
                                 disabled={!isGenerationEnabled || isLoading}
-                                className={`${actionButtonClasses} w-full max-w-sm mt-2 text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
+                                className={`${actionButtonClasses} w-full max-w-sm mt-2 text-lg bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                             >
                                 {t('workspace.generateImage')}
                             </button>
@@ -787,7 +789,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                      <button onClick={handleDiscardVariant} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1.5">
                         <DiscardIcon className="h-4 w-4" /> {t('workspace.discard')}
                      </button>
-                     <button onClick={handleSaveVariant} className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] rounded-lg shadow-md transition-all flex items-center gap-1.5">
+                     <button onClick={handleSaveVariant} className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] rounded-lg shadow-md transition-all flex items-center gap-1.5">
                         <SaveIcon className="h-4 w-4" /> {t('common.save')}
                      </button>
                  </div>

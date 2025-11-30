@@ -17,7 +17,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const goldGradient = "bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B]";
+  const goldGradient = "bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30]";
 
   const processFile = useCallback(async (file: File) => {
     if (!file || !file.type.startsWith("image/")) return;

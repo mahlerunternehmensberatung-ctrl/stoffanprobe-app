@@ -51,7 +51,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
           <div className="flex gap-2 sm:gap-4 justify-center">
             <button
               onClick={onGetStarted}
-              className="px-4 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white rounded-lg hover:from-[#A67B5B] hover:to-[#8B6B4B] transition-all font-bold text-sm sm:text-lg shadow-lg"
+              className="px-4 sm:px-8 py-2 sm:py-3 bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] text-white rounded-lg hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] transition-all font-bold text-sm sm:text-lg shadow-lg"
             >
               {t('landing.ctaButton')}
             </button>

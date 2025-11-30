@@ -72,6 +72,22 @@ const App: React.FC = () => {
 
   type SessionSummary = Omit<Session, 'originalImage' | 'patternImage' | 'variants' | 'brandingLogo' | 'consentData'> & { consentData?: Session['consentData'] }
 
+  // Prüfe ob es gespeicherte Sitzungen gibt (für "Sitzung fortsetzen" Button)
+  const [hasSavedSessions, setHasSavedSessions] = useState<boolean>(false);
+
+  // Initial check für gespeicherte Sitzungen
+  useEffect(() => {
+    const checkSavedSessions = async () => {
+      try {
+        const sessions = await getAllSessions();
+        setHasSavedSessions(sessions.length > 0);
+      } catch (err) {
+        console.error('Error checking saved sessions:', err);
+      }
+    };
+    checkSavedSessions();
+  }, []);
+
   // Prüfe ob es der erste Besuch ist
   const [isFirstVisit, setIsFirstVisit] = useState<boolean | null>(null);
 
@@ -217,6 +233,10 @@ const App: React.FC = () => {
   const fetchSessions = useCallback(async (query: string = '') => {
     const sessions = query ? await searchSessions(query) : await getAllSessions();
     setSessionsList(sessions);
+    // Aktualisiere hasSavedSessions wenn keine Query
+    if (!query) {
+      setHasSavedSessions(sessions.length > 0);
+    }
   }, []);
 
   useEffect(() => {
@@ -599,6 +619,7 @@ const App: React.FC = () => {
         onImageGenerated={handleImageGeneration}
         onShowLogin={() => setShowLoginModal(true)}
         onRefreshUser={refreshUser}
+        hasSavedSessions={hasSavedSessions}
       />
 
       <ComingSoonBanner />

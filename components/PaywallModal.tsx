@@ -29,12 +29,11 @@ const plans: PlanOption[] = [
     price: '19,90',
     priceId: import.meta.env.VITE_STRIPE_PRICE_PRO_ABO || '',
     featureKeys: [
-      'plans.proCredits',
-      'plans.proCommercial',
+      'plans.proCustomerRooms',
       'plans.proDsgvo',
+      'plans.proCredits',
       'plans.proAvv',
       'plans.proNoAiTraining',
-      'plans.proLegalSafe',
       'plans.proVatInvoice',
     ],
     buttonTextKey: 'plans.proButton',
@@ -212,7 +211,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
                 className={`w-full py-3 px-4 rounded-xl font-semibold text-white transition-all ${
                   loadingPlanId === plan.id
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:opacity-90 hover:shadow-md'
+                    : 'bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] hover:shadow-md'
                 }`}
               >
                 {loadingPlanId === plan.id ? t('common.loading') : t(plan.buttonTextKey)}

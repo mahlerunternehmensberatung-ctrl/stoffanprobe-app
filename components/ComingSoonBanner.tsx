@@ -25,7 +25,7 @@ const ComingSoonBanner: React.FC = () => {
         {/* Button - now navigates to the Stoffberater Pro page */}
         <button
           onClick={() => navigate('/stoffberater-pro')}
-          className="px-5 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-[#C8956C] to-[#A67B5B] rounded-lg hover:from-[#A67B5B] hover:to-[#8B6B4B] transition-all shadow-md hover:shadow-lg"
+          className="px-5 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-semibold text-white bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] rounded-lg hover:from-[#CDA35E] hover:via-[#B08642] hover:to-[#8C6A30] transition-all shadow-md hover:shadow-lg"
         >
           {t('comingSoon.notifyMe')}
         </button>
