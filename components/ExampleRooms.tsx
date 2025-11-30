@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { RALColor } from '../types';
 
 interface ExampleRoomsProps {
@@ -7,23 +8,24 @@ interface ExampleRoomsProps {
 }
 
 const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor }) => {
-  
+  const { t } = useTranslation();
+
   // Jetzt nutzen wir deine lokalen Bilder aus dem public/examples Ordner
   // Das ist viel schneller und sicherer als externe Links
   const rooms = [
     {
       id: 'living',
-      name: 'Wohnzimmer',
-      image: '/examples/wohnzimmer.jpg', 
+      nameKey: 'rooms.livingRoom',
+      image: '/examples/wohnzimmer.jpg',
     },
     {
       id: 'bedroom',
-      name: 'Schlafzimmer',
+      nameKey: 'rooms.bedroom',
       image: '/examples/schlafzimmer.jpg',
     },
     {
       id: 'dining',
-      name: 'Esszimmer',
+      nameKey: 'rooms.diningRoom',
       image: '/examples/esszimmer.jpg',
     },
   ];
@@ -35,7 +37,7 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
   return (
     <div className="w-full max-w-4xl mx-auto mb-3 sm:mb-12 animate-fade-in">
       <div className="text-center mb-2 sm:mb-6">
-        <h3 className="text-xs sm:text-lg font-semibold text-[#532418]">Mit Beispiel starten:</h3>
+        <h3 className="text-xs sm:text-lg font-semibold text-[#532418]">{t('rooms.startWithExample')}</h3>
       </div>
 
       <div className="grid grid-cols-4 gap-1.5 sm:gap-4">
@@ -49,7 +51,7 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
             <div className="w-full h-14 sm:h-32 overflow-hidden relative">
               <img
                 src={room.image}
-                alt={room.name}
+                alt={t(room.nameKey)}
                 loading="lazy"
                 width={600}
                 height={400}
@@ -63,7 +65,7 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
 
             <div className="p-1 sm:p-3 w-full bg-white relative z-10">
               <span className="block text-[10px] sm:text-sm font-medium text-[#532418] text-center truncate">
-                {room.name}
+                {t(room.nameKey)}
               </span>
             </div>
           </button>
@@ -85,7 +87,7 @@ const ExampleRooms: React.FC<ExampleRoomsProps> = ({ onSelect, onSelectWallColor
 
           <div className="p-1 sm:p-3 w-full bg-white text-center relative z-10">
             <span className="block text-[10px] sm:text-sm font-medium text-[#532418] truncate">
-              Wandfarbe
+              {t('rooms.wallColor')}
             </span>
           </div>
         </button>

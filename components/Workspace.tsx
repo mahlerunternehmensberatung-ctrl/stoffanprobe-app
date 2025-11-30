@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Session, Variant, PresetType, CustomerData, ConsentData, RALColor, VisualizationMode, ImageType } from '../types';
 import { saveSession } from '../services/dbService';
 import { generateVisualization } from '../services/aiService';
@@ -60,6 +61,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
   onShowLogin,
   onRefreshUser
 }) => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<PresetType | null>(null);
   const [textHint, setTextHint] = useState('');
@@ -254,17 +256,17 @@ const Workspace: React.FC<WorkspaceProps> = ({
     if (!session) return;
 
     if (!session.originalImage) {
-      setError("Bitte zuerst ein Raumfoto hochladen.");
+      setError(t('errors.uploadRoomImage'));
       return;
     }
 
     if (!visualizationMode) {
-      setError("Bitte zuerst einen Bereich (z.B. Gardine, Tapete…) auswählen.");
+      setError(t('errors.selectArea'));
       return;
     }
 
     if (visualizationMode === "pattern" && (!session.patternImage || !selectedPreset)) {
-      setError("Bitte Musterfoto UND gewünschten Bereich auswählen.");
+      setError(t('errors.patternAndArea'));
       return;
     }
 
@@ -284,7 +286,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
           if (onShowPaywall) {
             onShowPaywall();
           } else {
-            setError("Sie haben keine Credits mehr. Bitte upgraden Sie auf Pro.");
+            setError(t('errors.noCredits'));
           }
           return;
         }
@@ -322,7 +324,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
           } catch (creditError) {
             // Wenn Credit-Abzug fehlschlägt, werfe Fehler weiter
             // Das generierte Bild wird nicht gespeichert
-            throw new Error('Fehler beim Abziehen der Credits. Bitte versuchen Sie es erneut.');
+            throw new Error(t('errors.creditDeduction'));
           }
         }
         
@@ -343,8 +345,8 @@ const Workspace: React.FC<WorkspaceProps> = ({
       
     } catch (err) {
       console.error('Error generating variant:', err);
-      const errorMessage = (err instanceof Error) ? err.message : 'Ein unbekannter Fehler ist aufgetreten.';
-      setError(`Fehler bei der Visualisierung: ${errorMessage}`);
+      const errorMessage = (err instanceof Error) ? err.message : t('errors.generic');
+      setError(t('errors.visualization', { message: errorMessage }));
       // KEIN Credit-Abzug bei Fehler - Credits bleiben erhalten
     } finally {
       setIsLoading(false);
@@ -400,7 +402,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
           const zip = new JSZip();
           const folderName = `stoffanprobe-${session.name.replace(/\s/g, '_') || new Date().toISOString().split('T')[0]}`;
           const folder = zip.folder(folderName);
-          if (!folder) throw new Error("Konnte keinen ZIP-Ordner erstellen.");
+          if (!folder) throw new Error(t('errors.zipCreation'));
 
           for (const variant of session.variants) {
               const base64Data = variant.imageUrl.split(',')[1];
@@ -421,7 +423,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
       } catch (error) {
           console.error("Fehler beim Erstellen der ZIP-Datei:", error);
-          setError("Fehler beim Erstellen der ZIP-Datei. Bitte versuchen Sie es erneut.");
+          setError(t('errors.zipFile'));
       } finally {
           setIsLoading(false);
       }
@@ -429,7 +431,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
 
   const handleDeleteGallery = () => {
       if (!session || session.variants.length === 0) return;
-      const isConfirmed = window.confirm('Möchten Sie wirklich alle gespeicherten Varianten in dieser Galerie löschen? Diese Aktion kann nicht rückgängig gemacht werden.');
+      const isConfirmed = window.confirm(t('gallery.deleteConfirm'));
       if (isConfirmed) {
           updateSession(prev => ({
               ...prev,
@@ -518,8 +520,8 @@ const Workspace: React.FC<WorkspaceProps> = ({
       
       <main className={`flex-grow container mx-auto p-3 sm:p-6 md:p-6 lg:p-8 overflow-x-hidden transition-opacity duration-300 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
         <div className="text-center mb-3 sm:mb-8">
-            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-1 sm:mb-2">Professionelle Visualisierung</h1>
-            <p className="text-sm sm:text-lg text-[#67534F] px-2">Beginnen Sie mit einem Beispielraum oder laden Sie Ihr eigenes Foto hoch.</p>
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#532418] mb-1 sm:mb-2">{t('workspace.heading')}</h1>
+            <p className="text-sm sm:text-lg text-[#67534F] px-2">{t('workspace.subheading')}</p>
         </div>
 
         {!session && (
@@ -528,7 +530,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
               onClick={onShowSessions}
               className={glassButton}
             >
-              Sitzung fortsetzen
+              {t('workspace.continueSession')}
             </button>
           </div>
         )}
@@ -536,12 +538,12 @@ const Workspace: React.FC<WorkspaceProps> = ({
         {!session?.originalImage && <ExampleRooms onSelect={handleExampleRoomSelect} onSelectWallColor={handleSelectWallColor} />}
 
         <div className={`mb-3 sm:mb-6 p-2 sm:p-4 ${glassBase}`}>
-            <h3 className="text-[10px] sm:text-sm font-semibold text-center text-[#532418] mb-1.5 sm:mb-3">Eigenes Foto hochladen:</h3>
+            <h3 className="text-[10px] sm:text-sm font-semibold text-center text-[#532418] mb-1.5 sm:mb-3">{t('workspace.uploadOwnPhoto')}</h3>
             <div className="flex gap-2 sm:gap-3">
                 <ImageUploader
                   onImageSelect={handleRoomImageSelect}
                   imageDataUrl={session?.originalImage}
-                  buttonText="Raum auswählen"
+                  buttonText={t('workspace.selectRoom')}
                 />
                 
                 {session?.wallColor ? (
@@ -560,9 +562,9 @@ const Workspace: React.FC<WorkspaceProps> = ({
                              <button
                               className="text-sm font-medium text-[#532418] hover:text-[#C8956C] flex items-center gap-1 transition-colors"
                               onClick={handleSelectWallColor}
-                              aria-label="Wandfarbe ändern"
+                              aria-label={t('common.edit')}
                             >
-                              <PencilIcon /> Ändern
+                              <PencilIcon /> {t('common.edit')}
                             </button>
                             <button
                               className="text-sm font-medium text-red-600 hover:text-red-800 flex items-center gap-1 transition-colors"
@@ -578,15 +580,14 @@ const Workspace: React.FC<WorkspaceProps> = ({
                       </div>
 
                       <p className="text-sm text-[#532418]/70 italic mt-2">
-                        Optional: Hinweis zur Farbplatzierung
-                        (z.B. „nur linke Wand“, „Fensterrahmen“)
+                        {t('workspace.colorHintPlaceholder')}
                       </p>
 
                       <form onSubmit={handleFormSubmit} className="relative">
                           <div className="relative flex items-start">
                               <textarea
                                   id="hint-textarea"
-                                  placeholder={isListening ? "🎙️ Aufnahme läuft..." : "Hinweis tippen oder sprechen..."}
+                                  placeholder={isListening ? `🎙️ ${t('saveSession.listening')}` : t('workspace.hintPlaceholder')}
                                   value={textHint}
                                   onChange={(e) => setTextHint(e.target.value)}
                                   onKeyDown={(e) => {
@@ -611,11 +612,11 @@ const Workspace: React.FC<WorkspaceProps> = ({
                           </div>
                           {isListening && (
                                 <p className="text-sm text-gray-600 italic mt-2 h-5">
-                                    Zuhören aktiv...
+                                    {t('saveSession.listening')}
                                 </p>
                           )}
                       </form>
-                      
+
                       {!user && onShowLogin ? (
                         <div className="mt-4 text-center">
                             <button
@@ -624,19 +625,19 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                 disabled={!isGenerationEnabled}
                                 className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                             >
-                                Anmelden zum Generieren
+                                {t('workspace.loginToGenerate')}
                             </button>
                             <p className="text-xs text-[#67534F] mt-2">
-                                Bitte registrieren oder anmelden, um Bilder generieren zu können.
+                                {t('workspace.loginRequired')}
                             </p>
                         </div>
                       ) : (
                         <button
-                          onClick={handleGenerate} 
+                          onClick={handleGenerate}
                           disabled={!isGenerationEnabled || isLoading}
                           className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed mt-4`}
                         >
-                            Bild generieren
+                            {t('workspace.generateImage')}
                         </button>
                       )}
                    </div>
@@ -644,7 +645,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                   <ImageUploader
                     onImageSelect={handlePatternImageUpload}
                     imageDataUrl={session?.patternImage}
-                    buttonText="Stoff auswählen"
+                    buttonText={t('workspace.selectFabric')}
                   />
                 )}
             </div>
@@ -653,13 +654,13 @@ const Workspace: React.FC<WorkspaceProps> = ({
         {showPatternControls && (
             <section className="mt-8 sm:mt-12 animate-fade-in">
                 <div className="text-center mb-4 sm:mb-6">
-                    <h2 className="text-xl sm:text-2xl font-semibold text-[#532418] px-2">3. Wähle, was du gestalten möchtest</h2>
+                    <h2 className="text-xl sm:text-2xl font-semibold text-[#532418] px-2">{t('workspace.step3Title')}</h2>
                 </div>
-                
+
                 <div className="flex flex-col items-center gap-6 w-full max-w-4xl mx-auto">
-                    
+
                     <div className="w-full text-center">
-                        <p className="text-md text-[#67534F]/90 mb-4">Wähle einen Bereich für das Muster aus:</p>
+                        <p className="text-md text-[#67534F]/90 mb-4">{t('workspace.choosePattern')}</p>
                         <div className="flex flex-wrap justify-center items-start gap-4 w-full">
                             <PresetButtons selectedPreset={selectedPreset} onPresetSelect={setSelectedPreset} />
                         </div>
@@ -671,7 +672,7 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                <div className="relative flex items-start">
                                     <textarea
                                         id="hint-textarea"
-                                        placeholder={isListening ? "🎙️ Aufnahme läuft..." : "Optional: Hinweis tippen oder sprechen..."}
+                                        placeholder={isListening ? `🎙️ ${t('saveSession.listening')}` : t('workspace.hintPlaceholder')}
                                         value={textHint}
                                         onChange={(e) => setTextHint(e.target.value)}
                                         onKeyDown={(e) => {
@@ -696,33 +697,33 @@ const Workspace: React.FC<WorkspaceProps> = ({
                                </div>
                                {isListening && (
                                     <p className="text-sm text-gray-600 italic mt-2 h-5">
-                                        Zuhören aktiv...
+                                        {t('saveSession.listening')}
                                     </p>
                                )}
                             </form>
                         </div>
-                        
+
                         {!user && onShowLogin ? (
                            <div className="w-full max-w-sm mt-2 text-center">
-                                <button 
+                                <button
                                     type="button"
                                     onClick={onShowLogin}
                                     disabled={!isGenerationEnabled}
                                     className={`${actionButtonClasses} w-full text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                                 >
-                                    Anmelden zum Generieren
+                                    {t('workspace.loginToGenerate')}
                                 </button>
                                 <p className="text-xs text-[#67534F] mt-2">
-                                    Bitte registrieren oder anmelden, um Bilder generieren zu können.
+                                    {t('workspace.loginRequired')}
                                 </p>
                            </div>
                         ) : (
-                            <button 
-                                onClick={handleGenerate} 
+                            <button
+                                onClick={handleGenerate}
                                 disabled={!isGenerationEnabled || isLoading}
                                 className={`${actionButtonClasses} w-full max-w-sm mt-2 text-lg bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] focus:ring-[#C8956C] disabled:bg-[#C8B6A6] disabled:cursor-not-allowed`}
                             >
-                                Bild generieren
+                                {t('workspace.generateImage')}
                             </button>
                         )}
                     </div>
@@ -733,13 +734,13 @@ const Workspace: React.FC<WorkspaceProps> = ({
         {pendingVariant && (
              <section className="mt-6 sm:mt-10 animate-fade-in">
                  <div className="text-center mb-3 sm:mb-4">
-                    <h2 className="text-lg sm:text-xl font-semibold text-[#532418]">Ergebnis</h2>
+                    <h2 className="text-lg sm:text-xl font-semibold text-[#532418]">{t('workspace.result')}</h2>
                 </div>
                  <div className="max-w-2xl mx-auto">
                     <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-xl">
                         <img
                             src={pendingVariant.imageUrl}
-                            alt={`Vorschlag für: ${pendingVariant.preset}`}
+                            alt={t('workspace.previewAlt', { preset: pendingVariant.preset })}
                             className="w-full h-auto"
                         />
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 sm:p-4">
@@ -749,10 +750,10 @@ const Workspace: React.FC<WorkspaceProps> = ({
                  </div>
                  <div className="flex justify-center items-center gap-3 mt-4">
                      <button onClick={handleDiscardVariant} className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1.5">
-                        <DiscardIcon className="h-4 w-4" /> Verwerfen
+                        <DiscardIcon className="h-4 w-4" /> {t('workspace.discard')}
                      </button>
                      <button onClick={handleSaveVariant} className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:from-[#A67B5B] hover:to-[#8B6B4B] rounded-lg shadow-md transition-all flex items-center gap-1.5">
-                        <SaveIcon className="h-4 w-4" /> Speichern
+                        <SaveIcon className="h-4 w-4" /> {t('common.save')}
                      </button>
                  </div>
              </section>
@@ -764,12 +765,12 @@ const Workspace: React.FC<WorkspaceProps> = ({
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>In Galerie gespeichert</span>
+                    <span>{t('workspace.savedToGallery')}</span>
                     <button
                         onClick={handleNextPattern}
                         className="ml-1 px-2 py-0.5 bg-green-600 text-white hover:bg-green-700 rounded-full text-[10px] font-semibold transition-colors"
                     >
-                        Nächstes Muster
+                        {t('workspace.nextPattern')}
                     </button>
                 </div>
             </div>
