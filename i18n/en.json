@@ -350,6 +350,25 @@
     "de": "DE",
     "en": "EN"
   },
+  "comingSoon": {
+    "badge": "Coming Soon",
+    "title": "Fabric Advisor Pro – AI-powered consultation with warranty protection",
+    "description": "Automatic fabric recommendations based on room, lighting conditions and customer preferences. Including legally compliant documentation.",
+    "notifyMe": "Notify me"
+  },
+  "waitlist": {
+    "title": "Join the Waitlist",
+    "subtitle": "Be one of the first to try the new feature.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "your@email.com",
+    "submit": "Sign up",
+    "successTitle": "Thank you!",
+    "successMessage": "We'll let you know when the feature is available.",
+    "privacy": "We'll only use your email for updates about this feature.",
+    "errorRequired": "Please enter an email address.",
+    "errorInvalid": "Please enter a valid email address.",
+    "errorGeneric": "An error occurred. Please try again."
+  },
   "feedback": {
     "title": "How do you like Stoffanprobe?",
     "subtitle": "Your feedback helps us improve",

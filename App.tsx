@@ -8,6 +8,7 @@ import { NextIcon } from './components/Icon';
 import ImageModal from './components/ImageModal';
 import SaveSessionModal from './components/SaveSessionModal';
 import Footer from './components/Footer';
+import ComingSoonBanner from './components/ComingSoonBanner';
 import LegalModal from './components/LegalModal';
 import { impressumContent, datenschutzContent, agbContent } from './legalTexts';
 import Workspace from './components/Workspace';
@@ -434,6 +435,7 @@ const App: React.FC = () => {
             onLogin={() => setShowLoginModal(true)}
           />
         </div>
+        <ComingSoonBanner />
         <Footer
           onOpenImpressum={() => setShowImpressum(true)}
           onOpenDatenschutz={() => setShowDatenschutz(true)}
@@ -560,6 +562,7 @@ const App: React.FC = () => {
         onRefreshUser={refreshUser}
       />
 
+      <ComingSoonBanner />
       <Footer
         onOpenImpressum={() => setShowImpressum(true)}
         onOpenDatenschutz={() => setShowDatenschutz(true)}

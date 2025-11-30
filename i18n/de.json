@@ -350,6 +350,25 @@
     "de": "DE",
     "en": "EN"
   },
+  "comingSoon": {
+    "badge": "Coming Soon",
+    "title": "Stoffberater Pro – KI-gestützte Beratung mit Reklamationsschutz",
+    "description": "Automatische Stoffempfehlungen basierend auf Raum, Lichtverhältnissen und Kundenwünschen. Inklusive rechtssicherer Dokumentation.",
+    "notifyMe": "Informiert mich"
+  },
+  "waitlist": {
+    "title": "Auf die Warteliste setzen",
+    "subtitle": "Sei einer der Ersten, die das neue Feature ausprobieren können.",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "deine@email.de",
+    "submit": "Eintragen",
+    "successTitle": "Danke!",
+    "successMessage": "Wir melden uns, sobald das Feature verfügbar ist.",
+    "privacy": "Wir verwenden deine E-Mail nur für Updates zu diesem Feature.",
+    "errorRequired": "Bitte gib eine E-Mail-Adresse ein.",
+    "errorInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+    "errorGeneric": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
+  },
   "feedback": {
     "title": "Wie gefällt dir Stoffanprobe?",
     "subtitle": "Dein Feedback hilft uns, besser zu werden",
