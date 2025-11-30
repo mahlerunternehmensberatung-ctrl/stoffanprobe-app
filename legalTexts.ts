@@ -224,3 +224,140 @@ export const agbContent: LegalContent = {
     },
   ],
 };
+
+export const avvContent: LegalContent = {
+  title: "Auftragsverarbeitungsvertrag (AVV)",
+  subtitle: "gemäß Art. 28 DSGVO – Stand: 30. November 2025",
+  sections: [
+    {
+      heading: "Präambel",
+      content: [
+        "Dieser Auftragsverarbeitungsvertrag (nachfolgend \"AVV\") regelt die Rechte und Pflichten der Vertragsparteien im Zusammenhang mit der Verarbeitung personenbezogener Daten im Auftrag.",
+      ],
+    },
+    {
+      heading: "1. Vertragsparteien",
+      content: [
+        { label: "Auftraggeber:", text: "Der Nutzer der Plattform stoffanprobe.de mit aktivem Pro-Abonnement (nachfolgend \"Verantwortlicher\")" },
+        { label: "Auftragnehmer:", text: "Mahler Filmproduktion GmbH, Teterower Straße 8, 18279 Lalendorf, Deutschland, vertreten durch die Geschäftsführerin Anke Mahler (nachfolgend \"Auftragsverarbeiter\")" },
+      ],
+    },
+    {
+      heading: "2. Gegenstand und Dauer der Verarbeitung",
+      content: [
+        { label: "Gegenstand:", text: "Die Verarbeitung von Bilddaten zur KI-gestützten Visualisierung von Räumen mit Stoffen, Tapeten und anderen Einrichtungsgegenständen." },
+        { label: "Dauer:", text: "Die Verarbeitung erfolgt für die Dauer des bestehenden Pro-Abonnements. Mit Beendigung des Abonnements endet auch dieser AVV automatisch." },
+      ],
+    },
+    {
+      heading: "3. Art und Zweck der Verarbeitung",
+      content: [
+        "Der Auftragsverarbeiter verarbeitet personenbezogene Daten ausschließlich zum Zweck der:",
+        "• Bildgenerierung mittels KI-Diensten zur Visualisierung von Raumgestaltungen",
+        "• Bereitstellung der technischen Infrastruktur für den Verantwortlichen",
+        "• Temporären Übermittlung an Sub-Auftragsverarbeiter (KI-Dienstleister) zur Bildgenerierung",
+      ],
+    },
+    {
+      heading: "4. Art der personenbezogenen Daten",
+      content: [
+        "Folgende Datenkategorien werden verarbeitet:",
+        "• Raumfotos (können Abbildungen von Personen oder persönlichen Gegenständen enthalten)",
+        "• Stoffmuster- und Materialfotos",
+        "• Optionale Texthinweise zur Bildgenerierung",
+        "• Keine direkten personenbezogenen Daten (Name, E-Mail etc.) der Endkunden werden auf den Servern des Auftragsverarbeiters gespeichert",
+      ],
+    },
+    {
+      heading: "5. Kategorien betroffener Personen",
+      content: [
+        "• Kunden des Verantwortlichen (Endkunden), deren Räume visualisiert werden",
+        "• Personen, die ggf. auf den hochgeladenen Raumfotos abgebildet sind",
+      ],
+    },
+    {
+      heading: "6. Pflichten des Auftragsverarbeiters",
+      content: [
+        "Der Auftragsverarbeiter verpflichtet sich:",
+        "• Daten nur auf dokumentierte Weisung des Verantwortlichen zu verarbeiten",
+        "• Die Vertraulichkeit zu wahren und alle mit der Datenverarbeitung befassten Personen zur Vertraulichkeit zu verpflichten",
+        "• Geeignete technische und organisatorische Maßnahmen zu treffen",
+        "• Den Verantwortlichen bei der Erfüllung seiner Pflichten zu unterstützen",
+        "• Nach Beendigung der Verarbeitung alle Daten zu löschen oder zurückzugeben",
+        "• Dem Verantwortlichen alle erforderlichen Informationen zum Nachweis der Einhaltung seiner Pflichten zur Verfügung zu stellen",
+      ],
+    },
+    {
+      heading: "7. Sub-Auftragsverarbeiter",
+      content: [
+        "Der Auftragsverarbeiter bedient sich folgender Sub-Auftragsverarbeiter:",
+        { label: "fal.ai (fal, Inc.):", text: "Bildgenerierung mittels KI. Sitz: USA. Die Datenübermittlung erfolgt auf Grundlage von Standardvertragsklauseln (SCCs)." },
+        { label: "x.ai Corp.:", text: "Textverarbeitung zur Optimierung von Bildanweisungen. Sitz: USA. Die Datenübermittlung erfolgt auf Grundlage von Standardvertragsklauseln (SCCs)." },
+        { label: "Vercel Inc.:", text: "Hosting der Webanwendung. Sitz: USA. Die Datenübermittlung erfolgt auf Grundlage von Standardvertragsklauseln (SCCs)." },
+        { label: "Google Ireland Limited (Firebase):", text: "Authentifizierung und Datenbankdienste. Sitz: Irland." },
+        "Der Auftragsverarbeiter informiert den Verantwortlichen über beabsichtigte Änderungen in Bezug auf Sub-Auftragsverarbeiter.",
+      ],
+    },
+    {
+      heading: "8. Technische und organisatorische Maßnahmen (TOMs)",
+      content: [
+        "Der Auftragsverarbeiter gewährleistet folgende Schutzmaßnahmen:",
+        { label: "Vertraulichkeit:", text: "• SSL/TLS-Verschlüsselung aller Datenübertragungen • Zugangskontrollen zu Systemen und Daten • Authentifizierung über Firebase Authentication" },
+        { label: "Integrität:", text: "• Keine dauerhafte Speicherung von Kundenbildern auf eigenen Servern • Temporäre Verarbeitung nur im Browser des Nutzers • Protokollierung von Zugriffen" },
+        { label: "Verfügbarkeit:", text: "• Hosting bei professionellem Cloud-Anbieter (Vercel) • Regelmäßige Backups der Systemkonfiguration • Schnelle Wiederherstellbarkeit" },
+        { label: "Belastbarkeit:", text: "• Skalierbare Infrastruktur • Ausfallsichere Architektur" },
+      ],
+    },
+    {
+      heading: "9. Rechte der betroffenen Personen",
+      content: [
+        "Der Auftragsverarbeiter unterstützt den Verantwortlichen bei der Erfüllung seiner Pflichten gegenüber den betroffenen Personen, insbesondere bei:",
+        "• Auskunftsrechten (Art. 15 DSGVO)",
+        "• Berichtigungsrechten (Art. 16 DSGVO)",
+        "• Löschungsrechten (Art. 17 DSGVO)",
+        "• Einschränkung der Verarbeitung (Art. 18 DSGVO)",
+        "• Datenübertragbarkeit (Art. 20 DSGVO)",
+        "• Widerspruchsrecht (Art. 21 DSGVO)",
+      ],
+    },
+    {
+      heading: "10. Löschung und Rückgabe von Daten",
+      content: [
+        "Nach Beendigung der Auftragsverarbeitung werden alle personenbezogenen Daten wie folgt behandelt:",
+        "• Raumfotos: Keine dauerhafte Speicherung – verbleiben temporär im Browser und werden bei Sitzungsende gelöscht",
+        "• KI-Dienste: Bildübermittlung erfolgt nur zur Generierung, keine dauerhafte Speicherung durch den Auftragsverarbeiter",
+        "• Nutzerkonten: Kontodaten werden auf Wunsch des Verantwortlichen gelöscht",
+        "Die Bilder werden NICHT für KI-Training oder andere Zwecke verwendet.",
+      ],
+    },
+    {
+      heading: "11. Kontrollrechte",
+      content: [
+        "Der Verantwortliche ist berechtigt, sich von der Einhaltung dieses AVV zu überzeugen. Der Auftragsverarbeiter verpflichtet sich, dem Verantwortlichen auf Anfrage alle erforderlichen Informationen zur Verfügung zu stellen.",
+        "Inspektionen und Audits sind nach vorheriger Ankündigung möglich.",
+      ],
+    },
+    {
+      heading: "12. Haftung",
+      content: [
+        "Der Auftragsverarbeiter haftet gegenüber dem Verantwortlichen für Schäden, die durch eine nicht dieser Vereinbarung oder den Weisungen des Verantwortlichen entsprechende Verarbeitung verursacht werden.",
+        "Die Haftung richtet sich im Übrigen nach den gesetzlichen Bestimmungen und den Allgemeinen Geschäftsbedingungen.",
+      ],
+    },
+    {
+      heading: "13. Schlussbestimmungen",
+      content: [
+        "Dieser AVV unterliegt dem Recht der Bundesrepublik Deutschland.",
+        "Änderungen und Ergänzungen dieses AVV bedürfen der Schriftform.",
+        "Sollten einzelne Bestimmungen dieses AVV unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.",
+        { label: "Kontakt für Datenschutzanfragen:", text: "anke@mahler-filmproduktion.de" },
+      ],
+    },
+    {
+      heading: "Abschluss des AVV",
+      content: [
+        "Dieser AVV wird durch die Nutzung des Pro-Abonnements automatisch wirksam. Mit der Buchung eines Pro-Abonnements bestätigt der Verantwortliche die Kenntnisnahme und Anerkennung dieses AVV.",
+      ],
+    },
+  ],
+};

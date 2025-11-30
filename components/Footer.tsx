@@ -5,6 +5,7 @@ interface FooterProps {
   onOpenImpressum: () => void;
   onOpenDatenschutz: () => void;
   onOpenAgb: () => void;
+  onOpenAvv?: () => void;
   onOpenCookieSettings?: () => void;
 }
 
@@ -12,6 +13,7 @@ const Footer: React.FC<FooterProps> = ({
   onOpenImpressum,
   onOpenDatenschutz,
   onOpenAgb,
+  onOpenAvv,
   onOpenCookieSettings,
 }) => {
   const { t, i18n } = useTranslation();
@@ -35,6 +37,14 @@ const Footer: React.FC<FooterProps> = ({
         <button onClick={onOpenAgb} className="mx-2 underline hover:text-[#C8956C]">
           {t('footer.terms')}
         </button>
+        {onOpenAvv && (
+          <>
+            ·
+            <button onClick={onOpenAvv} className="mx-2 underline hover:text-[#C8956C]">
+              {t('footer.avv')}
+            </button>
+          </>
+        )}
         {onOpenCookieSettings && (
           <>
             ·

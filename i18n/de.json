@@ -44,6 +44,7 @@
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "terms": "AGB",
+    "avv": "AVV",
     "cookieSettings": "Cookie-Einstellungen"
   },
   "workspace": {
@@ -107,7 +108,7 @@
     "proCredits": "40 Credits/Monat",
     "proCommercial": "Für gewerbliche Nutzung",
     "proDsgvo": "DSGVO-konforme Verarbeitung",
-    "proAvv": "AVV auf Anfrage",
+    "proAvv": "AVV verfügbar (hier ansehen)",
     "proNoAiTraining": "Bilder werden nicht für KI-Training verwendet",
     "proLegalSafe": "Rechtssicher für Kundenpräsentationen",
     "proVatInvoice": "Rechnungen mit ausgewiesener MwSt.",

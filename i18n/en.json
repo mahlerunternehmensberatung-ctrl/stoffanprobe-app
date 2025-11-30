@@ -44,6 +44,7 @@
     "imprint": "Imprint",
     "privacy": "Privacy Policy",
     "terms": "Terms & Conditions",
+    "avv": "DPA",
     "cookieSettings": "Cookie Settings"
   },
   "workspace": {
@@ -107,7 +108,7 @@
     "proCredits": "40 credits/month",
     "proCommercial": "For commercial use",
     "proDsgvo": "GDPR-compliant processing",
-    "proAvv": "Data Processing Agreement on request",
+    "proAvv": "DPA available (view here)",
     "proNoAiTraining": "Images are not used for AI training",
     "proLegalSafe": "Legally secure for client presentations",
     "proVatInvoice": "Invoices with VAT",

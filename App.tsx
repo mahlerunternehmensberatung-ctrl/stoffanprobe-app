@@ -10,7 +10,7 @@ import SaveSessionModal from './components/SaveSessionModal';
 import Footer from './components/Footer';
 import ComingSoonBanner from './components/ComingSoonBanner';
 import LegalModal from './components/LegalModal';
-import { impressumContent, datenschutzContent, agbContent } from './legalTexts';
+import { impressumContent, datenschutzContent, agbContent, avvContent } from './legalTexts';
 import Workspace from './components/Workspace';
 import ColorPickerModal from './components/ColorPickerModal';
 import LandingPage from './components/LandingPage';
@@ -53,6 +53,7 @@ const App: React.FC = () => {
   const [showImpressum, setShowImpressum] = useState(false);
   const [showDatenschutz, setShowDatenschutz] = useState(false);
   const [showAgb, setShowAgb] = useState(false);
+  const [showAvv, setShowAvv] = useState(false);
   const [isAppLoading, setIsAppLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -440,6 +441,7 @@ const App: React.FC = () => {
           onOpenImpressum={() => setShowImpressum(true)}
           onOpenDatenschutz={() => setShowDatenschutz(true)}
           onOpenAgb={() => setShowAgb(true)}
+          onOpenAvv={() => setShowAvv(true)}
           onOpenCookieSettings={() => setShowCookieSettings(true)}
         />
         {showRegisterModal && (
@@ -484,6 +486,12 @@ const App: React.FC = () => {
           onClose={() => setShowAgb(false)}
           title="AGB"
           content={agbContent}
+        />
+        <LegalModal
+          isOpen={showAvv}
+          onClose={() => setShowAvv(false)}
+          title="AVV"
+          content={avvContent}
         />
         {/* Cookie-Banner beim ersten Besuch oder explizit über Footer */}
         {showCookieSettings ? (
@@ -567,6 +575,7 @@ const App: React.FC = () => {
         onOpenImpressum={() => setShowImpressum(true)}
         onOpenDatenschutz={() => setShowDatenschutz(true)}
         onOpenAgb={() => setShowAgb(true)}
+        onOpenAvv={() => setShowAvv(true)}
         onOpenCookieSettings={() => setShowCookieSettings(true)}
       />
 
@@ -586,6 +595,12 @@ const App: React.FC = () => {
         <LegalModal
           content={agbContent}
           onClose={() => setShowAgb(false)}
+        />
+      )}
+      {showAvv && (
+        <LegalModal
+          content={avvContent}
+          onClose={() => setShowAvv(false)}
         />
       )}
 

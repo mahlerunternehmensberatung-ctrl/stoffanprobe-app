@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getCurrentUser } from '../services/authService';
 import { User } from '../types';
+import LegalModal from './LegalModal';
+import { avvContent } from '../legalTexts';
 
 interface PaywallModalProps {
   onClose: () => void;
@@ -56,6 +58,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
   const { t } = useTranslation();
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showAvvModal, setShowAvvModal] = useState(false);
 
   const handleSelectPlan = async (plan: PlanOption) => {
     setLoadingPlanId(plan.id);
@@ -185,7 +188,19 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <span>{t(featureKey)}</span>
+                    {featureKey === 'plans.proAvv' ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAvvModal(true);
+                        }}
+                        className="text-left underline hover:text-[#C8956C] transition-colors"
+                      >
+                        {t(featureKey)}
+                      </button>
+                    ) : (
+                      <span>{t(featureKey)}</span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -216,6 +231,14 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
           </p>
         </div>
       </div>
+
+      {/* AVV Modal */}
+      {showAvvModal && (
+        <LegalModal
+          content={avvContent}
+          onClose={() => setShowAvvModal(false)}
+        />
+      )}
     </div>
   );
 };
