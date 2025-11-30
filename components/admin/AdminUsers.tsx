@@ -6,16 +6,24 @@ import {
   blockUser,
   unblockUser,
   adjustUserCredits,
+  addTagToUser,
+  removeTagFromUser,
+  AVAILABLE_TAGS,
   AdminUser,
 } from '../../services/adminService';
+import { UserTag } from '../../types';
+
+type FilterTag = UserTag | 'all';
 
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [tagFilter, setTagFilter] = useState<FilterTag>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingCredits, setEditingCredits] = useState<string | null>(null);
+  const [editingTags, setEditingTags] = useState<string | null>(null);
   const [creditValues, setCreditValues] = useState<{ monthly: number; purchased: number }>({
     monthly: 0,
     purchased: 0,
@@ -78,6 +86,7 @@ const AdminUsers: React.FC = () => {
 
   const startEditingCredits = (user: AdminUser) => {
     setEditingCredits(user.uid);
+    setEditingTags(null);
     setCreditValues({
       monthly: user.monthlyCredits,
       purchased: user.purchasedCredits,
@@ -104,6 +113,40 @@ const AdminUsers: React.FC = () => {
     }
   };
 
+  const handleAddTag = async (userId: string, tag: UserTag) => {
+    try {
+      setActionLoading(userId);
+      await addTagToUser(userId, tag);
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.uid === userId ? { ...u, tags: [...u.tags, tag] } : u
+        )
+      );
+    } catch (err) {
+      console.error('Error adding tag:', err);
+      setError('Fehler beim Hinzufügen des Tags');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRemoveTag = async (userId: string, tag: UserTag) => {
+    try {
+      setActionLoading(userId);
+      await removeTagFromUser(userId, tag);
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.uid === userId ? { ...u, tags: u.tags.filter((t) => t !== tag) } : u
+        )
+      );
+    } catch (err) {
+      console.error('Error removing tag:', err);
+      setError('Fehler beim Entfernen des Tags');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const getPlanBadge = (plan: string) => {
     switch (plan) {
       case 'pro':
@@ -114,6 +157,25 @@ const AdminUsers: React.FC = () => {
         return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">Free</span>;
     }
   };
+
+  const getTagBadge = (tag: UserTag) => {
+    const colors: Record<UserTag, string> = {
+      VIP: 'bg-purple-100 text-purple-800',
+      Influencer: 'bg-pink-100 text-pink-800',
+      'Beta-Tester': 'bg-blue-100 text-blue-800',
+      Partner: 'bg-indigo-100 text-indigo-800',
+    };
+    return (
+      <span className={`px-2 py-0.5 text-xs font-medium rounded ${colors[tag]}`}>
+        {tag}
+      </span>
+    );
+  };
+
+  // Filter users by tag
+  const filteredUsers = tagFilter === 'all'
+    ? users
+    : users.filter((u) => u.tags.includes(tagFilter));
 
   if (loading && users.length === 0) {
     return (
@@ -131,7 +193,7 @@ const AdminUsers: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">User-Verwaltung</h1>
-            <p className="text-gray-600 mt-1">{users.length} User gefunden</p>
+            <p className="text-gray-600 mt-1">{filteredUsers.length} User gefunden</p>
           </div>
 
           {/* Search */}
@@ -154,6 +216,33 @@ const AdminUsers: React.FC = () => {
           </div>
         </div>
 
+        {/* Tag Filter */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setTagFilter('all')}
+            className={`px-3 py-1 text-sm rounded-full transition-colors ${
+              tagFilter === 'all'
+                ? 'bg-[#532418] text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Alle
+          </button>
+          {AVAILABLE_TAGS.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setTagFilter(tag)}
+              className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                tagFilter === tag
+                  ? 'bg-[#532418] text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              {tag} ({users.filter((u) => u.tags.includes(tag)).length})
+            </button>
+          ))}
+        </div>
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             {error}
@@ -163,7 +252,7 @@ const AdminUsers: React.FC = () => {
           </div>
         )}
 
-        {users.length === 0 ? (
+        {filteredUsers.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
             {searchQuery ? `Keine User für "${searchQuery}" gefunden` : 'Keine User gefunden'}
           </div>
@@ -181,16 +270,16 @@ const AdminUsers: React.FC = () => {
                       Abo
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tags
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Credits
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Bilder
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Anmeldung
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      Letzter Login
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Aktionen
@@ -198,7 +287,7 @@ const AdminUsers: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <tr key={user.uid} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
@@ -209,6 +298,42 @@ const AdminUsers: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">{getPlanBadge(user.plan)}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {user.tags.map((tag) => (
+                            <span key={tag} className="inline-flex items-center">
+                              {getTagBadge(tag)}
+                              <button
+                                onClick={() => handleRemoveTag(user.uid, tag)}
+                                className="ml-0.5 text-gray-400 hover:text-red-600"
+                                title="Tag entfernen"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                          <button
+                            onClick={() => setEditingTags(editingTags === user.uid ? null : user.uid)}
+                            className="px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
+                            title="Tag hinzufügen"
+                          >
+                            +
+                          </button>
+                        </div>
+                        {editingTags === user.uid && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {AVAILABLE_TAGS.filter((t) => !user.tags.includes(t)).map((tag) => (
+                              <button
+                                key={tag}
+                                onClick={() => handleAddTag(user.uid, tag)}
+                                className="px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                              >
+                                + {tag}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {editingCredits === user.uid ? (
                           <div className="flex flex-col gap-1">
@@ -263,14 +388,7 @@ const AdminUsers: React.FC = () => {
                         {user.imagesGenerated}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {user.createdAt.toLocaleDateString('de-DE')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {user.feedbackBlocked ? (
-                          <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Gesperrt</span>
-                        ) : (
-                          <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Aktiv</span>
-                        )}
+                        {user.lastLoginAt?.toLocaleDateString('de-DE') || 'Nie'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex gap-2">
@@ -311,7 +429,7 @@ const AdminUsers: React.FC = () => {
 
             {/* Mobile Cards */}
             <div className="lg:hidden divide-y divide-gray-200">
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <div key={user.uid} className="p-4">
                   <div className="flex items-start justify-between">
                     <div>
@@ -328,6 +446,40 @@ const AdminUsers: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Tags */}
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {user.tags.map((tag) => (
+                      <span key={tag} className="inline-flex items-center">
+                        {getTagBadge(tag)}
+                        <button
+                          onClick={() => handleRemoveTag(user.uid, tag)}
+                          className="ml-0.5 text-gray-400 hover:text-red-600"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    <button
+                      onClick={() => setEditingTags(editingTags === user.uid ? null : user.uid)}
+                      className="px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded"
+                    >
+                      +
+                    </button>
+                  </div>
+                  {editingTags === user.uid && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {AVAILABLE_TAGS.filter((t) => !user.tags.includes(t)).map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={() => handleAddTag(user.uid, tag)}
+                          className="px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded"
+                        >
+                          + {tag}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
                     <div>
                       <span className="text-gray-500">Credits:</span>
@@ -338,8 +490,8 @@ const AdminUsers: React.FC = () => {
                       <span className="ml-1 font-medium">{user.imagesGenerated}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Seit:</span>
-                      <span className="ml-1">{user.createdAt.toLocaleDateString('de-DE')}</span>
+                      <span className="text-gray-500">Login:</span>
+                      <span className="ml-1">{user.lastLoginAt?.toLocaleDateString('de-DE') || 'Nie'}</span>
                     </div>
                   </div>
 

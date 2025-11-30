@@ -28,7 +28,7 @@ import { decrementCredits } from './services/userService';
 import { trackPageView, trackEvent } from './services/analytics';
 import { v4 as uuidv4 } from 'uuid';
 import CustomerDataExitModal from './components/CustomerDataExitModal';
-import { AdminDashboard, AdminUsers, AdminFeedback, AdminWaitlist } from './components/admin';
+import { AdminDashboard, AdminSegments, AdminUsers, AdminFeedback, AdminWaitlist } from './components/admin';
 
 
 const App: React.FC = () => {
@@ -420,6 +420,10 @@ const App: React.FC = () => {
   // Admin Routes
   if (location.pathname === '/admin') {
     return <AdminDashboard />;
+  }
+
+  if (location.pathname === '/admin/segments') {
+    return <AdminSegments />;
   }
 
   if (location.pathname === '/admin/users') {

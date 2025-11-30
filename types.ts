@@ -98,9 +98,13 @@ export interface User {
   feedbackGivenStars?: number; // Falls Feedback gegeben: Sterne (1-5)
   feedbackRemindAt?: Date; // Wann soll erneut gefragt werden ("Später erinnern")
   feedbackBlocked?: boolean; // Admin kann User für Stoffberater-Feedback sperren
+  lastLoginAt?: Date; // Letzter Login für Aktivitäts-Tracking
+  tags?: UserTag[]; // Admin-Tags für Marketing-Segmente
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type UserTag = 'VIP' | 'Influencer' | 'Beta-Tester' | 'Partner';
 
 export interface Feedback {
   id: string;

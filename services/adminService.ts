@@ -8,8 +8,13 @@ import {
   where,
   Timestamp,
   limit,
+  writeBatch,
+  arrayUnion,
+  arrayRemove,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { UserTag } from '../types';
 
 // Admin-Emails die Zugriff haben
 export const ADMIN_EMAILS = ['mahler.unternehmensberatung@gmail.com'];
@@ -57,8 +62,28 @@ export interface AdminUser {
   purchasedCredits: number;
   imagesGenerated: number;
   feedbackBlocked: boolean;
+  lastLoginAt?: Date;
+  tags: UserTag[];
   createdAt: Date;
 }
+
+// Segment Types
+export type SegmentType =
+  | 'upsell_candidates'    // Free mit 0 Credits
+  | 'power_users'          // >20 Bilder/Monat
+  | 'inactive'             // Kein Login >14 Tage
+  | 'business_emails'      // @firma.de (nicht gmail, gmx, etc.)
+  | 'churn_risk';          // Abo aber <5 Bilder/Monat
+
+export interface Segment {
+  id: SegmentType;
+  name: string;
+  description: string;
+  icon: string;
+  users: AdminUser[];
+}
+
+export const AVAILABLE_TAGS: UserTag[] = ['VIP', 'Influencer', 'Beta-Tester', 'Partner'];
 
 export interface WaitlistEntry {
   id: string;
@@ -227,6 +252,8 @@ export const getAllUsers = async (): Promise<AdminUser[]> => {
         purchasedCredits: data.purchasedCredits ?? 0,
         imagesGenerated: data.imagesGenerated ?? 0,
         feedbackBlocked: data.feedbackBlocked ?? false,
+        lastLoginAt: data.lastLoginAt?.toDate(),
+        tags: data.tags || [],
         createdAt: data.createdAt?.toDate() || new Date(),
       };
     });
@@ -307,4 +334,257 @@ export const getWaitlist = async (): Promise<WaitlistEntry[]> => {
     console.error('Error getting waitlist:', error);
     return [];
   }
+};
+
+// === Segment Functions ===
+
+const CONSUMER_EMAIL_DOMAINS = [
+  'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.de',
+  'hotmail.com', 'hotmail.de', 'outlook.com', 'outlook.de',
+  'gmx.de', 'gmx.net', 'gmx.at', 'gmx.ch',
+  'web.de', 't-online.de', 'freenet.de', 'arcor.de',
+  'aol.com', 'icloud.com', 'me.com', 'mac.com',
+  'live.com', 'live.de', 'msn.com',
+  'mail.de', 'email.de', 'online.de', 'posteo.de',
+];
+
+const isBusinessEmail = (email: string): boolean => {
+  const domain = email.split('@')[1]?.toLowerCase();
+  if (!domain) return false;
+  return !CONSUMER_EMAIL_DOMAINS.includes(domain);
+};
+
+export const getSegments = async (): Promise<Segment[]> => {
+  try {
+    const allUsers = await getAllUsers();
+    const now = new Date();
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+    // Upsell Candidates: Free users with 0 credits
+    const upsellCandidates = allUsers.filter(
+      (u) => u.plan === 'free' && (u.monthlyCredits + u.purchasedCredits) === 0
+    );
+
+    // Power Users: >20 images generated (approximation for monthly)
+    const powerUsers = allUsers.filter((u) => u.imagesGenerated > 20);
+
+    // Inactive: No login in >14 days (or never logged in if old account)
+    const inactive = allUsers.filter((u) => {
+      if (!u.lastLoginAt) {
+        // If no lastLoginAt, check if account is older than 14 days
+        return u.createdAt < fourteenDaysAgo;
+      }
+      return u.lastLoginAt < fourteenDaysAgo;
+    });
+
+    // Business Emails: Not consumer email domains
+    const businessEmails = allUsers.filter((u) => isBusinessEmail(u.email));
+
+    // Churn Risk: Has subscription but <5 images
+    const churnRisk = allUsers.filter(
+      (u) => (u.plan === 'home' || u.plan === 'pro') && u.imagesGenerated < 5
+    );
+
+    return [
+      {
+        id: 'upsell_candidates',
+        name: 'Upsell-Kandidaten',
+        description: 'Free User mit 0 Credits - bereit für Upgrade',
+        icon: '💰',
+        users: upsellCandidates,
+      },
+      {
+        id: 'power_users',
+        name: 'Power-User',
+        description: 'Vielnutzer mit >20 generierten Bildern',
+        icon: '⚡',
+        users: powerUsers,
+      },
+      {
+        id: 'inactive',
+        name: 'Inaktiv',
+        description: 'Kein Login seit >14 Tagen',
+        icon: '😴',
+        users: inactive,
+      },
+      {
+        id: 'business_emails',
+        name: 'Business-Emails',
+        description: 'User mit Firmen-Email (@firma.de)',
+        icon: '🏢',
+        users: businessEmails,
+      },
+      {
+        id: 'churn_risk',
+        name: 'Kündigungs-Risiko',
+        description: 'Abo-User mit <5 generierten Bildern',
+        icon: '⚠️',
+        users: churnRisk,
+      },
+    ];
+  } catch (error) {
+    console.error('Error getting segments:', error);
+    throw error;
+  }
+};
+
+// === Tag Management ===
+
+export const addTagToUser = async (userId: string, tag: UserTag): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      tags: arrayUnion(tag),
+    });
+  } catch (error) {
+    console.error('Error adding tag to user:', error);
+    throw error;
+  }
+};
+
+export const removeTagFromUser = async (userId: string, tag: UserTag): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      tags: arrayRemove(tag),
+    });
+  } catch (error) {
+    console.error('Error removing tag from user:', error);
+    throw error;
+  }
+};
+
+export const getUsersByTag = async (tag: UserTag): Promise<AdminUser[]> => {
+  const allUsers = await getAllUsers();
+  return allUsers.filter((u) => u.tags.includes(tag));
+};
+
+// === Bulk Actions ===
+
+export const grantCreditsToUsers = async (userIds: string[], credits: number): Promise<void> => {
+  try {
+    const batch = writeBatch(db);
+
+    for (const userId of userIds) {
+      const userRef = doc(db, 'users', userId);
+      // We need to get current credits first, so we'll do individual updates
+      // For simplicity, we add to monthlyCredits
+    }
+
+    // For bulk updates, we need to fetch each user first
+    const usersRef = collection(db, 'users');
+    const snapshot = await getDocs(usersRef);
+    const userMap = new Map<string, any>();
+    snapshot.forEach((doc) => {
+      userMap.set(doc.id, doc.data());
+    });
+
+    for (const userId of userIds) {
+      const userData = userMap.get(userId);
+      if (userData) {
+        const userRef = doc(db, 'users', userId);
+        const currentMonthly = userData.monthlyCredits ?? 0;
+        const currentPurchased = userData.purchasedCredits ?? 0;
+        batch.update(userRef, {
+          monthlyCredits: currentMonthly + credits,
+          credits: currentMonthly + currentPurchased + credits, // Legacy
+          updatedAt: serverTimestamp(),
+        });
+      }
+    }
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Error granting credits to users:', error);
+    throw error;
+  }
+};
+
+export const generateEmailTemplate = (
+  segment: Segment,
+  templateType: 'upsell' | 'reactivation' | 'appreciation' | 'custom'
+): { subject: string; body: string; emails: string[] } => {
+  const emails = segment.users.map((u) => u.email);
+
+  const templates = {
+    upsell: {
+      subject: 'Ihre Gratis-Credits sind aufgebraucht - Jetzt upgraden!',
+      body: `Hallo,
+
+Sie haben stoffanprobe.de bereits genutzt und Ihre kostenlosen Credits verbraucht.
+
+Upgraden Sie jetzt auf ein Abo und erhalten Sie:
+- Monatliche Credits für professionelle Visualisierungen
+- Exklusive Features für Ihr Geschäft
+- Prioritäts-Support
+
+Jetzt upgraden: https://stoffanprobe.de/pricing
+
+Mit freundlichen Grüßen,
+Ihr stoffanprobe.de Team`,
+    },
+    reactivation: {
+      subject: 'Wir vermissen Sie bei stoffanprobe.de!',
+      body: `Hallo,
+
+es ist eine Weile her, seit Sie stoffanprobe.de genutzt haben.
+
+Wir haben in der Zwischenzeit einige tolle Verbesserungen eingeführt:
+- Schnellere Bildgenerierung
+- Neue Stoffmuster
+- Verbesserte Qualität
+
+Kommen Sie zurück und probieren Sie es aus!
+
+https://stoffanprobe.de
+
+Mit freundlichen Grüßen,
+Ihr stoffanprobe.de Team`,
+    },
+    appreciation: {
+      subject: 'Danke, dass Sie Power-User bei stoffanprobe.de sind!',
+      body: `Hallo,
+
+wir möchten uns bei Ihnen bedanken - Sie gehören zu unseren aktivsten Nutzern!
+
+Als kleines Dankeschön haben wir Ihnen Bonus-Credits gutgeschrieben.
+
+Weiter so und viel Erfolg mit Ihren Projekten!
+
+Mit freundlichen Grüßen,
+Ihr stoffanprobe.de Team`,
+    },
+    custom: {
+      subject: 'Nachricht von stoffanprobe.de',
+      body: `Hallo,
+
+[Ihre Nachricht hier]
+
+Mit freundlichen Grüßen,
+Ihr stoffanprobe.de Team`,
+    },
+  };
+
+  return {
+    ...templates[templateType],
+    emails,
+  };
+};
+
+export const exportUsersToCSV = (users: AdminUser[]): string => {
+  const headers = ['Email', 'Vorname', 'Nachname', 'Plan', 'Monthly Credits', 'Purchased Credits', 'Bilder', 'Tags', 'Anmeldedatum', 'Letzter Login'];
+  const rows = users.map((u) => [
+    u.email,
+    u.firstName,
+    u.lastName,
+    u.plan,
+    u.monthlyCredits.toString(),
+    u.purchasedCredits.toString(),
+    u.imagesGenerated.toString(),
+    u.tags.join(';'),
+    u.createdAt.toLocaleDateString('de-DE'),
+    u.lastLoginAt?.toLocaleDateString('de-DE') || 'Nie',
+  ]);
+
+  return [headers.join(','), ...rows.map((r) => r.map((c) => `"${c}"`).join(','))].join('\n');
 };

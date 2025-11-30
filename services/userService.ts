@@ -84,6 +84,8 @@ export const getUserData = async (uid: string): Promise<User | null> => {
       feedbackGivenStars: data.feedbackGivenStars,
       feedbackRemindAt: data.feedbackRemindAt?.toDate(),
       feedbackBlocked: data.feedbackBlocked ?? false,
+      lastLoginAt: data.lastLoginAt?.toDate(),
+      tags: data.tags || [],
       createdAt: data.createdAt?.toDate() || new Date(),
       updatedAt: data.updatedAt?.toDate() || new Date(),
     };
@@ -282,6 +284,21 @@ export const markHomeInfoShown = async (uid: string): Promise<void> => {
   } catch (error) {
     console.error('Error marking home info shown:', error);
     throw new Error('Fehler beim Speichern der Einstellung.');
+  }
+};
+
+/**
+ * Aktualisiert lastLoginAt (für Marketing-Segmente)
+ */
+export const updateLastLogin = async (uid: string): Promise<void> => {
+  try {
+    const userRef = doc(db, COLLECTION_NAME, uid);
+    await updateDoc(userRef, {
+      lastLoginAt: serverTimestamp(),
+    });
+  } catch (error) {
+    // Silently fail - not critical
+    console.error('Error updating last login:', error);
   }
 };
 
