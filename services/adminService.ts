@@ -17,7 +17,10 @@ import { db } from './firebase';
 import { UserTag } from '../types';
 
 // Admin-Emails die Zugriff haben
-export const ADMIN_EMAILS = ['mahler.unternehmensberatung@gmail.com'];
+export const ADMIN_EMAILS = [
+  'mahler.unternehmensberatung@gmail.com',
+  'anke.mahler@stoffanprobe.de'
+];
 
 export const isAdmin = (email: string | undefined): boolean => {
   if (!email) return false;
