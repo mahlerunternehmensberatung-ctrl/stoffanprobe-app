@@ -427,10 +427,18 @@ const App: React.FC = () => {
 
   if (!user && isFirstVisit && location.pathname === '/' && !isStripeRedirect) {
     return (
-      <div className="min-h-screen bg-[#FAF1DC]">
-        <LandingPage
-          onGetStarted={() => setShowRegisterModal(true)}
-          onLogin={() => setShowLoginModal(true)}
+      <div className="min-h-screen bg-[#FAF1DC] flex flex-col">
+        <div className="flex-grow">
+          <LandingPage
+            onGetStarted={() => setShowRegisterModal(true)}
+            onLogin={() => setShowLoginModal(true)}
+          />
+        </div>
+        <Footer
+          onOpenImpressum={() => setShowImpressum(true)}
+          onOpenDatenschutz={() => setShowDatenschutz(true)}
+          onOpenAgb={() => setShowAgb(true)}
+          onOpenCookieSettings={() => setShowCookieSettings(true)}
         />
         {showRegisterModal && (
           <RegisterModal
@@ -456,10 +464,36 @@ const App: React.FC = () => {
             }}
           />
         )}
-        {/* Cookie-Banner beim ersten Besuch oder explizit über Footer */}
-        <CookieConsentModal
-          onOpenPrivacyPolicy={() => setShowDatenschutz(true)}
+        {/* Legal Modals */}
+        <LegalModal
+          isOpen={showImpressum}
+          onClose={() => setShowImpressum(false)}
+          title="Impressum"
+          content={impressumContent}
         />
+        <LegalModal
+          isOpen={showDatenschutz}
+          onClose={() => setShowDatenschutz(false)}
+          title="Datenschutzerklärung"
+          content={datenschutzContent}
+        />
+        <LegalModal
+          isOpen={showAgb}
+          onClose={() => setShowAgb(false)}
+          title="AGB"
+          content={agbContent}
+        />
+        {/* Cookie-Banner beim ersten Besuch oder explizit über Footer */}
+        {showCookieSettings ? (
+          <CookieConsentModal
+            onOpenPrivacyPolicy={() => setShowDatenschutz(true)}
+            onClose={() => setShowCookieSettings(false)}
+          />
+        ) : (
+          <CookieConsentModal
+            onOpenPrivacyPolicy={() => setShowDatenschutz(true)}
+          />
+        )}
       </div>
     );
   }
