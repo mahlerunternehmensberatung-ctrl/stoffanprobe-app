@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
 import Footer from './Footer';
@@ -10,6 +11,7 @@ const goldTextGradient = "bg-clip-text text-transparent bg-gradient-to-br from-[
 
 const AccountPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { user, loading, refreshUser } = useAuth();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelConfirmed, setCancelConfirmed] = useState(false);
@@ -33,19 +35,19 @@ const AccountPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Fehler bei der Kündigung');
+        throw new Error(data.error || t('errors.cancellationFailed'));
       }
 
       setShowCancelModal(false);
       setCancelConfirmed(false);
-      setSuccessMessage('Ihr Abo wurde erfolgreich gekündigt.');
+      setSuccessMessage(t('account.cancelSuccess'));
 
       setTimeout(async () => {
         await refreshUser();
       }, 500);
 
     } catch (err: any) {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
+      setError(err.message || t('errors.generic'));
     } finally {
       setIsProcessing(false);
     }
@@ -67,24 +69,24 @@ const AccountPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Fehler beim Widerrufen der Kündigung');
+        throw new Error(data.error || t('errors.reactivationFailed'));
       }
 
-      setSuccessMessage('Ihre Kündigung wurde widerrufen. Ihr Abo läuft weiter.');
+      setSuccessMessage(t('account.reactivateSuccess'));
 
       setTimeout(async () => {
         await refreshUser();
       }, 500);
 
     } catch (err: any) {
-      setError(err.message || 'Ein Fehler ist aufgetreten');
+      setError(err.message || t('errors.generic'));
     } finally {
       setIsProcessing(false);
     }
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('de-DE', {
+    return date.toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'en-US', {
       day: '2-digit',
       month: 'long',
       year: 'numeric',
@@ -94,7 +96,7 @@ const AccountPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF1DC] flex items-center justify-center">
-        <div className="text-[#532418]">Wird geladen...</div>
+        <div className="text-[#532418]">{t('common.loading')}</div>
       </div>
     );
   }
@@ -107,16 +109,19 @@ const AccountPage: React.FC = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#FAF1DC] flex items-center justify-center">
-        <div className="text-[#532418]">Wird geladen...</div>
+        <div className="text-[#532418]">{t('common.loading')}</div>
       </div>
     );
   }
 
   const getPlanDisplay = () => {
     if (user.plan === 'pro') {
-      return 'Pro-Abo (19,90€/Monat)';
+      return t('account.proPlan');
     }
-    return 'Kostenlos';
+    if (user.plan === 'home') {
+      return t('account.homePlan');
+    }
+    return t('account.freePlan');
   };
 
   const getTotalCredits = () => {
@@ -153,11 +158,11 @@ const AccountPage: React.FC = () => {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            Zurück zum Editor
+            {t('account.backToEditor')}
           </button>
 
           <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-8">
-            Mein Konto
+            {t('account.title')}
           </h1>
 
           {/* Erfolgs-Meldung mit Gold-Design */}
@@ -175,16 +180,16 @@ const AccountPage: React.FC = () => {
 
           {/* Kontoinformationen - Gold Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-[#E6C785]/30 p-6 mb-6 hover:shadow-md transition-shadow">
-            <h2 className="text-xl font-bold text-[#532418] mb-4">Kontoinformationen</h2>
+            <h2 className="text-xl font-bold text-[#532418] mb-4">{t('account.accountInfo')}</h2>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-[#8C6A30] font-medium">Name</p>
+                <p className="text-sm text-[#8C6A30] font-medium">{t('account.name')}</p>
                 <p className="text-lg font-semibold text-[#532418]">
                   {user.firstName} {user.lastName}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-[#8C6A30] font-medium">E-Mail</p>
+                <p className="text-sm text-[#8C6A30] font-medium">{t('auth.email')}</p>
                 <p className="text-lg font-semibold text-[#532418]">{user.email}</p>
               </div>
             </div>
@@ -192,29 +197,29 @@ const AccountPage: React.FC = () => {
 
           {/* Plan-Box - Gold Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-[#E6C785]/30 p-6 mb-6 hover:shadow-md transition-shadow">
-            <h2 className="text-xl font-bold text-[#532418] mb-4">Ihr Plan</h2>
+            <h2 className="text-xl font-bold text-[#532418] mb-4">{t('account.yourPlan')}</h2>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-[#8C6A30] font-medium">Aktueller Plan</p>
+                <p className="text-sm text-[#8C6A30] font-medium">{t('account.currentPlan')}</p>
                 <p className={`text-2xl font-extrabold ${goldTextGradient}`}>{getPlanDisplay()}</p>
               </div>
 
-              {user.plan === 'pro' && (
+              {(user.plan === 'pro' || user.plan === 'home') && (
                 <>
                   {user.subscriptionEndsAt ? (
                     <div className="bg-[#FEF7ED] border border-[#E6C785] rounded-xl p-4">
-                      <p className="text-sm text-[#B08642] font-bold">⚠️ Abo wird gekündigt</p>
+                      <p className="text-sm text-[#B08642] font-bold">{t('account.cancellationPending')}</p>
                       <p className="text-lg font-semibold text-[#8C6A30] mt-1">
-                        Endet am {formatDate(user.subscriptionEndsAt)}
+                        {t('account.endsAt', { date: formatDate(user.subscriptionEndsAt) })}
                       </p>
                       <p className="text-sm text-[#B08642]/80 mt-2">
-                        Ihre monatlichen Credits sind bis zu diesem Datum verfügbar.
+                        {t('account.monthlyCreditsNote')}
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-sm text-[#8C6A30] font-medium">Abo-Status</p>
-                      <p className="text-lg font-semibold text-green-600">✓ Aktiv</p>
+                      <p className="text-sm text-[#8C6A30] font-medium">{t('account.subscriptionStatus')}</p>
+                      <p className="text-lg font-semibold text-green-600">{t('account.active')}</p>
                     </div>
                   )}
 
@@ -225,14 +230,14 @@ const AccountPage: React.FC = () => {
                         onClick={handleReactivateSubscription}
                         disabled={isProcessing}
                       >
-                        {isProcessing ? 'Wird verarbeitet...' : '↩ Kündigung widerrufen'}
+                        {isProcessing ? t('common.processing') : t('account.reactivate')}
                       </button>
                     ) : (
                       <button
                         className="px-6 py-3 bg-red-50 text-red-600 border border-red-200 rounded-full hover:bg-red-100 transition-colors font-medium"
                         onClick={() => setShowCancelModal(true)}
                       >
-                        Abo kündigen
+                        {t('account.cancelSubscription')}
                       </button>
                     )}
                   </div>
@@ -243,36 +248,36 @@ const AccountPage: React.FC = () => {
 
           {/* Credits-Box - Gold Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-[#E6C785]/30 p-6 hover:shadow-md transition-shadow">
-            <h2 className="text-xl font-bold text-[#532418] mb-4">Credits</h2>
+            <h2 className="text-xl font-bold text-[#532418] mb-4">{t('account.credits')}</h2>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-[#8C6A30] font-medium">Verfügbare Credits</p>
+                <p className="text-sm text-[#8C6A30] font-medium">{t('account.availableCredits')}</p>
                 <p className={`text-4xl font-extrabold ${goldTextGradient}`}>{getTotalCredits()}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E6C785]/30">
                 <div>
-                  <p className="text-sm text-[#8C6A30] font-medium">Monatliche Credits</p>
+                  <p className="text-sm text-[#8C6A30] font-medium">{t('account.monthlyCredits')}</p>
                   <p className="text-2xl font-bold text-[#532418]">{user.monthlyCredits ?? 0}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[#8C6A30] font-medium">Gekaufte Credits</p>
+                  <p className="text-sm text-[#8C6A30] font-medium">{t('account.purchasedCredits')}</p>
                   <p className="text-2xl font-bold text-[#532418]">{user.purchasedCredits ?? 0}</p>
                   {user.purchasedCreditsExpiry && (
                     <p className="text-xs text-[#B08642]/70 mt-1">
-                      Gültig bis: {user.purchasedCreditsExpiry.toLocaleDateString('de-DE')}
+                      {t('account.validUntil')} {user.purchasedCreditsExpiry.toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'en-US')}
                     </p>
                   )}
                 </div>
               </div>
 
-              {user.plan !== 'pro' && (
+              {(user.plan === 'pro' || user.plan === 'home') && (
                 <div className="mt-4 pt-4 border-t border-[#E6C785]/30">
                   <button
                     onClick={() => navigate('/pricing')}
                     className={`px-8 py-3 ${goldGradient} text-white rounded-full font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all transform`}
                   >
-                    Credits kaufen
+                    {t('account.buyCredits')}
                   </button>
                 </div>
               )}
@@ -293,26 +298,25 @@ const AccountPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-[#E6C785]/30">
             <h3 className="text-xl font-bold text-[#532418] mb-4">
-              Abo kündigen
+              {t('account.cancelTitle')}
             </h3>
 
             <div className="space-y-4 mb-6">
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                 <p className="text-red-800 font-bold mb-2">
-                  ⚠️ Bitte beachten Sie:
+                  {t('account.cancelWarningHeader')}
                 </p>
                 <ul className="text-sm text-red-700 space-y-2 list-disc list-inside">
-                  <li>Ihr Abo wird zum Ende der Abrechnungsperiode beendet</li>
-                  <li>Monatliche Credits (40/Monat) verfallen</li>
-                  <li>Gekaufte Credit-Pakete bleiben bis zu ihrem Ablaufdatum gültig</li>
-                  <li>Sie können jederzeit ein neues Abo abschließen</li>
+                  <li>{t('account.cancelWarning1')}</li>
+                  <li>{t('account.cancelWarning2')}</li>
+                  <li>{t('account.cancelWarning3')}</li>
+                  <li>{t('account.cancelWarning4')}</li>
                 </ul>
               </div>
 
               <div className="bg-[#FDFBF7] border border-[#E6C785]/50 rounded-xl p-4">
                 <p className="text-sm text-[#8C6A30]">
-                  <span className="font-bold">💡 Wichtig:</span> Ihre Galerien sind lokal in Ihrem Browser gespeichert.
-                  Laden Sie Ihre Bilder herunter, bevor Sie Ihren Browser-Cache leeren.
+                  <span className="font-bold">{t('account.importantHeader')}</span> {t('account.importantNote')}
                 </p>
               </div>
 
@@ -324,7 +328,7 @@ const AccountPage: React.FC = () => {
                   className="mt-1 h-4 w-4 text-[#B08642] border-[#E6C785] rounded focus:ring-[#CDA35E]"
                 />
                 <span className="text-sm text-[#67534F]">
-                  Ich verstehe, dass meine monatlichen Credits verfallen.
+                  {t('account.cancelConfirmation')}
                 </span>
               </label>
 
@@ -345,14 +349,14 @@ const AccountPage: React.FC = () => {
                 className="flex-1 px-4 py-3 bg-gray-100 text-[#67534F] rounded-full hover:bg-gray-200 transition-colors font-medium"
                 disabled={isProcessing}
               >
-                Abbrechen
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleCancelSubscription}
                 disabled={!cancelConfirmed || isProcessing}
                 className="flex-1 px-4 py-3 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? 'Wird verarbeitet...' : 'Abo kündigen'}
+                {isProcessing ? t('common.processing') : t('account.cancelConfirmButton')}
               </button>
             </div>
           </div>
@@ -362,7 +366,7 @@ const AccountPage: React.FC = () => {
       {/* Fehler-Anzeige */}
       {error && !showCancelModal && (
         <div className="fixed bottom-5 right-5 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-2xl shadow-lg z-50">
-          <strong className="font-bold">Fehler!</strong>
+          <strong className="font-bold">{t('errors.errorTitle')}</strong>
           <span className="block sm:inline ml-2">{error}</span>
           <button
             onClick={() => setError(null)}

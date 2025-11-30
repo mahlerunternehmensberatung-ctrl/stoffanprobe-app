@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '../context/AuthContext';
@@ -51,6 +52,7 @@ const creditPackages = [
 
 const PricingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,7 @@ const PricingPage: React.FC = () => {
     }
 
     if (!priceId) {
-        setError("Preis-ID nicht gefunden. Bitte prüfen Sie die Konfiguration.");
+        setError(t('errors.priceIdMissing'));
         return;
     }
 
@@ -95,7 +97,7 @@ const PricingPage: React.FC = () => {
       if (apiError) throw new Error(apiError);
 
       if (!url) {
-        throw new Error('Keine Checkout-URL erhalten');
+        throw new Error(t('errors.checkoutUrl'));
       }
 
       // Direkte Weiterleitung zur Stripe Checkout URL
@@ -103,7 +105,7 @@ const PricingPage: React.FC = () => {
 
     } catch (err: any) {
       console.error('Purchase error:', err);
-      setError('Fehler beim Starten des Bezahlvorgangs.');
+      setError(t('errors.checkoutFailed'));
       setLoadingId(null);
     }
   };
@@ -130,28 +132,28 @@ const PricingPage: React.FC = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Zurück zum Editor
+            {t('account.backToEditor')}
           </button>
 
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-[#532418] mb-4">
-              Credit-Pakete kaufen
+              {t('pricing.title')}
             </h1>
           <p className="text-[#67534F] text-lg mb-8 max-w-2xl mx-auto">
-            Volle Flexibilität. Credits sind 12 Monate gültig.
+            {t('pricing.subtitle')}
           </p>
 
           {/* Hinweis wenn kein aktives Abo */}
           {!hasActiveSubscription && (
             <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-xl max-w-xl mx-auto">
               <p className="text-amber-800 font-medium mb-3">
-                Credits können nur mit einem aktiven Abo erworben werden.
+                {t('pricing.noSubscription')}
               </p>
               <button
                 onClick={() => setShowPaywall(true)}
                 className={`px-6 py-2 rounded-full font-bold text-white shadow-md transition-all ${goldGradient} hover:opacity-90`}
               >
-                Abo abschließen
+                {t('pricing.subscribe')}
               </button>
             </div>
           )}
@@ -164,14 +166,14 @@ const PricingPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {creditPackages.map((pkg) => (
-              <div 
+              <div
                 key={pkg.credits}
                 className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-8 border border-[#E6C785]/30 flex flex-col items-center relative"
               >
                 <div className="text-center mb-6 w-full">
-                  <h3 className="text-2xl font-bold text-[#532418] mb-1">{pkg.credits} Credits</h3>
-                  <p className="text-sm text-[#8C6A30] mb-4 h-5">{pkg.description}</p>
-                  
+                  <h3 className="text-2xl font-bold text-[#532418] mb-1">{t('pricing.credits', { count: pkg.credits })}</h3>
+                  <p className="text-sm text-[#8C6A30] mb-4 h-5">{t(`pricing.package${pkg.credits}`)}</p>
+
                   <div className={`text-4xl font-extrabold ${goldTextGradient}`}>
                     {pkg.price}
                   </div>
@@ -188,14 +190,14 @@ const PricingPage: React.FC = () => {
                         : `${goldGradient} hover:opacity-90 transform active:scale-95 hover:shadow-lg`
                   }`}
                 >
-                  {loadingId === pkg.id ? 'Lädt...' : 'Jetzt aufladen'}
+                  {loadingId === pkg.id ? t('common.loading') : t('pricing.purchase')}
                 </button>
               </div>
             ))}
           </div>
-          
+
           <div className="mt-12 text-sm text-[#67534F]/70">
-            Alle Preise inkl. gesetzlicher MwSt. Sichere Zahlung via Stripe.
+            {t('pricing.disclaimer')}
           </div>
           </div>
         </div>

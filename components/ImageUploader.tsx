@@ -1,4 +1,5 @@
 import React, { useRef, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { compressImageFile } from '../utils/imageCompression';
 
 interface ImageUploaderProps {
@@ -12,6 +13,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   imageDataUrl,
   buttonText,
 }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -102,7 +104,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <button
           onClick={handleClear}
           className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-lg hover:bg-black/80 transition-colors shadow-md"
-          aria-label="Bild entfernen"
+          aria-label={t('uploader.removeImage')}
         >
           ×
         </button>

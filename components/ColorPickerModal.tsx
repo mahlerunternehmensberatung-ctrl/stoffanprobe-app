@@ -1,5 +1,5 @@
-
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ralColors } from "../data/ralColors";
 import { RALColor } from "../types";
 
@@ -9,6 +9,7 @@ interface Props {
 }
 
 const ColorPickerModal: React.FC<Props> = ({ onClose, onSelect }) => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
 
   const filtered = ralColors.filter(
@@ -20,11 +21,11 @@ const ColorPickerModal: React.FC<Props> = ({ onClose, onSelect }) => {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[80vh] flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-xl font-semibold mb-4 text-[#532418]">Wandfarbe wählen (RAL)</h2>
+        <h2 className="text-xl font-semibold mb-4 text-[#532418]">{t('colorPicker.title')}</h2>
 
         <input
           type="text"
-          placeholder="Suchen: z. B. 9010, Weiß, Beige…"
+          placeholder={t('colorPicker.searchPlaceholder')}
           className="w-full mb-4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -41,7 +42,7 @@ const ColorPickerModal: React.FC<Props> = ({ onClose, onSelect }) => {
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(color)}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Farbe auswählen: ${color.name} ${color.code}`}
+                  aria-label={`${color.name} ${color.code}`}
                 >
                   <div className="h-16" style={{ backgroundColor: color.hex }} />
                   <div className="p-2 text-center">
@@ -53,7 +54,7 @@ const ColorPickerModal: React.FC<Props> = ({ onClose, onSelect }) => {
             </div>
             {filtered.length === 0 && (
                  <p className="text-center text-gray-500 py-8">
-                    Keine Farben für "{search}" gefunden.
+                    {t('colorPicker.noResults', { search })}
                 </p>
             )}
         </div>
@@ -62,7 +63,7 @@ const ColorPickerModal: React.FC<Props> = ({ onClose, onSelect }) => {
           className="mt-6 w-full bg-gray-200 py-2 rounded-md hover:bg-gray-300 text-gray-800 font-semibold"
           onClick={onClose}
         >
-          Schließen
+          {t('common.close')}
         </button>
       </div>
     </div>

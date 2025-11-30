@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getCurrentUser } from '../services/authService';
 import { User } from '../types';
 
@@ -10,44 +11,45 @@ interface PaywallModalProps {
 
 interface PlanOption {
   id: string;
-  title: string;
-  subtitle: string;
+  titleKey: string;
+  subtitleKey: string;
   price: string;
   priceId: string;
-  features: string[];
-  buttonText: string;
+  featureKeys: string[];
+  buttonTextKey: string;
 }
 
 const plans: PlanOption[] = [
   {
     id: 'pro',
-    title: 'Für Profis',
-    subtitle: 'Für Raumausstatter & Interior Designer',
+    titleKey: 'plans.proTitle',
+    subtitleKey: 'plans.proSubtitle',
     price: '19,90',
     priceId: import.meta.env.VITE_STRIPE_PRICE_PRO_ABO || '',
-    features: [
-      'Kundenräume visualisieren',
-      'DSGVO-konformer Workflow',
-      '40 Credits/Monat',
+    featureKeys: [
+      'plans.proFeature1',
+      'plans.proFeature2',
+      'plans.proFeature3',
     ],
-    buttonText: 'Pro wählen',
+    buttonTextKey: 'plans.proButton',
   },
   {
     id: 'home',
-    title: 'Für Zuhause',
-    subtitle: 'Für dein Zuhause',
+    titleKey: 'plans.homeTitle',
+    subtitleKey: 'plans.homeSubtitle',
     price: '9,90',
     priceId: import.meta.env.VITE_STRIPE_PRICE_HOME_ABO || '',
-    features: [
-      'Eigene Räume visualisieren',
-      'Schnell & einfach',
-      '40 Credits/Monat',
+    featureKeys: [
+      'plans.homeFeature1',
+      'plans.homeFeature2',
+      'plans.homeFeature3',
     ],
-    buttonText: 'Home wählen',
+    buttonTextKey: 'plans.homeButton',
   },
 ];
 
 const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, user }) => {
+  const { t } = useTranslation();
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,13 +58,13 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
     setError(null);
 
     if (!user) {
-      setError('Bitte melden Sie sich an.');
+      setError(t('errors.notLoggedIn'));
       setLoadingPlanId(null);
       return;
     }
 
     if (!plan.priceId) {
-      setError('Preis-ID nicht konfiguriert. Bitte kontaktieren Sie den Support.');
+      setError(t('errors.priceIdMissing'));
       setLoadingPlanId(null);
       return;
     }
@@ -92,7 +94,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || 'Fehler beim Erstellen der Checkout-Session');
+        throw new Error(errorData.error || t('errors.checkoutSession'));
       }
 
       const { url, error: apiError } = await response.json();
@@ -102,13 +104,13 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
       }
 
       if (!url) {
-        throw new Error('Keine Checkout-URL erhalten');
+        throw new Error(t('errors.checkoutUrl'));
       }
 
       // Direkte Weiterleitung zur Stripe Checkout URL
       window.location.href = url;
     } catch (err: any) {
-      setError(err.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+      setError(err.message || t('errors.generic'));
       setLoadingPlanId(null);
     }
   };
@@ -125,13 +127,13 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#532418]">Abo wählen</h2>
-            <p className="text-[#67534F] mt-1">Wähle das passende Abo für deine Bedürfnisse</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#532418]">{t('plans.choosePlan')}</h2>
+            <p className="text-[#67534F] mt-1">{t('plans.chooseSubtitle')}</p>
           </div>
           <button
             onClick={onClose}
             className="text-[#67534F] hover:text-[#532418] text-2xl p-1 -mt-1 -mr-1"
-            aria-label="Schließen"
+            aria-label={t('common.close')}
           >
             ×
           </button>
@@ -152,19 +154,19 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
             >
               {/* Plan Header */}
               <div className="mb-4">
-                <h3 className="text-xl font-bold text-[#532418]">{plan.title}</h3>
-                <p className="text-sm text-[#67534F]">{plan.subtitle}</p>
+                <h3 className="text-xl font-bold text-[#532418]">{t(plan.titleKey)}</h3>
+                <p className="text-sm text-[#67534F]">{t(plan.subtitleKey)}</p>
               </div>
 
               {/* Price */}
               <div className="mb-6">
                 <span className="text-3xl font-bold text-[#532418]">{plan.price}€</span>
-                <span className="text-[#67534F]">/Monat</span>
+                <span className="text-[#67534F]">{t('plans.perMonth', { price: '' })}</span>
               </div>
 
               {/* Features */}
               <ul className="space-y-3 mb-6">
-                {plan.features.map((feature, idx) => (
+                {plan.featureKeys.map((featureKey, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-[#67534F]">
                     <svg
                       className="w-5 h-5 text-[#C8956C] flex-shrink-0 mt-0.5"
@@ -179,7 +181,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <span>{feature}</span>
+                    <span>{t(featureKey)}</span>
                   </li>
                 ))}
               </ul>
@@ -194,7 +196,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
                     : 'bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:opacity-90 hover:shadow-md'
                 }`}
               >
-                {loadingPlanId === plan.id ? 'Wird geladen...' : plan.buttonText}
+                {loadingPlanId === plan.id ? t('common.loading') : t(plan.buttonTextKey)}
               </button>
             </div>
           ))}
@@ -203,10 +205,10 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ onClose, onUpgradeSuccess, 
         {/* Footer */}
         <div className="mt-6 text-center">
           <p className="text-xs text-[#67534F]/70">
-            Alle Preise inkl. MwSt. Jederzeit kündbar. Sichere Zahlung via Stripe.
+            {t('plans.disclaimer')}
           </p>
           <p className="text-xs text-[#67534F]/60 mt-2">
-            Tipp: Im Checkout auf "Ohne Link bezahlen" klicken für PayPal, Klarna & mehr Zahlungsoptionen.
+            {t('plans.paymentTip')}
           </p>
         </div>
       </div>

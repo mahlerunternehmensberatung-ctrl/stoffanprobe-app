@@ -209,7 +209,9 @@
     "importantHeader": "💡 Important:",
     "importantNote": "Your galleries are stored locally in your browser and will not be deleted.",
     "cancelConfirmation": "I understand that my monthly credits will expire.",
-    "cancelConfirmButton": "Cancel Subscription"
+    "cancelConfirmButton": "Cancel Subscription",
+    "cancelSuccess": "Your subscription has been successfully cancelled.",
+    "reactivateSuccess": "Your cancellation has been revoked. Your subscription continues."
   },
   "pricing": {
     "title": "Buy Credit Packages",
@@ -323,7 +325,8 @@
     "checkoutUrl": "No checkout URL received",
     "cancellationFailed": "Error during cancellation",
     "reactivationFailed": "Error reactivating subscription",
-    "checkoutFailed": "Error starting checkout process."
+    "checkoutFailed": "Error starting checkout process.",
+    "errorTitle": "Error!"
   },
   "consentDocument": {
     "title": "CONSENT DECLARATION FOR IMAGE PROCESSING",

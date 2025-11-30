@@ -1,6 +1,5 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConsentData, CustomerData } from '../types';
 
 interface ConsentModalProps {
@@ -9,26 +8,26 @@ interface ConsentModalProps {
   onConfirm: (consentData: ConsentData, customerData: CustomerData) => void;
 }
 
-const SignaturePad: React.FC<{ onSignatureChange: (isEmpty: boolean, dataUrl: string | null) => void }> = ({ onSignatureChange }) => {
+const SignaturePad: React.FC<{ onSignatureChange: (isEmpty: boolean, dataUrl: string | null) => void; signHereText: string; clearText: string }> = ({ onSignatureChange, signHereText, clearText }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [isEmpty, setIsEmpty] = useState(true);
 
     const getContext = () => canvasRef.current?.getContext('2d');
-    
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = getContext();
         if (!ctx) return;
-        
+
         // HiDPI display support
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
         ctx.scale(dpr, dpr);
-        
+
         ctx.strokeStyle = '#333';
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
@@ -105,7 +104,7 @@ const SignaturePad: React.FC<{ onSignatureChange: (isEmpty: boolean, dataUrl: st
                 />
                 {isEmpty && (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none">
-                        Hier unterschreiben
+                        {signHereText}
                     </div>
                 )}
             </div>
@@ -114,7 +113,7 @@ const SignaturePad: React.FC<{ onSignatureChange: (isEmpty: boolean, dataUrl: st
                 onClick={clearSignature}
                 className="text-sm text-gray-600 hover:text-red-500 mt-2"
             >
-                Löschen
+                {clearText}
             </button>
         </div>
     );
@@ -122,6 +121,7 @@ const SignaturePad: React.FC<{ onSignatureChange: (isEmpty: boolean, dataUrl: st
 
 
 const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm }) => {
+  const { t } = useTranslation();
   const [consent, setConsent] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [email, setEmail] = useState('');
@@ -172,24 +172,24 @@ const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-[#532418]">Einwilligung & Dokumentation</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl font-bold" aria-label="Schließen">&times;</button>
+          <h2 className="text-2xl font-bold text-[#532418]">{t('consent.title')}</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl font-bold" aria-label={t('common.close')}>&times;</button>
         </div>
         <p className="mb-6 text-sm text-gray-600">
-            Bitte bestätigen Sie die Einwilligung zur Fotoverarbeitung und geben Sie die Kundendaten für die Dokumentation an.
+            {t('consent.description')}
         </p>
         <div className="space-y-4">
             <div>
-                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">Kundenname*</label>
+                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">{t('consent.customerName')}</label>
                 <input id="customerName" type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className={inputClasses} required/>
             </div>
              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">E-Mail*</label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">{t('consent.email')}</label>
                 <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClasses} required />
             </div>
              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unterschrift*</label>
-                <SignaturePad onSignatureChange={(isEmpty, dataUrl) => setSignature({ isEmpty, dataUrl })} />
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('consent.signature')}</label>
+                <SignaturePad onSignatureChange={(isEmpty, dataUrl) => setSignature({ isEmpty, dataUrl })} signHereText={t('consent.signHere')} clearText={t('consent.clear')} />
             </div>
 
             <label className="flex items-start p-3 bg-[#FAF1DC] rounded-md cursor-pointer hover:bg-opacity-80">
@@ -200,7 +200,7 @@ const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm 
                   className="mt-1 h-5 w-5 rounded border-gray-300 text-[#C8956C] focus:ring-[#A67B5B]"
                 />
                 <span className="ml-3 text-sm text-gray-800">
-                  <span className="font-bold">Notwendig:</span> Ich bestätige, dass der Kunde der Verarbeitung des Fotos zur Visualisierung zugestimmt hat und die Rechte am Bild geklärt sind.
+                  {t('consent.confirmation')}
                 </span>
             </label>
         </div>
@@ -210,7 +210,7 @@ const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm 
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
           >
-            Abbrechen
+            {t('common.cancel')}
           </button>
           <button
             type="button"
@@ -218,7 +218,7 @@ const ConsentModal: React.FC<ConsentModalProps> = ({ isOpen, onClose, onConfirm 
             disabled={!isFormValid}
             className="px-6 py-2 text-sm font-medium text-white bg-[#C8956C] rounded-md hover:bg-[#A67B5B] transition-colors disabled:bg-[#C8B6A6] disabled:cursor-not-allowed"
           >
-            Bestätigen & Weiter
+            {t('consent.confirmButton')}
           </button>
         </div>
       </div>

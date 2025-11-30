@@ -209,7 +209,9 @@
     "importantHeader": "💡 Wichtig:",
     "importantNote": "Ihre Galerien sind lokal in Ihrem Browser gespeichert und werden nicht gelöscht.",
     "cancelConfirmation": "Ich verstehe, dass meine monatlichen Credits verfallen.",
-    "cancelConfirmButton": "Abo kündigen"
+    "cancelConfirmButton": "Abo kündigen",
+    "cancelSuccess": "Ihr Abo wurde erfolgreich gekündigt.",
+    "reactivateSuccess": "Ihre Kündigung wurde widerrufen. Ihr Abo läuft weiter."
   },
   "pricing": {
     "title": "Credit-Pakete kaufen",
@@ -323,7 +325,8 @@
     "checkoutUrl": "Keine Checkout-URL erhalten",
     "cancellationFailed": "Fehler bei der Kündigung",
     "reactivationFailed": "Fehler beim Widerrufen der Kündigung",
-    "checkoutFailed": "Fehler beim Starten des Bezahlvorgangs."
+    "checkoutFailed": "Fehler beim Starten des Bezahlvorgangs.",
+    "errorTitle": "Fehler!"
   },
   "consentDocument": {
     "title": "EINWILLIGUNGSERKLÄRUNG ZUR BILDVERARBEITUNG",
