@@ -28,6 +28,7 @@ import { decrementCredits } from './services/userService';
 import { trackPageView, trackEvent } from './services/analytics';
 import { v4 as uuidv4 } from 'uuid';
 import CustomerDataExitModal from './components/CustomerDataExitModal';
+import { AdminDashboard, AdminUsers, AdminFeedback, AdminWaitlist } from './components/admin';
 
 
 const App: React.FC = () => {
@@ -414,6 +415,23 @@ const App: React.FC = () => {
 
   if (location.pathname === '/stoffberater-pro') {
     return <StoffberaterProPage />;
+  }
+
+  // Admin Routes
+  if (location.pathname === '/admin') {
+    return <AdminDashboard />;
+  }
+
+  if (location.pathname === '/admin/users') {
+    return <AdminUsers />;
+  }
+
+  if (location.pathname === '/admin/feedback') {
+    return <AdminFeedback />;
+  }
+
+  if (location.pathname === '/admin/waitlist') {
+    return <AdminWaitlist />;
   }
 
   // Zeige Loading, während Auth-Status oder First-Visit geprüft wird
