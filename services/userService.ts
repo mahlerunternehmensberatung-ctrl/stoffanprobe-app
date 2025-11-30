@@ -1,13 +1,14 @@
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { User } from '../types';
+import { matchLeadByEmail } from './leadService';
 
 const COLLECTION_NAME = 'users';
 const INITIAL_FREE_CREDITS = 10;
@@ -15,6 +16,7 @@ const MONTHLY_PRO_CREDITS = 40; // Credits pro Monat für Pro-Abo
 
 /**
  * Erstellt ein neues User-Dokument in Firestore
+ * Prüft auch ob Email in Leads existiert und markiert Lead als converted
  */
 export const createUserDocument = async (
   uid: string,
@@ -40,6 +42,13 @@ export const createUserDocument = async (
       ...userData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp(), // Track first login
+    });
+
+    // Auto-Match: Prüfe ob Email in Leads existiert
+    // Wird im Hintergrund ausgeführt, Fehler werden ignoriert
+    matchLeadByEmail(email, uid).catch((err) => {
+      console.error('Error matching lead:', err);
     });
   } catch (error) {
     console.error('Error creating user document:', error);
