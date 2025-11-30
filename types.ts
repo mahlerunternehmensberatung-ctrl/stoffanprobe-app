@@ -88,8 +88,24 @@ export interface User {
   stripeCustomerId?: string;
   subscriptionCancelledAt?: Date; // Zeitpunkt der Kündigung
   subscriptionEndsAt?: Date; // Abo endet zu diesem Datum
+  subscriptionCreatedAt?: Date; // Zeitpunkt des Abo-Abschlusses
   homeConsentDismissed?: boolean; // Home-User hat Bildrechte-Hinweis dauerhaft bestätigt
   homeInfoShown?: boolean; // Home-User hat Info-Hinweis gesehen
+  // Feedback-System
+  imagesGenerated?: number; // Anzahl generierter Bilder
+  feedbackAskedAt?: Date; // Wann wurde zuletzt nach Feedback gefragt
+  feedbackDeclinedCount?: number; // Wie oft wurde Feedback abgelehnt
+  feedbackGivenStars?: number; // Falls Feedback gegeben: Sterne (1-5)
+  feedbackRemindAt?: Date; // Wann soll erneut gefragt werden ("Später erinnern")
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Feedback {
+  id: string;
+  userId: string;
+  stars: number; // 1-5
+  comment?: string;
+  imagesGeneratedAtFeedback: number;
+  createdAt: Date;
 }

@@ -5,6 +5,7 @@ import { saveSession } from '../services/dbService';
 import { generateVisualization } from '../services/aiService';
 import { getCurrentUser } from '../services/authService';
 import { dismissHomeConsent, markHomeInfoShown } from '../services/userService';
+import { incrementImagesGenerated } from '../services/feedbackService';
 import ImageUploader from './ImageUploader';
 import Gallery from './Gallery';
 import PresetButtons from './PresetButtons';
@@ -14,6 +15,7 @@ import ConsentModal from './ConsentModal';
 import ImageTypeSelectionModal from './ImageTypeSelectionModal';
 import PrivateConsentModal from './PrivateConsentModal';
 import HomeInfoModal from './HomeInfoModal';
+import FeedbackModal from './FeedbackModal';
 import ExampleRooms from './ExampleRooms';
 import { v4 as uuidv4 } from 'uuid';
 import JSZip from 'jszip';
@@ -23,6 +25,7 @@ import SpeechButton from './SpeechButton';
 import { useLiveTranscription } from '../hooks/useLiveTranscription';
 import PrivacyNotice from './PrivacyNotice';
 import CustomerDataBanner from './CustomerDataBanner';
+import { useFeedbackTrigger } from '../hooks/useFeedbackTrigger';
 
 interface WorkspaceProps {
   session: Session | null;
@@ -79,6 +82,16 @@ const Workspace: React.FC<WorkspaceProps> = ({
   // Home-Abo: Prüfe ob Info-Hinweis angezeigt werden soll
   const isHomeUser = user?.plan === 'home';
   const isProUser = user?.plan === 'pro';
+
+  // Feedback-System Hook
+  const {
+    showFeedbackModal,
+    triggerFeedbackCheck,
+    handleFeedbackSubmit,
+    handleRemindLater,
+    handleDecline: handleFeedbackDecline,
+    closeFeedbackModal,
+  } = useFeedbackTrigger(user, onRefreshUser);
 
   // Zeige Home-Info-Hinweis beim ersten Mal für Home-User
   useEffect(() => {
@@ -337,10 +350,24 @@ const Workspace: React.FC<WorkspaceProps> = ({
             createdAt: new Date(),
         };
         setPendingVariant(newVariant);
-        
+
         // Track erfolgreiche Bildgenerierung
         if (onImageGenerated) {
           onImageGenerated();
+        }
+
+        // Erhöhe Bild-Counter und prüfe Feedback-Trigger
+        if (user) {
+          try {
+            await incrementImagesGenerated(user.uid);
+            if (onRefreshUser) onRefreshUser();
+            // Prüfe nach kurzer Verzögerung ob Feedback-Modal gezeigt werden soll
+            setTimeout(() => {
+              triggerFeedbackCheck();
+            }, 2000);
+          } catch (err) {
+            console.error('Error incrementing images:', err);
+          }
         }
       
     } catch (err) {
@@ -494,6 +521,14 @@ const Workspace: React.FC<WorkspaceProps> = ({
         }}
         onConfirm={handlePrivateConsentConfirm}
         showDontAskAgain={isHomeUser}
+      />
+
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={closeFeedbackModal}
+        onSubmit={handleFeedbackSubmit}
+        onRemindLater={handleRemindLater}
+        onDecline={handleFeedbackDecline}
       />
 
       <HomeInfoModal

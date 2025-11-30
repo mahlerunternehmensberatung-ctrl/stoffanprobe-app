@@ -74,8 +74,15 @@ export const getUserData = async (uid: string): Promise<User | null> => {
       stripeCustomerId: data.stripeCustomerId,
       subscriptionCancelledAt: data.subscriptionCancelledAt?.toDate(),
       subscriptionEndsAt: data.subscriptionEndsAt?.toDate(),
+      subscriptionCreatedAt: data.subscriptionCreatedAt?.toDate(),
       homeConsentDismissed: data.homeConsentDismissed ?? false,
       homeInfoShown: data.homeInfoShown ?? false,
+      // Feedback-System
+      imagesGenerated: data.imagesGenerated ?? 0,
+      feedbackAskedAt: data.feedbackAskedAt?.toDate(),
+      feedbackDeclinedCount: data.feedbackDeclinedCount ?? 0,
+      feedbackGivenStars: data.feedbackGivenStars,
+      feedbackRemindAt: data.feedbackRemindAt?.toDate(),
       createdAt: data.createdAt?.toDate() || new Date(),
       updatedAt: data.updatedAt?.toDate() || new Date(),
     };

@@ -349,5 +349,22 @@
   "language": {
     "de": "DE",
     "en": "EN"
+  },
+  "feedback": {
+    "title": "How do you like Stoffanprobe?",
+    "subtitle": "Your feedback helps us improve",
+    "stars": "stars",
+    "remindLater": "Remind me later",
+    "highRatingTitle": "Great to hear!",
+    "lowRatingTitle": "Thanks for your honest feedback",
+    "commentLabel": "What can we do better?",
+    "commentPlaceholder": "Share your thoughts with us...",
+    "optional": "optional",
+    "googleReviewPrompt": "Would you like to leave us a Google review? It helps others find us.",
+    "googleReviewButton": "Review on Google",
+    "submit": "Submit Feedback",
+    "changeRating": "Change rating",
+    "thankYouTitle": "Thank you!",
+    "thankYouMessage": "Your feedback is important to us and helps us improve Stoffanprobe."
   }
 }

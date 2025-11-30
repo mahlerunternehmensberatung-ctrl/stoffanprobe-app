@@ -349,5 +349,22 @@
   "language": {
     "de": "DE",
     "en": "EN"
+  },
+  "feedback": {
+    "title": "Wie gefällt dir Stoffanprobe?",
+    "subtitle": "Dein Feedback hilft uns, besser zu werden",
+    "stars": "Sterne",
+    "remindLater": "Später erinnern",
+    "highRatingTitle": "Das freut uns!",
+    "lowRatingTitle": "Danke für dein ehrliches Feedback",
+    "commentLabel": "Was können wir besser machen?",
+    "commentPlaceholder": "Teile uns deine Gedanken mit...",
+    "optional": "optional",
+    "googleReviewPrompt": "Magst du uns auf Google bewerten? Das hilft anderen, uns zu finden.",
+    "googleReviewButton": "Auf Google bewerten",
+    "submit": "Feedback absenden",
+    "changeRating": "Bewertung ändern",
+    "thankYouTitle": "Vielen Dank!",
+    "thankYouMessage": "Dein Feedback ist uns wichtig und hilft uns, Stoffanprobe zu verbessern."
   }
 }
