@@ -120,6 +120,9 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center flex-shrink-0 cursor-pointer min-w-0" onClick={() => navigate('/')}>
              <img src="/logo.png" alt={t('common.appName')} className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 object-contain drop-shadow-sm" />
              <span className="hidden sm:block font-bold text-xl lg:text-2xl text-[#532418] tracking-tight ml-2">{t('common.appName')}</span>
+             <span className="ml-1.5 sm:ml-2 text-[9px] sm:text-[10px] font-semibold text-gray-500 bg-gray-200/80 px-1.5 py-0.5 rounded tracking-wide uppercase">
+               BETA
+             </span>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0 mr-2 sm:mr-0">
