@@ -97,6 +97,7 @@ export interface User {
   feedbackDeclinedCount?: number; // Wie oft wurde Feedback abgelehnt
   feedbackGivenStars?: number; // Falls Feedback gegeben: Sterne (1-5)
   feedbackRemindAt?: Date; // Wann soll erneut gefragt werden ("Später erinnern")
+  feedbackBlocked?: boolean; // Admin kann User für Stoffberater-Feedback sperren
   createdAt: Date;
   updatedAt: Date;
 }

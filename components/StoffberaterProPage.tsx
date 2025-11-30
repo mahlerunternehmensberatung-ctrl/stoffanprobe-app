@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from './Header';
@@ -8,7 +8,6 @@ import { impressumContent, datenschutzContent, agbContent, avvContent } from '..
 import { useAuth } from '../context/AuthContext';
 import {
   submitStoffberaterFeedback,
-  hasUserSubmittedFeedback,
   StoffberaterInterests,
 } from '../services/stoffberaterWaitlistService';
 
@@ -18,7 +17,6 @@ const StoffberaterProPage: React.FC = () => {
   const { user, refreshUser } = useAuth();
 
   // Form state
-  const [email, setEmail] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
   const [interests, setInterests] = useState<StoffberaterInterests>({
     stofferkennung: false,
@@ -31,8 +29,6 @@ const StoffberaterProPage: React.FC = () => {
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [creditsGranted, setCreditsGranted] = useState(false);
-  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Legal modals
@@ -40,24 +36,6 @@ const StoffberaterProPage: React.FC = () => {
   const [showDatenschutz, setShowDatenschutz] = useState(false);
   const [showAgb, setShowAgb] = useState(false);
   const [showAvv, setShowAvv] = useState(false);
-
-  // Pre-fill email if user is logged in
-  useEffect(() => {
-    if (user?.email) {
-      setEmail(user.email);
-    }
-  }, [user]);
-
-  // Check if user already submitted feedback
-  useEffect(() => {
-    const checkSubmission = async () => {
-      const hasSubmitted = await hasUserSubmittedFeedback(user?.uid, user?.email);
-      if (hasSubmitted) {
-        setAlreadySubmitted(true);
-      }
-    };
-    checkSubmission();
-  }, [user]);
 
   const handleInterestChange = (key: keyof StoffberaterInterests) => {
     setInterests((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -67,35 +45,33 @@ const StoffberaterProPage: React.FC = () => {
     e.preventDefault();
     setError(null);
 
-    // Validation
-    if (!email) {
-      setError(t('stoffberater.errors.emailRequired'));
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError(t('stoffberater.errors.emailInvalid'));
+    if (!user?.uid) {
+      setError(t('stoffberater.errors.notLoggedIn'));
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const result = await submitStoffberaterFeedback(
-        email,
+      await submitStoffberaterFeedback(
+        user.uid,
         feedbackText,
-        interests,
-        user?.uid
+        interests
       );
 
       setIsSubmitted(true);
-      setCreditsGranted(result.creditsGranted);
+      // Reset form for potential next submission
+      setFeedbackText('');
+      setInterests({
+        stofferkennung: false,
+        verhaltensprofile: false,
+        toleranzen: false,
+        pdfExport: false,
+        bestPractice: false,
+      });
 
-      if (result.creditsGranted) {
-        // Refresh user data to show updated credits
-        refreshUser();
-      }
+      // Refresh user data to show updated credits
+      refreshUser();
     } catch (err) {
       setError(t('stoffberater.errors.submitFailed'));
     } finally {
@@ -103,8 +79,15 @@ const StoffberaterProPage: React.FC = () => {
     }
   };
 
+  const resetForm = () => {
+    setIsSubmitted(false);
+    setError(null);
+  };
+
   const isPro = user?.plan === 'pro';
   const isHome = user?.plan === 'home';
+  const hasSubscription = isPro || isHome;
+  const isBlocked = user?.feedbackBlocked === true;
 
   return (
     <div className="min-h-screen bg-[#FAF1DC] flex flex-col font-sans">
@@ -233,11 +216,51 @@ const StoffberaterProPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Feedback Section */}
+        {/* Feedback Section - Only for subscribers */}
         <section className="py-12 px-4 bg-gradient-to-br from-[#532418] to-[#8B4513]">
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl">
-              {isSubmitted ? (
+              {!hasSubscription ? (
+                /* No Subscription - Show upgrade prompt */
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#532418] mb-4">
+                    {t('stoffberater.subscriptionRequired')}
+                  </h3>
+                  <p className="text-[#67534F] mb-6">
+                    {t('stoffberater.subscriptionRequiredDesc')}
+                  </p>
+                  <button
+                    onClick={() => navigate('/')}
+                    className="px-6 py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white font-semibold rounded-xl hover:opacity-90 transition-all"
+                  >
+                    {t('stoffberater.getSubscription')}
+                  </button>
+                </div>
+              ) : isBlocked ? (
+                /* Blocked User - Thank you message */
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span className="text-3xl">💛</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#532418] mb-4">
+                    {t('stoffberater.blockedTitle')}
+                  </h3>
+                  <p className="text-[#67534F] mb-6">
+                    {t('stoffberater.blockedDesc')}
+                  </p>
+                  <button
+                    onClick={() => navigate('/')}
+                    className="px-6 py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white font-semibold rounded-xl hover:opacity-90 transition-all"
+                  >
+                    {t('stoffberater.backToApp')}
+                  </button>
+                </div>
+              ) : isSubmitted ? (
                 /* Success State */
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -249,64 +272,37 @@ const StoffberaterProPage: React.FC = () => {
                     {t('stoffberater.successTitle')}
                   </h3>
                   <p className="text-[#67534F] mb-6">
-                    {creditsGranted
-                      ? t('stoffberater.successWithCredits')
-                      : t('stoffberater.successNoCredits')}
+                    {t('stoffberater.successWithCredits')}
                   </p>
-                  <button
-                    onClick={() => navigate('/')}
-                    className="px-6 py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white font-semibold rounded-xl hover:opacity-90 transition-all"
-                  >
-                    {t('stoffberater.backToApp')}
-                  </button>
-                </div>
-              ) : alreadySubmitted ? (
-                /* Already Submitted State */
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button
+                      onClick={resetForm}
+                      className="px-6 py-3 border-2 border-[#C8956C] text-[#C8956C] font-semibold rounded-xl hover:bg-[#C8956C]/10 transition-all"
+                    >
+                      {t('stoffberater.submitMore')}
+                    </button>
+                    <button
+                      onClick={() => navigate('/')}
+                      className="px-6 py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white font-semibold rounded-xl hover:opacity-90 transition-all"
+                    >
+                      {t('stoffberater.backToApp')}
+                    </button>
                   </div>
-                  <h3 className="text-2xl font-bold text-[#532418] mb-4">
-                    {t('stoffberater.alreadySubmittedTitle')}
-                  </h3>
-                  <p className="text-[#67534F] mb-6">
-                    {t('stoffberater.alreadySubmittedDesc')}
-                  </p>
-                  <button
-                    onClick={() => navigate('/')}
-                    className="px-6 py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white font-semibold rounded-xl hover:opacity-90 transition-all"
-                  >
-                    {t('stoffberater.backToApp')}
-                  </button>
                 </div>
               ) : (
-                /* Feedback Form */
+                /* Feedback Form for Subscribers */
                 <>
                   <h3 className="text-2xl font-bold text-[#532418] text-center mb-2">
                     {t('stoffberater.feedbackTitle')}
                   </h3>
-                  <p className="text-[#67534F] text-center mb-6">
+                  <p className="text-[#67534F] text-center mb-2">
                     {t('stoffberater.feedbackSubtitle')}
+                  </p>
+                  <p className="text-sm text-[#8B6B4B] text-center mb-6 italic">
+                    {t('stoffberater.feedbackHint')}
                   </p>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-[#532418] mb-2">
-                        {t('stoffberater.emailLabel')} *
-                      </label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={t('stoffberater.emailPlaceholder')}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C8956C] transition-all"
-                        disabled={!!user?.email}
-                      />
-                    </div>
-
                     {/* Interests Checkboxes */}
                     <div>
                       <label className="block text-sm font-medium text-[#532418] mb-3">
@@ -340,7 +336,6 @@ const StoffberaterProPage: React.FC = () => {
                     <div>
                       <label className="block text-sm font-medium text-[#532418] mb-2">
                         {t('stoffberater.feedbackLabel')}
-                        <span className="text-[#67534F] font-normal ml-1">({t('common.optional')})</span>
                       </label>
                       <textarea
                         value={feedbackText}
@@ -371,15 +366,9 @@ const StoffberaterProPage: React.FC = () => {
                     </button>
 
                     {/* Bonus Info */}
-                    {user ? (
-                      <p className="text-center text-sm text-green-600 font-medium">
-                        🎁 {t('stoffberater.bonusInfo')}
-                      </p>
-                    ) : (
-                      <p className="text-center text-sm text-[#67534F]">
-                        💡 {t('stoffberater.loginForBonus')}
-                      </p>
-                    )}
+                    <p className="text-center text-sm text-green-600 font-medium">
+                      🎁 {t('stoffberater.bonusInfo')}
+                    </p>
                   </form>
                 </>
               )}

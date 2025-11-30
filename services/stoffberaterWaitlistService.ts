@@ -1,16 +1,14 @@
 import {
   collection,
   addDoc,
-  query,
-  where,
-  getDocs,
   serverTimestamp,
   doc,
   updateDoc,
+  getDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
 
-const COLLECTION_NAME = 'stoffberater_waitlist';
+const COLLECTION_NAME = 'stoffberater_feedback';
 const BONUS_CREDITS = 10;
 
 export interface StoffberaterInterests {
@@ -21,81 +19,31 @@ export interface StoffberaterInterests {
   bestPractice: boolean;
 }
 
-export interface StoffberaterFeedback {
-  email: string;
-  userId?: string;
-  feedbackText: string;
-  interests: StoffberaterInterests;
-  creditsGranted: boolean;
-  createdAt: Date;
-}
-
-/**
- * Prüft ob User bereits Feedback gegeben hat
- */
-export const hasUserSubmittedFeedback = async (
-  userId?: string,
-  email?: string
-): Promise<boolean> => {
-  try {
-    const waitlistRef = collection(db, COLLECTION_NAME);
-
-    // Prüfe nach userId wenn vorhanden
-    if (userId) {
-      const userQuery = query(waitlistRef, where('userId', '==', userId));
-      const userSnapshot = await getDocs(userQuery);
-      if (!userSnapshot.empty) return true;
-    }
-
-    // Prüfe nach Email
-    if (email) {
-      const emailQuery = query(waitlistRef, where('email', '==', email));
-      const emailSnapshot = await getDocs(emailQuery);
-      if (!emailSnapshot.empty) return true;
-    }
-
-    return false;
-  } catch (error) {
-    console.error('Error checking feedback status:', error);
-    return false;
-  }
-};
-
 /**
  * Speichert Feedback und gibt Credits
- * Returns: true wenn Credits vergeben wurden, false wenn bereits Feedback vorhanden
+ * Abo-User können mehrfach Feedback geben und erhalten jedes Mal 10 Credits
  */
 export const submitStoffberaterFeedback = async (
-  email: string,
+  userId: string,
   feedbackText: string,
-  interests: StoffberaterInterests,
-  userId?: string
-): Promise<{ success: boolean; creditsGranted: boolean; alreadySubmitted: boolean }> => {
+  interests: StoffberaterInterests
+): Promise<{ success: boolean; creditsGranted: boolean }> => {
   try {
-    // Prüfe ob bereits Feedback gegeben wurde
-    const alreadySubmitted = await hasUserSubmittedFeedback(userId, email);
-
-    if (alreadySubmitted) {
-      return { success: true, creditsGranted: false, alreadySubmitted: true };
-    }
-
     // Speichere Feedback
-    const waitlistRef = collection(db, COLLECTION_NAME);
-    await addDoc(waitlistRef, {
-      email,
-      userId: userId || null,
+    const feedbackRef = collection(db, COLLECTION_NAME);
+    await addDoc(feedbackRef, {
+      userId,
       feedbackText,
       interests,
-      creditsGranted: !!userId, // Credits nur wenn eingeloggt
+      creditsGranted: true,
+      isValuable: null, // Für Admin-Review
       createdAt: serverTimestamp(),
     });
 
-    // Vergebe Credits wenn User eingeloggt ist
-    if (userId) {
-      await grantBonusCredits(userId);
-    }
+    // Vergebe Credits
+    await grantBonusCredits(userId);
 
-    return { success: true, creditsGranted: !!userId, alreadySubmitted: false };
+    return { success: true, creditsGranted: true };
   } catch (error) {
     console.error('Error submitting stoffberater feedback:', error);
     throw new Error('Fehler beim Speichern des Feedbacks.');
@@ -108,9 +56,6 @@ export const submitStoffberaterFeedback = async (
 const grantBonusCredits = async (userId: string): Promise<void> => {
   try {
     const userRef = doc(db, 'users', userId);
-
-    // Hole aktuelle Credits
-    const { getDoc } = await import('firebase/firestore');
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {

@@ -83,6 +83,7 @@ export const getUserData = async (uid: string): Promise<User | null> => {
       feedbackDeclinedCount: data.feedbackDeclinedCount ?? 0,
       feedbackGivenStars: data.feedbackGivenStars,
       feedbackRemindAt: data.feedbackRemindAt?.toDate(),
+      feedbackBlocked: data.feedbackBlocked ?? false,
       createdAt: data.createdAt?.toDate() || new Date(),
       updatedAt: data.updatedAt?.toDate() || new Date(),
     };
