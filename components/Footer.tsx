@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 interface FooterProps {
@@ -17,6 +18,7 @@ const Footer: React.FC<FooterProps> = ({
   onOpenCookieSettings,
 }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const currentLang = i18n.language;
 
   const changeLanguage = (lng: string) => {
@@ -53,6 +55,13 @@ const Footer: React.FC<FooterProps> = ({
             </button>
           </>
         )}
+        ·
+        <button
+          onClick={() => navigate('/stoffberater-pro')}
+          className="mx-2 underline hover:text-[#C8956C]"
+        >
+          {t('footer.stoffberaterPro')}
+        </button>
         ·
         <span className="mx-2 inline-flex items-center gap-1">
           <button

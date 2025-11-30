@@ -15,7 +15,8 @@
     "next": "Next",
     "send": "Send",
     "download": "Download",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "optional": "optional"
   },
   "landing": {
     "tagline": "Professional visualizations for interior designers, upholsterers and craftsmen",
@@ -45,6 +46,7 @@
     "privacy": "Privacy Policy",
     "terms": "Terms & Conditions",
     "avv": "DPA",
+    "stoffberaterPro": "Fabric Advisor Pro",
     "cookieSettings": "Cookie Settings"
   },
   "workspace": {
@@ -391,5 +393,56 @@
     "changeRating": "Change rating",
     "thankYouTitle": "Thank you!",
     "thankYouMessage": "Your feedback is important to us and helps us improve Stoffanprobe."
+  },
+  "stoffberater": {
+    "badge": "Coming Soon",
+    "heroTitle": "Fabric Advisor Pro – Say Goodbye to Complaints",
+    "heroSubtitle": "We're developing AI-powered consultation that saves you and your customers time, money, and stress.",
+    "problemTitle": "You Know the Problem",
+    "problem1": "Lightweight fabrics are trendy – but they move",
+    "problem2": "They expand with humidity, shrink when dry",
+    "problem3": "The customer wants exactly 5mm above the floor – and complains when it's not right",
+    "problem4": "Nobody reads long quote texts",
+    "solutionTitle": "The Solution: Fabric Advisor Pro",
+    "solution1Title": "Fabric Recognition by Photo",
+    "solution1Desc": "Photograph the label or fabric structure – the AI automatically recognizes the material.",
+    "solution2Title": "Behavior Profiles",
+    "solution2Desc": "Learn how your fabric reacts to humidity and temperature – scientifically validated.",
+    "solution3Title": "Recommended Tolerances",
+    "solution3Desc": "Specific measurement recommendations per fabric type – validated by experts.",
+    "solution4Title": "Customer Education PDF",
+    "solution4Desc": "Clear graphics for your quote that customers actually read and understand.",
+    "solution5Title": "Best Practice Library",
+    "solution5Desc": "Experiences from interior designers for interior designers – learn from the community.",
+    "forHomeTitle": "For Home",
+    "forHomeDesc": "Understand how your fabrics behave – so you make the right choice and avoid surprises.",
+    "forProTitle": "For Professionals",
+    "forProDesc": "Protect yourself legally and save on complaint costs – with documented customer education.",
+    "feedbackTitle": "Help Us Shape It!",
+    "feedbackSubtitle": "What do you really need? Your feedback helps us build the right product.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "your@email.com",
+    "interestsLabel": "What's important to you?",
+    "interest1": "Fabric recognition by photo",
+    "interest2": "Behavior profiles (stretching, shrinking)",
+    "interest3": "Recommended tolerances/measurements",
+    "interest4": "PDF export for customer education",
+    "interest5": "Best practices from other professionals",
+    "feedbackLabel": "Your Ideas and Wishes",
+    "feedbackPlaceholder": "What's missing? What features would you like? What would make your daily work easier?",
+    "submitButton": "Submit and Get 10 Free Credits",
+    "bonusInfo": "As a thank you, you'll receive 10 free credits immediately!",
+    "loginForBonus": "Sign in to receive 10 free credits for your feedback.",
+    "successTitle": "Thank You for Your Feedback!",
+    "successWithCredits": "10 credits have been added to your account. We'll notify you when Fabric Advisor Pro is available.",
+    "successNoCredits": "We'll notify you when Fabric Advisor Pro is available. Sign in to receive credits for future feedback.",
+    "alreadySubmittedTitle": "You've Already Participated",
+    "alreadySubmittedDesc": "Thank you for your interest! We've already received your feedback and will notify you when Fabric Advisor Pro is available.",
+    "backToApp": "Back to App",
+    "errors": {
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "submitFailed": "Error submitting. Please try again."
+    }
   }
 }

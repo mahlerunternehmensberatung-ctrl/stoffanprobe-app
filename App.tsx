@@ -21,6 +21,7 @@ import CookieConsentModal from './components/CookieConsentModal';
 import PricingPage from './components/PricingPage';
 import SuccessPage from './components/SuccessPage';
 import AccountPage from './components/AccountPage';
+import StoffberaterProPage from './components/StoffberaterProPage';
 import { useAuth } from './context/AuthContext';
 import { logoutUser } from './services/authService';
 import { decrementCredits } from './services/userService';
@@ -409,6 +410,10 @@ const App: React.FC = () => {
 
   if (location.pathname === '/account') {
     return <AccountPage />;
+  }
+
+  if (location.pathname === '/stoffberater-pro') {
+    return <StoffberaterProPage />;
   }
 
   // Zeige Loading, während Auth-Status oder First-Visit geprüft wird
