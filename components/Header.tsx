@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { UserPlusIcon } from './Icon';
 import { glassHeaderButton } from '../glass';
 import { User } from '../types';
@@ -7,12 +8,12 @@ import { useAuth } from '../context/AuthContext';
 
 // Das korrekte Logout-Icon
 const LogoutIcon = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    fill="none" 
-    viewBox="0 0 24 24" 
-    strokeWidth={1.5} 
-    stroke="currentColor" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.5}
+    stroke="currentColor"
     className={className}
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
@@ -30,10 +31,10 @@ interface HeaderProps {
     onShowPaywall?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  onNewSession, 
-  onShowSessions, 
-  onSaveSession, 
+const Header: React.FC<HeaderProps> = ({
+  onNewSession,
+  onShowSessions,
+  onSaveSession,
   hasSession,
   user,
   onLogout,
@@ -41,10 +42,11 @@ const Header: React.FC<HeaderProps> = ({
   onShowPaywall
 }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   // Gold-Verlauf für Buttons/Badges (angepasst an das Logo)
   // Ein edler Verlauf von hellem Gold zu etwas dunklerem Bronze
   const goldGradient = "bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642]";
@@ -57,11 +59,11 @@ const Header: React.FC<HeaderProps> = ({
     if (user?.purchasedCreditsExpiry && user.purchasedCreditsExpiry < now) {
       purchasedCredits = 0;
     }
-    
+
     const monthlyCredits = user?.monthlyCredits ?? 0;
     return monthlyCredits + purchasedCredits;
   };
-  
+
   const displayCredits = getTotalCredits();
 
   // Schließe Dropdown wenn außerhalb geklickt wird
@@ -116,8 +118,8 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between h-14 sm:h-16 min-h-[3.5rem] gap-1 sm:gap-2">
           {/* LOGO BEREICH - Text auf Mobile ausblenden */}
           <div className="flex items-center flex-shrink-0 cursor-pointer min-w-0" onClick={() => navigate('/')}>
-             <img src="/logo.png" alt="Stoffanprobe" className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 object-contain drop-shadow-sm" />
-             <span className="hidden sm:block font-bold text-xl lg:text-2xl text-[#532418] tracking-tight ml-2">Stoffanprobe</span>
+             <img src="/logo.png" alt={t('common.appName')} className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 object-contain drop-shadow-sm" />
+             <span className="hidden sm:block font-bold text-xl lg:text-2xl text-[#532418] tracking-tight ml-2">{t('common.appName')}</span>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0 mr-2 sm:mr-0">
@@ -133,7 +135,7 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                   {user.plan === 'pro' && (
                     <span className={`text-[10px] sm:text-xs ${goldGradient} text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-semibold shadow-sm tracking-wide border border-white/20`}>
-                      PRO
+                      {t('header.proBadge')}
                     </span>
                   )}
                 </div>
@@ -144,7 +146,7 @@ const Header: React.FC<HeaderProps> = ({
                     type="button"
                     onClick={handleAccountClick}
                     className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full ${goldGradient} text-white flex items-center justify-center hover:opacity-90 transition-opacity shadow-md border-2 border-white flex-shrink-0 cursor-pointer pointer-events-auto`}
-                    aria-label="Account-Menü"
+                    aria-label={t('header.accountMenu')}
                     aria-expanded={showAccountDropdown}
                   >
                     <span className="text-sm font-bold">{getInitials()}</span>
@@ -159,7 +161,7 @@ const Header: React.FC<HeaderProps> = ({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
-                        Mein Konto
+                        {t('header.myAccount')}
                       </button>
                       <button
                         onClick={() => handleMenuItemClick(() => navigate('/pricing'))}
@@ -168,7 +170,7 @@ const Header: React.FC<HeaderProps> = ({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Guthaben kaufen
+                        {t('header.buyCredits')}
                       </button>
                       <div className="border-t border-gray-100 my-1"></div>
                       <button
@@ -176,7 +178,7 @@ const Header: React.FC<HeaderProps> = ({
                         className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors whitespace-nowrap flex items-center gap-2"
                       >
                         <LogoutIcon className="w-4 h-4" />
-                        Abmelden
+                        {t('header.logout')}
                       </button>
                     </div>
                   )}
@@ -189,24 +191,24 @@ const Header: React.FC<HeaderProps> = ({
                   onClick={onLogin}
                   className={`px-5 py-2 text-sm sm:text-base font-bold text-white ${goldGradient} rounded-full hover:opacity-90 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5`}
                 >
-                  Anmelden
+                  {t('auth.login')}
                 </button>
               )
             )}
-            
+
             {/* Session Buttons - leicht angepasst für Harmonie */}
             {hasSession && (
               <div className="flex items-center flex-wrap gap-1 sm:gap-2 justify-end">
                  <button onClick={onSaveSession} className={`${glassHeaderButton} flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 hover:border-[#CDA35E]/50`}>
-                     <UserPlusIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#B08642]" /> <span className="hidden sm:inline">Speichern</span><span className="sm:hidden">Speichern</span>
+                     <UserPlusIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#B08642]" /> <span>{t('header.saveSession')}</span>
                  </button>
                  <button onClick={onShowSessions} className={`${glassHeaderButton} text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 hover:border-[#CDA35E]/50`}>
-                     <span className="hidden sm:inline">Fortsetzen</span><span className="sm:hidden">Fortsetzen</span>
+                     <span>{t('header.continueSession')}</span>
                  </button>
-                 <button 
+                 <button
                     onClick={onNewSession}
                     className={`px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white ${goldGradient} rounded-md hover:opacity-90 transition-all shadow-sm`}>
-                     <span className="hidden sm:inline">Neue Sitzung</span><span className="sm:hidden">Neu</span>
+                     <span className="hidden sm:inline">{t('header.newSession')}</span><span className="sm:hidden">{t('header.newSessionShort')}</span>
                  </button>
               </div>
             )}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { updateGA4Consent } from '../services/analytics';
 
 interface CookieConsentModalProps {
@@ -7,6 +8,7 @@ interface CookieConsentModalProps {
 }
 
 const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpenPrivacyPolicy }) => {
+  const { t } = useTranslation();
   const [showDetails, setShowDetails] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -63,53 +65,49 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
     <div className="fixed left-0 right-0 bottom-0 z-[100] p-2 sm:p-4 animate-slide-up box-border w-full max-w-full">
       <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-3 sm:p-6 w-full max-w-2xl mx-auto max-h-[80vh] overflow-y-auto border border-[#E6C785]/30 box-border">
         <h2 className="text-lg sm:text-2xl font-bold text-[#532418] mb-2 sm:mb-4">
-          Cookie-Einstellungen
+          {t('cookies.title')}
         </h2>
 
         <div className="mb-3 sm:mb-6">
           <p className="text-sm sm:text-base text-[#67534F] mb-2 sm:mb-4">
-            Wir verwenden Cookies zur Analyse und Verbesserung unserer Website.
+            {t('cookies.description')}
           </p>
 
           {!showDetails ? (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-4 mb-2 sm:mb-4">
               <ul className="text-xs sm:text-sm text-[#67534F] space-y-1">
-                <li><strong>Notwendig:</strong> Grundfunktionen (immer aktiv)</li>
-                <li><strong>Analytics:</strong> Google Analytics 4 (optional)</li>
+                <li><strong>{t('cookies.necessary')}</strong> {t('cookies.necessaryDesc')}</li>
+                <li><strong>{t('cookies.analytics')}</strong> {t('cookies.analyticsDesc')}</li>
               </ul>
             </div>
           ) : (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 space-y-4">
               <div>
                 <h3 className="font-semibold text-[#532418] mb-2">
-                  Notwendige Cookies
+                  {t('cookies.necessaryTitle')}
                 </h3>
                 <p className="text-sm text-[#67534F]">
-                  Diese Cookies sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.
-                  Sie werden normalerweise nur als Reaktion auf Ihre Aktionen gesetzt, z.B. bei der Anmeldung oder beim Ausfüllen von Formularen.
+                  {t('cookies.necessaryText')}
                 </p>
               </div>
 
               <div>
                 <h3 className="font-semibold text-[#532418] mb-2">
-                  Analytics Cookies (Google Analytics 4)
+                  {t('cookies.analyticsTitle')}
                 </h3>
                 <p className="text-sm text-[#67534F] mb-2">
-                  Diese Cookies helfen uns zu verstehen, wie Besucher mit unserer Website interagieren,
-                  indem Informationen anonym gesammelt und gemeldet werden. Wir verwenden Google Analytics 4
-                  mit IP-Anonymisierung und Consent Mode v2 für DSGVO-Konformität.
+                  {t('cookies.analyticsText')}
                 </p>
                 <p className="text-xs text-gray-600">
-                  <strong>Anbieter:</strong> Google Ireland Limited<br />
-                  <strong>Zweck:</strong> Website-Analyse, Statistiken<br />
-                  <strong>Rechtsgrundlage:</strong> Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO)
+                  <strong>{t('cookies.provider')}</strong> {t('cookies.providerName')}<br />
+                  <strong>{t('cookies.purpose')}</strong> {t('cookies.purposeText')}<br />
+                  <strong>{t('cookies.legalBasis')}</strong> {t('cookies.legalBasisText')}
                 </p>
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded p-3">
                 <p className="text-xs text-blue-800">
-                  <strong>Ihre Rechte:</strong> Sie können Ihre Einwilligung jederzeit widerrufen,
-                  indem Sie die Cookie-Einstellungen in Ihrem Browser ändern oder uns kontaktieren.
+                  <strong>{t('cookies.rights')}</strong> {t('cookies.rightsText')}
                 </p>
               </div>
             </div>
@@ -119,7 +117,7 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
             onClick={() => setShowDetails(!showDetails)}
             className="text-sm text-[#C8956C] hover:text-[#A67B5B] underline"
           >
-            {showDetails ? 'Weniger Details anzeigen' : 'Mehr Details anzeigen'}
+            {showDetails ? t('cookies.lessDetails') : t('cookies.moreDetails')}
           </button>
         </div>
 
@@ -128,13 +126,13 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
             onClick={handleReject}
             className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm sm:text-base"
           >
-            Nur notwendige
+            {t('cookies.rejectAll')}
           </button>
           <button
             onClick={handleAccept}
             className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#C8956C] to-[#A67B5B] text-white rounded-lg hover:from-[#A67B5B] hover:to-[#8B6B4B] transition-all font-medium text-sm sm:text-base"
           >
-            Alle akzeptieren
+            {t('cookies.acceptAll')}
           </button>
         </div>
 
@@ -149,7 +147,7 @@ const CookieConsentModal: React.FC<CookieConsentModalProps> = ({ onClose, onOpen
             }}
             className="text-[#C8956C] underline"
           >
-            Datenschutzerklärung
+            {t('cookies.privacyLink')}
           </a>
         </p>
       </div>
