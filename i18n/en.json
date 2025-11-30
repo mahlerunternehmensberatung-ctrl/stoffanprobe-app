@@ -226,7 +226,8 @@
     "package100": "Plus Pack: For regular use",
     "package200": "Pro Pack: For high demand",
     "package400": "Max Pack: Maximum stock",
-    "disclaimer": "All prices incl. VAT. Secure payment via Stripe."
+    "disclaimer": "All prices incl. VAT. Secure payment via Stripe.",
+    "paymentTip": "Tip: Click \"pay without Link\" at Stripe for PayPal, SEPA & more"
   },
   "success": {
     "title": "Payment Successful!",

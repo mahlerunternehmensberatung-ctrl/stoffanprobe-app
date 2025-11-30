@@ -226,7 +226,8 @@
     "package100": "Plus-Paket: Für regelmäßige Nutzung",
     "package200": "Pro-Paket: Für hohe Anforderungen",
     "package400": "Max-Paket: Maximaler Vorrat",
-    "disclaimer": "Alle Preise inkl. gesetzlicher MwSt. Sichere Zahlung via Stripe."
+    "disclaimer": "Alle Preise inkl. gesetzlicher MwSt. Sichere Zahlung via Stripe.",
+    "paymentTip": "Tipp: Klicke bei Stripe auf \"ohne Link bezahlen\" für PayPal, SEPA & mehr"
   },
   "success": {
     "title": "Zahlung erfolgreich!",
