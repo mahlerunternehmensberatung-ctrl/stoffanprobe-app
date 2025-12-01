@@ -619,7 +619,7 @@ const App: React.FC = () => {
       />
 
       <ComingSoonBanner />
->>>>>>> origin/charming-yonath
+      <Footer
         onOpenCookieSettings={() => setShowCookieSettings(true)}
       />
 
