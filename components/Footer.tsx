@@ -2,43 +2,59 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 interface FooterProps {
-  onOpenImpressum: () => void;
-  onOpenDatenschutz: () => void;
-  onOpenAgb: () => void;
   onOpenCookieSettings?: () => void;
 }
 
 const Footer: React.FC<FooterProps> = ({
-  onOpenImpressum,
-  onOpenDatenschutz,
-  onOpenAgb,
   onOpenCookieSettings,
 }) => {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language;
+  const isGerman = currentLang === 'de' || currentLang.startsWith('de-');
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
 
+  // Sprachabhängige URLs
+  const legalLinks = isGerman
+    ? {
+        imprint: '/impressum.html',
+        privacy: '/datenschutz.html',
+        terms: '/agb.html',
+        cancellation: '/widerruf.html',
+      }
+    : {
+        imprint: '/imprint.html',
+        privacy: '/privacy.html',
+        terms: '/terms.html',
+        cancellation: '/cancellation.html',
+      };
+
+  const linkClass = "mx-2 underline hover:text-[#C8956C]";
+
   return (
     <footer className="text-center text-sm text-gray-600 py-6 mt-10">
       <div className="flex flex-wrap justify-center items-center gap-1">
-        <button onClick={onOpenImpressum} className="mx-2 underline hover:text-[#C8956C]">
+        <a href={legalLinks.imprint} className={linkClass}>
           {t('footer.imprint')}
-        </button>
+        </a>
         ·
-        <button onClick={onOpenDatenschutz} className="mx-2 underline hover:text-[#C8956C]">
+        <a href={legalLinks.privacy} className={linkClass}>
           {t('footer.privacy')}
-        </button>
+        </a>
         ·
-        <button onClick={onOpenAgb} className="mx-2 underline hover:text-[#C8956C]">
+        <a href={legalLinks.terms} className={linkClass}>
           {t('footer.terms')}
-        </button>
+        </a>
+        ·
+        <a href={legalLinks.cancellation} className={linkClass}>
+          {t('footer.cancellation')}
+        </a>
         {onOpenCookieSettings && (
           <>
             ·
-            <button onClick={onOpenCookieSettings} className="mx-2 underline hover:text-[#C8956C]">
+            <button onClick={onOpenCookieSettings} className={linkClass}>
               {t('footer.cookieSettings')}
             </button>
           </>

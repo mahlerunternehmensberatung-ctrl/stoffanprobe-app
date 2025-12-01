@@ -44,6 +44,7 @@
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "terms": "AGB",
+    "cancellation": "Widerruf",
     "cookieSettings": "Cookie-Einstellungen"
   },
   "workspace": {
@@ -112,7 +113,7 @@
     "homeSubtitle": "Für dein Zuhause",
     "homeFeature1": "Eigene Räume visualisieren",
     "homeFeature2": "Schnell & einfach",
-    "homeFeature3": "40 Credits/Monat",
+    "homeFeature3": "20 Credits/Monat",
     "homeButton": "Home wählen",
     "perMonth": "{{price}}/Monat",
     "disclaimer": "Alle Preise inkl. MwSt. Jederzeit kündbar. Sichere Zahlung via Stripe.",

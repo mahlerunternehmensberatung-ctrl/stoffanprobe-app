@@ -286,12 +286,7 @@ const AccountPage: React.FC = () => {
         </div>
       </main>
 
-      <Footer
-        onOpenImpressum={() => {}}
-        onOpenDatenschutz={() => {}}
-        onOpenAgb={() => {}}
-        onOpenCookieSettings={() => {}}
-      />
+      <Footer />
 
       {/* Kündigungs-Modal - Gold Design */}
       {showCancelModal && (

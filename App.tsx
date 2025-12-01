@@ -437,9 +437,6 @@ const App: React.FC = () => {
         </div>
         <ComingSoonBanner />
         <Footer
-          onOpenImpressum={() => setShowImpressum(true)}
-          onOpenDatenschutz={() => setShowDatenschutz(true)}
-          onOpenAgb={() => setShowAgb(true)}
           onOpenCookieSettings={() => setShowCookieSettings(true)}
         />
         {showRegisterModal && (
@@ -564,9 +561,6 @@ const App: React.FC = () => {
 
       <ComingSoonBanner />
       <Footer
-        onOpenImpressum={() => setShowImpressum(true)}
-        onOpenDatenschutz={() => setShowDatenschutz(true)}
-        onOpenAgb={() => setShowAgb(true)}
         onOpenCookieSettings={() => setShowCookieSettings(true)}
       />
 

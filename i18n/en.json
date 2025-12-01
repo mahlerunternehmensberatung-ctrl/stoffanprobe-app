@@ -42,8 +42,9 @@
   },
   "footer": {
     "imprint": "Imprint",
-    "privacy": "Privacy Policy",
-    "terms": "Terms & Conditions",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cancellation": "Cancellation",
     "cookieSettings": "Cookie Settings"
   },
   "workspace": {
@@ -112,7 +113,7 @@
     "homeSubtitle": "For your home",
     "homeFeature1": "Visualize your own rooms",
     "homeFeature2": "Fast & easy",
-    "homeFeature3": "40 credits/month",
+    "homeFeature3": "20 credits/month",
     "homeButton": "Choose Home",
     "perMonth": "{{price}}/month",
     "disclaimer": "All prices incl. VAT. Cancel anytime. Secure payment via Stripe.",
