@@ -96,14 +96,14 @@ const Workspace: React.FC<WorkspaceProps> = ({
   } = useFeedbackTrigger(user, onRefreshUser);
 
   // Zeige Home-Info-Hinweis beim ersten Mal für Home-User
-  // Nur beim ersten Laden prüfen, nicht bei jeder user-Änderung
-  const [homeInfoChecked, setHomeInfoChecked] = useState(false);
+  // Nur einmal pro Session prüfen - sessionStorage verhindert erneutes Anzeigen nach Navigation
   useEffect(() => {
-    if (!homeInfoChecked && isHomeUser && user && !user.homeInfoShown) {
+    const alreadyShownThisSession = sessionStorage.getItem('homeInfoShownThisSession');
+    if (!alreadyShownThisSession && isHomeUser && user && !user.homeInfoShown) {
       setShowHomeInfo(true);
-      setHomeInfoChecked(true);
+      sessionStorage.setItem('homeInfoShownThisSession', 'true');
     }
-  }, [homeInfoChecked, isHomeUser, user]);
+  }, [isHomeUser, user]);
 
   const handleTranscript = useCallback((text: string) => {
       // Append text with space if there's existing text

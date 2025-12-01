@@ -37,6 +37,8 @@ const Footer: React.FC<FooterProps> = ({
 
   return (
     <footer className="text-center text-sm text-gray-600 py-6 mt-10">
+      {/* Slogan */}
+      <p className="text-sm text-[#C8956C] italic mb-4">Du siehst es. Du fühlst es.</p>
       <div className="flex flex-wrap justify-center items-center gap-1">
         <a href={legalLinks.imprint} className={linkClass}>
           {t('footer.imprint')}

@@ -86,7 +86,10 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ onClose, onSuccess }) => 
       <div className="bg-[#FFFFF5] rounded-lg shadow-xl w-full max-w-md max-h-[95vh] flex flex-col">
         {/* Header - Fixed */}
         <div className="flex justify-between items-center p-4 sm:p-6 pb-2 sm:pb-4 border-b border-gray-100 flex-shrink-0">
-          <h2 className="text-lg sm:text-2xl font-bold text-[#532418]">10 Gratis-Entwürfe sichern</h2>
+          <div>
+            <h2 className="text-lg sm:text-2xl font-bold text-[#532418]">10 Gratis-Entwürfe sichern</h2>
+            <p className="text-xs sm:text-sm text-[#C8956C] italic">Du siehst es. Du fühlst es.</p>
+          </div>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl leading-none"

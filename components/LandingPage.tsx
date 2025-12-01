@@ -18,8 +18,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
             {t('common.appName')}
           </h1>
         </div>
-        <p className="text-xs sm:text-xl text-[#67534F] mb-3 sm:mb-6 px-2">
+        <p className="text-xs sm:text-xl text-[#67534F] mb-1 sm:mb-2 px-2">
           {t('landing.tagline')}
+        </p>
+        <p className="text-sm sm:text-lg text-[#C8956C] italic mb-3 sm:mb-6">
+          Du siehst es. Du fühlst es.
         </p>
 
         <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-4 sm:p-8 mb-3 sm:mb-6">

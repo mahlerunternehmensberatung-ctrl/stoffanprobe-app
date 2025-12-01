@@ -146,8 +146,11 @@ const StoffberaterProPage: React.FC = () => {
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
                 Die Zukunft der Raumgestaltung
               </h1>
-              <p className="text-xl sm:text-2xl text-[#E6C785] font-medium">
+              <p className="text-xl sm:text-2xl text-[#E6C785] font-medium mb-4">
                 Wir entwickeln Werkzeuge für Profis. Gestalten Sie mit.
+              </p>
+              <p className="text-lg text-white/70 italic">
+                Du siehst es. Du fühlst es.
               </p>
             </div>
           </div>
@@ -160,7 +163,7 @@ const StoffberaterProPage: React.FC = () => {
               {/* Stoffberater Pro */}
               <ProductBox
                 targetGroup="Für Raumausstatter"
-                title="Ihr persönlicher Stoffberater"
+                title="Ihr personalisierter Berater"
                 description="Halten Sie Ihr Handy in den Raum – Stoffanprobe sieht, was Sie sehen. Und berät Sie in Echtzeit."
                 product="stoffberater-pro"
                 user={user}
@@ -169,7 +172,7 @@ const StoffberaterProPage: React.FC = () => {
               {/* Innenarchitektin Pro */}
               <ProductBox
                 targetGroup="Für Interior Designer"
-                title="Ihre persönliche Innenarchitektin"
+                title="Ihre personalisierte Innenarchitektin"
                 description="Aus Ihrem Foto wird eine professionelle technische Zeichnung – wie vom Profi."
                 product="innenarchitektin-pro"
                 user={user}
@@ -178,57 +181,6 @@ const StoffberaterProPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Upselling Section */}
-        <section className="py-12 sm:py-16 px-4 bg-white">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#532418] text-center mb-3">
-              Warum Stoffanprobe?
-            </h2>
-            <p className="text-lg sm:text-xl text-[#C8956C] text-center italic mb-10">
-              Du siehst es. Du fühlst es.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Stoffberater Comparison */}
-              <div className="bg-[#FAF1DC] rounded-2xl p-6 sm:p-8">
-                <h3 className="text-lg font-bold text-[#532418] mb-6 text-center">Stoffberater Pro</h3>
-                <div className="space-y-4">
-                  {/* Without */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-red-200">
-                    <p className="text-sm text-red-600 font-medium mb-2">Beratung ohne Stoffanprobe</p>
-                    <p className="text-[#67534F] mb-2">Kunde unsicher → wählt Beige</p>
-                    <p className="text-2xl font-bold text-red-600">160€</p>
-                  </div>
-                  {/* With */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-green-200">
-                    <p className="text-sm text-green-600 font-medium mb-2">Beratung mit Stoffanprobe</p>
-                    <p className="text-[#67534F] mb-2">Kunde SIEHT den Burgundy-Samt in SEINEM Raum</p>
-                    <p className="text-2xl font-bold text-green-600">1.280€</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Innenarchitektin Comparison */}
-              <div className="bg-[#FAF1DC] rounded-2xl p-6 sm:p-8">
-                <h3 className="text-lg font-bold text-[#532418] mb-6 text-center">Innenarchitektin Pro</h3>
-                <div className="space-y-4">
-                  {/* Without */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-red-200">
-                    <p className="text-sm text-red-600 font-medium mb-2">Ohne Stoffanprobe</p>
-                    <p className="text-[#67534F] mb-2">"Nur mal schauen"</p>
-                    <p className="text-2xl font-bold text-red-600">0€</p>
-                  </div>
-                  {/* With */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-green-200">
-                    <p className="text-sm text-green-600 font-medium mb-2">Mit Stoffanprobe</p>
-                    <p className="text-[#67534F] mb-2">Komplettauftrag</p>
-                    <p className="text-2xl font-bold text-green-600">5.000€+</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer

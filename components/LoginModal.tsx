@@ -44,7 +44,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onSuccess, onShowRegis
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-[#FFFFF5] rounded-lg shadow-xl p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-2">
           <h2 className="text-2xl font-bold text-[#532418]">Anmelden</h2>
           <button
             onClick={onClose}
@@ -53,6 +53,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onSuccess, onShowRegis
             ×
           </button>
         </div>
+        <p className="text-sm text-[#C8956C] italic mb-4">Du siehst es. Du fühlst es.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
