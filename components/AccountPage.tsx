@@ -271,16 +271,14 @@ const AccountPage: React.FC = () => {
                 </div>
               </div>
 
-              {(user.plan === 'pro' || user.plan === 'home') && (
-                <div className="mt-4 pt-4 border-t border-[#E6C785]/30">
-                  <button
-                    onClick={() => navigate('/pricing')}
-                    className={`px-8 py-3 ${goldGradient} text-white rounded-full font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all transform`}
-                  >
-                    {t('account.buyCredits')}
-                  </button>
-                </div>
-              )}
+              <div className="mt-4 pt-4 border-t border-[#E6C785]/30">
+                <button
+                  onClick={() => navigate('/pricing')}
+                  className={`px-8 py-3 ${goldGradient} text-white rounded-full font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all transform`}
+                >
+                  {user.plan === 'free' ? t('account.upgradePlan') : t('account.buyCredits')}
+                </button>
+              </div>
             </div>
           </div>
         </div>
