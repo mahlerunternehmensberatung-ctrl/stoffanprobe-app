@@ -181,9 +181,12 @@ const StoffberaterProPage: React.FC = () => {
         {/* Upselling Section */}
         <section className="py-12 sm:py-16 px-4 bg-white">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#532418] text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#532418] text-center mb-3">
               Warum Stoffanprobe?
             </h2>
+            <p className="text-lg sm:text-xl text-[#C8956C] text-center italic mb-10">
+              Du siehst es. Du fühlst es.
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Stoffberater Comparison */}
