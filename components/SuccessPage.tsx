@@ -91,12 +91,7 @@ const SuccessPage: React.FC = () => {
         </div>
       </main>
 
-      <Footer
-        onOpenImpressum={() => {}}
-        onOpenDatenschutz={() => {}}
-        onOpenAgb={() => {}}
-        onOpenCookieSettings={() => {}}
-      />
+      <Footer />
     </div>
   );
 };

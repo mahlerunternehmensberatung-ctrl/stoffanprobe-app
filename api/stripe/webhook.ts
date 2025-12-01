@@ -23,7 +23,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-const MONTHLY_PRO_CREDITS = 40;
+
+// Credits pro Plan
+const MONTHLY_CREDITS = {
+  pro: 40,
+  home: 20,
+} as const;
 
 // Credit-Pakete: Preis in Cent -> Anzahl Credits
 // Mapping über den Preis, da dieser eindeutig ist
@@ -108,15 +113,13 @@ async function upgradeToSubscription(uid: string, planType: 'pro' | 'home', stri
   const db = getAdminDb();
   const userRef = db.collection('users').doc(uid);
 
-  // Hole bestehende User-Daten um Credits zu addieren
-  const userSnap = await userRef.get();
-  const existingCredits = userSnap.exists ? (userSnap.data()?.monthlyCredits ?? 0) : 0;
+  // Credits basierend auf Plan-Typ
+  const monthlyCredits = MONTHLY_CREDITS[planType];
 
   const updateData: Record<string, any> = {
     plan: planType, // 'pro' oder 'home'
     planType: planType, // Explizit speichern für spätere Referenz
-    // Addiere Credits zu bestehenden Credits
-    monthlyCredits: existingCredits + MONTHLY_PRO_CREDITS,
+    monthlyCredits: monthlyCredits,
     updatedAt: FieldValue.serverTimestamp(),
   };
 
@@ -126,7 +129,7 @@ async function upgradeToSubscription(uid: string, planType: 'pro' | 'home', stri
 
   // Nutze set mit merge statt update, falls User-Dokument noch nicht existiert
   await userRef.set(updateData, { merge: true });
-  console.log(`User ${uid} upgraded to ${planType} (${existingCredits} + ${MONTHLY_PRO_CREDITS} = ${existingCredits + MONTHLY_PRO_CREDITS} credits)`);
+  console.log(`User ${uid} upgraded to ${planType} with ${monthlyCredits} monthly credits`);
 }
 
 async function addPurchasedCredits(uid: string, credits: number): Promise<void> {
@@ -159,8 +162,11 @@ async function resetMonthlyCredits(uid: string, planType?: 'pro' | 'home'): Prom
   const db = getAdminDb();
   const userRef = db.collection('users').doc(uid);
 
+  // Credits basierend auf Plan-Typ (Default: pro für Backwards-Kompatibilität)
+  const monthlyCredits = MONTHLY_CREDITS[planType || 'pro'];
+
   const updateData: Record<string, any> = {
-    monthlyCredits: MONTHLY_PRO_CREDITS,
+    monthlyCredits: monthlyCredits,
     updatedAt: FieldValue.serverTimestamp(),
   };
 
@@ -172,7 +178,7 @@ async function resetMonthlyCredits(uid: string, planType?: 'pro' | 'home'): Prom
 
   await userRef.update(updateData);
 
-  console.log(`Reset monthly credits for user ${uid} (planType: ${planType || 'unknown'})`);
+  console.log(`Reset monthly credits for user ${uid} to ${monthlyCredits} (planType: ${planType || 'unknown'})`);
 }
 
 async function downgradeToFree(uid: string): Promise<void> {
