@@ -40,8 +40,13 @@ const HomeInfoModal: React.FC<HomeInfoModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <button
-          onClick={onClose}
-          className="w-full py-3 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-[#C8956C] to-[#A67B5B] hover:opacity-90 transition-opacity"
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          className="w-full py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-br from-[#E6C785] via-[#CDA35E] to-[#B08642] hover:opacity-90 transition-all shadow-md hover:shadow-lg"
         >
           Verstanden
         </button>
