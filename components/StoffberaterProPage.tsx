@@ -58,8 +58,23 @@ const StoffberaterProPage: React.FC = () => {
       />
 
       <main className="flex-grow">
+        {/* Back Button */}
+        <div className="bg-gradient-to-br from-[#532418] to-[#8B4513] pt-4 px-4">
+          <div className="max-w-3xl mx-auto">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span>Zurück zur App</span>
+            </button>
+          </div>
+        </div>
+
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-[#532418] to-[#8B4513] text-white py-16 sm:py-24 px-4">
+        <section className="bg-gradient-to-br from-[#532418] to-[#8B4513] text-white py-12 sm:py-20 px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
               Stoffberater Pro
