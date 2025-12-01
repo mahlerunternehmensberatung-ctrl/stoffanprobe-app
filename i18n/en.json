@@ -15,7 +15,8 @@
     "next": "Next",
     "send": "Send",
     "download": "Download",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "optional": "optional"
   },
   "landing": {
     "tagline": "Professional visualizations for interior designers, upholsterers and craftsmen",
@@ -45,6 +46,7 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "cancellation": "Cancellation",
+    "stoffberaterPro": "Fabric Advisor Pro",
     "cookieSettings": "Cookie Settings"
   },
   "workspace": {
@@ -105,9 +107,12 @@
     "chooseSubtitle": "Choose the right plan for your needs",
     "proTitle": "For Professionals",
     "proSubtitle": "For interior designers & decorators",
-    "proFeature1": "Visualize client rooms",
-    "proFeature2": "GDPR compliant workflow",
-    "proFeature3": "40 credits/month",
+    "proCustomerRooms": "Visualize client rooms",
+    "proCredits": "40 credits/month",
+    "proDsgvo": "GDPR-compliant workflow",
+    "proAvv": "DPA available (view here)",
+    "proNoAiTraining": "Images not used for AI training",
+    "proVatInvoice": "Invoices with VAT",
     "proButton": "Choose Pro",
     "homeTitle": "For Home",
     "homeSubtitle": "For your home",
@@ -355,9 +360,9 @@
   },
   "comingSoon": {
     "badge": "Coming Soon",
-    "title": "Fabric Advisor Pro – AI-powered consultation with warranty protection",
-    "description": "Automatic fabric recommendations based on room, lighting conditions and customer preferences. Including legally compliant documentation.",
-    "notifyMe": "Notify me"
+    "title": "Your Personal Fabric Advisor",
+    "description": "Personal consultation for you and your customers.",
+    "notifyMe": "I want to be part of it"
   },
   "waitlist": {
     "title": "Join the Waitlist",
@@ -388,5 +393,56 @@
     "changeRating": "Change rating",
     "thankYouTitle": "Thank you!",
     "thankYouMessage": "Your feedback is important to us and helps us improve Stoffanprobe."
+  },
+  "stoffberater": {
+    "badge": "Coming Soon",
+    "heroTitle": "Fabric Advisor Pro – Your Personal Advisor",
+    "heroSubtitle": "Personal consultation for you and your customers. Well-founded. Understandable. Convincing.",
+    "problemTitle": "You Know the Problem",
+    "problem1": "Lightweight fabrics are trendy – but they move",
+    "problem2": "They expand with humidity, shrink when dry",
+    "problem3": "The customer wants exactly 5mm above the floor – and complains when it's not right",
+    "problem4": "Nobody reads long quote texts",
+    "solutionTitle": "The Solution: Fabric Advisor Pro",
+    "solution1Title": "Recognize Material",
+    "solution1Desc": "Photograph the label – we show you everything important about the material.",
+    "solution2Title": "Understand Fabric Properties",
+    "solution2Desc": "How does the fabric react to moisture and temperature? Explained clearly.",
+    "solution3Title": "Measurement Recommendations",
+    "solution3Desc": "Specific measurement recommendations per fabric type – validated by experts.",
+    "solution4Title": "Consultation Document to Share",
+    "solution4Desc": "A document that summarizes your consultation – for printing or emailing.",
+    "solution5Title": "Best Practice Library",
+    "solution5Desc": "Experiences from interior designers for interior designers – learn from the community.",
+    "forHomeTitle": "For Home",
+    "forHomeDesc": "Understand how your fabrics behave – so you make the right choice and avoid surprises.",
+    "forProTitle": "For Professionals",
+    "forProDesc": "Advise professionally and give your customers confidence – with professional documentation.",
+    "feedbackTitle": "Help Shape Fabric Advisor Pro!",
+    "feedbackSubtitle": "Share your ideas, problems, and wishes with us. For valuable feedback, we'll reward you with 10 credits.",
+    "feedbackHint": "What would really make your daily work easier?",
+    "interestsLabel": "What's important to you?",
+    "interest1": "Fabric recognition by photo",
+    "interest2": "Behavior profiles (stretching, shrinking)",
+    "interest3": "Recommended tolerances/measurements",
+    "interest4": "PDF export for customer education",
+    "interest5": "Best practices from other professionals",
+    "feedbackLabel": "Your Ideas and Wishes",
+    "feedbackPlaceholder": "What's missing? What features would you like? What specific problems do you have with fabrics?",
+    "submitButton": "Submit and Get 10 Credits",
+    "bonusInfo": "Receive 10 credits for valuable feedback!",
+    "successTitle": "Thanks for Your Input!",
+    "successWithCredits": "10 credits have been added to your account. Your feedback helps us make Fabric Advisor Pro perfect.",
+    "submitMore": "Submit More Feedback",
+    "backToApp": "Back to App",
+    "subscriptionRequired": "Subscribers Only",
+    "subscriptionRequiredDesc": "The Fabric Advisor Pro feedback feature is exclusively available for Home and Pro subscribers.",
+    "getSubscription": "Get a Subscription",
+    "blockedTitle": "Thank you for your contributions!",
+    "blockedDesc": "You've already given valuable feedback. We'll notify you when Fabric Advisor Pro is available.",
+    "errors": {
+      "notLoggedIn": "Please sign in.",
+      "submitFailed": "Error submitting. Please try again."
+    }
   }
 }

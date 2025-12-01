@@ -15,7 +15,8 @@
     "next": "Weiter",
     "send": "Senden",
     "download": "Download",
-    "processing": "Wird verarbeitet..."
+    "processing": "Wird verarbeitet...",
+    "optional": "optional"
   },
   "landing": {
     "tagline": "Professionelle Visualisierungen für Raumausstatter, Polsterer und Handwerker",
@@ -45,6 +46,7 @@
     "privacy": "Datenschutz",
     "terms": "AGB",
     "cancellation": "Widerruf",
+    "stoffberaterPro": "Stoffberater Pro",
     "cookieSettings": "Cookie-Einstellungen"
   },
   "workspace": {
@@ -105,9 +107,12 @@
     "chooseSubtitle": "Wähle das passende Abo für deine Bedürfnisse",
     "proTitle": "Für Profis",
     "proSubtitle": "Für Raumausstatter & Interior Designer",
-    "proFeature1": "Kundenräume visualisieren",
-    "proFeature2": "DSGVO-konformer Workflow",
-    "proFeature3": "40 Credits/Monat",
+    "proCustomerRooms": "Kundenräume visualisieren",
+    "proCredits": "40 Credits/Monat",
+    "proDsgvo": "DSGVO-konformer Workflow",
+    "proAvv": "AVV verfügbar (hier ansehen)",
+    "proNoAiTraining": "Bilder nicht für KI-Training",
+    "proVatInvoice": "Rechnungen mit MwSt.",
     "proButton": "Pro wählen",
     "homeTitle": "Für Zuhause",
     "homeSubtitle": "Für dein Zuhause",
@@ -355,9 +360,9 @@
   },
   "comingSoon": {
     "badge": "Coming Soon",
-    "title": "Stoffberater Pro – KI-gestützte Beratung mit Reklamationsschutz",
-    "description": "Automatische Stoffempfehlungen basierend auf Raum, Lichtverhältnissen und Kundenwünschen. Inklusive rechtssicherer Dokumentation.",
-    "notifyMe": "Informiert mich"
+    "title": "Ihr persönlicher Stoffberater",
+    "description": "Persönliche Beratung für Sie und Ihre Kunden.",
+    "notifyMe": "Ich will dabei sein"
   },
   "waitlist": {
     "title": "Auf die Warteliste setzen",
@@ -388,5 +393,56 @@
     "changeRating": "Bewertung ändern",
     "thankYouTitle": "Vielen Dank!",
     "thankYouMessage": "Dein Feedback ist uns wichtig und hilft uns, Stoffanprobe zu verbessern."
+  },
+  "stoffberater": {
+    "badge": "Coming Soon",
+    "heroTitle": "Stoffberater Pro – Ihr persönlicher Berater",
+    "heroSubtitle": "Persönliche Beratung für Sie und Ihre Kunden. Fundiert. Verständlich. Überzeugend.",
+    "problemTitle": "Das Problem kennen Sie",
+    "problem1": "Leichte Stoffe liegen im Trend – aber sie arbeiten",
+    "problem2": "Bei Feuchtigkeit dehnen sie sich, bei Trockenheit ziehen sie sich zusammen",
+    "problem3": "Der Kunde will exakt 5mm über dem Boden – und reklamiert wenn es nicht stimmt",
+    "problem4": "Lange Angebotstexte liest niemand",
+    "solutionTitle": "Die Lösung: Stoffberater Pro",
+    "solution1Title": "Material erkennen",
+    "solution1Desc": "Fotografieren Sie das Etikett – wir zeigen Ihnen alles Wichtige zum Material.",
+    "solution2Title": "Stoffeigenschaften verstehen",
+    "solution2Desc": "Wie reagiert der Stoff auf Feuchtigkeit und Temperatur? Verständlich erklärt.",
+    "solution3Title": "Aufmaß-Empfehlungen",
+    "solution3Desc": "Konkrete Aufmaß-Empfehlungen pro Stofftyp – von Experten validiert.",
+    "solution4Title": "Beratungsdokument zum Weitergeben",
+    "solution4Desc": "Ein Dokument, das Ihre Beratung zusammenfasst – zum Ausdrucken oder Mailen.",
+    "solution5Title": "Best-Practice-Bibliothek",
+    "solution5Desc": "Erfahrungen von Raumausstattern für Raumausstatter – lernen Sie von der Community.",
+    "forHomeTitle": "Für Zuhause",
+    "forHomeDesc": "Verstehe wie deine Stoffe arbeiten – damit du die richtige Wahl triffst und keine bösen Überraschungen erlebst.",
+    "forProTitle": "Für Profis",
+    "forProDesc": "Beraten Sie fundiert und geben Sie Ihren Kunden Sicherheit – mit professioneller Dokumentation.",
+    "feedbackTitle": "Gestalten Sie den Stoffberater Pro mit!",
+    "feedbackSubtitle": "Teilen Sie uns Ihre Ideen, Probleme und Wünsche mit. Für Feedback mit umsetzbarem Mehrwert bedanken wir uns mit 10 Credits.",
+    "feedbackHint": "Was würde Ihren Arbeitsalltag wirklich erleichtern?",
+    "interestsLabel": "Was ist Ihnen wichtig?",
+    "interest1": "Stofferkennung per Foto",
+    "interest2": "Verhaltensprofile (Dehnung, Schrumpfung)",
+    "interest3": "Empfohlene Toleranzen/Aufmaße",
+    "interest4": "PDF-Export für Kundenaufklärung",
+    "interest5": "Best-Practice von anderen Raumausstattern",
+    "feedbackLabel": "Ihre Ideen und Wünsche",
+    "feedbackPlaceholder": "Was fehlt Ihnen? Welche Funktionen wünschen Sie sich? Welche konkreten Probleme haben Sie mit Stoffen?",
+    "submitButton": "Absenden und 10 Credits erhalten",
+    "bonusInfo": "Für wertvolles Feedback erhalten Sie 10 Credits!",
+    "successTitle": "Danke fürs Mitdenken!",
+    "successWithCredits": "10 Credits wurden Ihrem Konto gutgeschrieben. Ihr Feedback hilft uns, den Stoffberater Pro perfekt zu machen.",
+    "submitMore": "Weiteres Feedback geben",
+    "backToApp": "Zurück zur App",
+    "subscriptionRequired": "Nur für Abonnenten",
+    "subscriptionRequiredDesc": "Die Stoffberater Pro Feedback-Funktion ist exklusiv für Home- und Pro-Abonnenten verfügbar.",
+    "getSubscription": "Abo abschließen",
+    "blockedTitle": "Vielen Dank für deine bisherigen Beiträge!",
+    "blockedDesc": "Du hast bereits wertvolles Feedback gegeben. Wir melden uns, sobald der Stoffberater Pro verfügbar ist.",
+    "errors": {
+      "notLoggedIn": "Bitte melden Sie sich an.",
+      "submitFailed": "Fehler beim Absenden. Bitte versuchen Sie es erneut."
+    }
   }
 }
