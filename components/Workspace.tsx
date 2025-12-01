@@ -94,11 +94,14 @@ const Workspace: React.FC<WorkspaceProps> = ({
   } = useFeedbackTrigger(user, onRefreshUser);
 
   // Zeige Home-Info-Hinweis beim ersten Mal für Home-User
+  // Nur beim ersten Laden prüfen, nicht bei jeder user-Änderung
+  const [homeInfoChecked, setHomeInfoChecked] = useState(false);
   useEffect(() => {
-    if (isHomeUser && user && !user.homeInfoShown) {
+    if (!homeInfoChecked && isHomeUser && user && !user.homeInfoShown) {
       setShowHomeInfo(true);
+      setHomeInfoChecked(true);
     }
-  }, [isHomeUser, user]);
+  }, [homeInfoChecked, isHomeUser, user]);
 
   const handleTranscript = useCallback((text: string) => {
       // Append text with space if there's existing text
