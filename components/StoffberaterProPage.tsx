@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '../context/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { db } from '../services/firebase';
 
 const StoffberaterProPage: React.FC = () => {
   const navigate = useNavigate();
