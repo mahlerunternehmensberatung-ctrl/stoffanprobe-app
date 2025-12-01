@@ -140,12 +140,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Update Firebase
+    // Update Firebase - Credits ADDIEREN, nicht überschreiben
     const userRef = db.collection('users').doc(userId);
+    const userSnap = await userRef.get();
+    const existingMonthlyCredits = userSnap.exists ? (userSnap.data()?.monthlyCredits ?? 0) : 0;
+
     const updateData = {
       plan: planType,
       planType: planType,
-      monthlyCredits: monthlyCredits,
+      monthlyCredits: existingMonthlyCredits + monthlyCredits, // ADDIEREN
       stripeCustomerId: customerId,
       updatedAt: FieldValue.serverTimestamp(),
     };
@@ -157,15 +160,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: { userId: userId, planType: planType },
     });
 
+    const totalCredits = existingMonthlyCredits + monthlyCredits;
+
     return res.status(200).json({
       success: true,
-      message: `User ${userId} erfolgreich auf ${planType} Plan mit ${monthlyCredits} Credits synchronisiert`,
+      message: `User ${userId} erfolgreich auf ${planType} Plan synchronisiert. Credits: ${existingMonthlyCredits} + ${monthlyCredits} = ${totalCredits}`,
       data: {
         userId,
         customerId,
         subscriptionId: subscription.id,
         planType,
-        monthlyCredits,
+        existingCredits: existingMonthlyCredits,
+        addedCredits: monthlyCredits,
+        totalCredits: totalCredits,
         productName: product.name,
         priceId,
       }

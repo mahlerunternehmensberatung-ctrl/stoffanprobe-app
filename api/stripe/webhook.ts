@@ -114,12 +114,16 @@ async function upgradeToSubscription(uid: string, planType: 'pro' | 'home', stri
   const userRef = db.collection('users').doc(uid);
 
   // Credits basierend auf Plan-Typ
-  const monthlyCredits = MONTHLY_CREDITS[planType];
+  const newMonthlyCredits = MONTHLY_CREDITS[planType];
+
+  // Hole bestehende Credits um sie zu addieren
+  const userSnap = await userRef.get();
+  const existingMonthlyCredits = userSnap.exists ? (userSnap.data()?.monthlyCredits ?? 0) : 0;
 
   const updateData: Record<string, any> = {
     plan: planType, // 'pro' oder 'home'
     planType: planType, // Explizit speichern für spätere Referenz
-    monthlyCredits: monthlyCredits,
+    monthlyCredits: existingMonthlyCredits + newMonthlyCredits, // ADDIEREN statt überschreiben
     updatedAt: FieldValue.serverTimestamp(),
   };
 
@@ -129,7 +133,7 @@ async function upgradeToSubscription(uid: string, planType: 'pro' | 'home', stri
 
   // Nutze set mit merge statt update, falls User-Dokument noch nicht existiert
   await userRef.set(updateData, { merge: true });
-  console.log(`User ${uid} upgraded to ${planType} with ${monthlyCredits} monthly credits`);
+  console.log(`User ${uid} upgraded to ${planType}. Credits: ${existingMonthlyCredits} + ${newMonthlyCredits} = ${existingMonthlyCredits + newMonthlyCredits}`);
 }
 
 async function addPurchasedCredits(uid: string, credits: number): Promise<void> {
